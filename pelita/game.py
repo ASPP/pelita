@@ -419,6 +419,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         #: Name of the teams. Tuple of str
         team_names=team_names,
 
+        team_specs=team_specs,
+
         #: Additional team info. Tuple of str|None
         team_infos=team_infos,
 

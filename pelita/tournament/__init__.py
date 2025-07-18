@@ -406,8 +406,25 @@ class Config:
             except IndexError:
                 pass
 
+    def metadata(self):
+        return {
+            'teams': self.teams,
+            'location': self.location,
+            'date': self.date,
+            'rounds': self.rounds,
+            'size': self.size,
+            'greeting': self.greeting,
+            'farewell': self.farewell,
+            'host': self.host,
+            'seed': self.seed,
+            'bonusmatch': self.bonusmatch
+        }
+
     def init_tournament(self):
-        self.send_remote("INIT")
+        metadata = self.metadata()
+        print("Sending tournament metadata to the server:")
+        print(metadata)
+        self.send_remote("INIT", metadata)
 
     def clear_page(self):
         self.send_remote("CLEAR")
@@ -487,6 +504,8 @@ def set_name(team):
 # TODO: Log tournament match cmdline
 def play_game_with_config(config: Config, teams, rng, *, match_id=None):
     config.clear_page()
+    metadata = config.metadata()
+    config.send_remote("INIT", metadata)
     team1, team2 = teams
 
     if config.tournament_log_folder:
