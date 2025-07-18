@@ -790,48 +790,48 @@ def play_turn(game_state, allow_exceptions=False):
 
 
 
-def check_kill_death(team, turn, game_state):
-    
+def check_kill_death(turn, game_state):
+
     kd_state = {}
     kd_state.update(game_state)
 
-    walls = kd_state["walls"]
-    shape = kd_state["shape"]
+    init_positions = initial_positions(kd_state["walls"], kd_state["shape"])
 
-    enemy_idx = (1, 3) if team == 0 else (0, 2)
+    # we check for kills at the current bot’s position
+    # if any bot respawns during this process, its respawn position will be added to the list
+    # and be checked as well
+    targets_to_check = [kd_state["bots"][turn]]
 
-    # check if we have been eaten
-    # we do this first, because we may kill someone after being respawned, so the check
-    # for kills needs to happen after the check for being eaten
-    if not in_homezone(kd_state["bots"][turn], team, shape):
-        enemies_on_target = [idx for idx in enemy_idx if kd_state["bots"][idx] == kd_state["bots"][turn]]
-        if len(enemies_on_target) > 0:
-            _logger.info(f"Bot {turn} was eaten by bots {enemies_on_target} at {kd_state['bots'][turn]}.")
-            kd_state["score"][1 - team] = kd_state["score"][1 - team] + KILL_POINTS
-            init_positions = initial_positions(walls, shape)
-            kd_state["bots"][turn] = init_positions[turn]
-            kd_state["deaths"][turn] += 1
-            kd_state["kills"][enemies_on_target[0]] += 1
-            kd_state["bot_was_killed"][turn] = True
-            _logger.info(f"Bot {turn} reappears at {kd_state['bots'][turn]}.")
+    while targets_to_check:
+        target_pos = targets_to_check.pop()
 
-    # check if we killed someone
-    if in_homezone(kd_state["bots"][turn], team, shape):
-        killed_enemies = [idx for idx in enemy_idx if kd_state["bots"][turn] == kd_state["bots"][idx]]
-        for enemy_idx in killed_enemies:
-            _logger.info(f"Bot {turn} eats enemy bot {enemy_idx} at {kd_state['bots'][turn]}.")
-            kd_state["score"][team] = kd_state["score"][team] + KILL_POINTS
-            init_positions = initial_positions(walls, shape)
-            kd_state["bots"][enemy_idx] = init_positions[enemy_idx]
-            kd_state["kills"][turn] += 1
-            kd_state["deaths"][enemy_idx] += 1
-            kd_state["bot_was_killed"][enemy_idx] = True
-            _logger.info(f"Bot {enemy_idx} reappears at {kd_state['bots'][enemy_idx]}.")
-            # we update for the killed bot as well, seeing as they could land on an enemy
-            # We run the kill check recursively until there are no killed enemies anymore.
-            # This is necessary to deal with "cascade" kill situations like the one described
-            # in GitHub issue #891 and the corresponding test cases in test_game.py 
-            kd_state.update(check_kill_death(1-team, enemy_idx, kd_state))
+        # only the team in the homezone can kill
+        ghost_team = 0 if in_homezone(target_pos, 0, kd_state["shape"]) else 1
+
+        bots_on_target = [idx for idx, pos in enumerate(kd_state["bots"]) if pos == target_pos]
+
+        ghosts_on_target = [idx for idx in bots_on_target if idx % 2 == ghost_team]
+        pacmen_on_target = [idx for idx in bots_on_target if idx % 2 != ghost_team]
+
+        if not ghosts_on_target:
+            # no ghost, no killing
+            continue
+
+        for killable_bot in pacmen_on_target:
+            _logger.info(f"Bot {killable_bot} was eaten by bots {ghosts_on_target} at {target_pos}.")
+
+            # respawn
+            kd_state["bots"][killable_bot] = init_positions[killable_bot]
+            _logger.info(f"Bot {killable_bot} reappears at {kd_state['bots'][killable_bot]}.")
+
+            # we need to check the respawn location for cascading kills
+            targets_to_check.append(kd_state['bots'][killable_bot])
+
+            # add points
+            kd_state["score"][ghost_team] += KILL_POINTS
+            kd_state["deaths"][killable_bot] += 1
+            kd_state["kills"][ghosts_on_target[0]] += 1
+            kd_state["bot_was_killed"][killable_bot] = True
 
     return kd_state
 
@@ -916,10 +916,10 @@ def apply_move(gamestate, bot_position):
     _logger.info(f"Bot {turn} moves to {bot_position}.")
     # then apply rules
 
-    # bot in homezone needs to be a function 
+    # bot in homezone needs to be a function
     # because a bot position can change multiple times in a turn
     # example: bot is killed and respawns on top of an enemy
-    
+
     # update food list
     if not in_homezone(bot_position, team, shape):
         if bot_position in food[1 - team]:
@@ -927,10 +927,9 @@ def apply_move(gamestate, bot_position):
             food[1 - team].remove(bot_position)
             # This is modifying the old game state
             score[team] = score[team] + 1
-        
+
     # we check if we killed or have been killed and update the gamestate accordingly
-    gamestate.update(check_kill_death(team, turn, gamestate))                               
-        
+    gamestate.update(check_kill_death(turn, gamestate))
 
     errors = gamestate["errors"]
     errors[team] = team_errors
