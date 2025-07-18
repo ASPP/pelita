@@ -1,4 +1,4 @@
-As of ``v2.5.3-9-g85bf7a09`` the developers and contributors are::
+As of ``v2.5.3-20-gc4f20751`` the developers and contributors are::
 
     Rike-Benjamin Schuppner
     Valentin Haenel
@@ -11,6 +11,7 @@ As of ``v2.5.3-9-g85bf7a09`` the developers and contributors are::
     pransito
     Jakob Jordan
     Carlos Echeverria
+    Mathesis
     Nicola Chiapolini
     Pauli Virtanen
     Anastasis Georgoulas
