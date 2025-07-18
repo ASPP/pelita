@@ -423,19 +423,19 @@ def test_cascade_kill_red():
     ########
     """, {}),
 
-    ("""
-    ########
-    #a .. y#
-    #     b#
-    ########
-    """, {'x':(1,1)}),
+    # intermediate (hidden) stages
 
-    ("""
-    ########
-    #a .. y#
-    #     x#
-    ########
-    """, {'b':(6,2)}),
+    # ########
+    # #a .. y#
+    # #     b#
+    # ########
+    # {'x':(1,1)}),
+
+    # ########
+    # #a .. y#
+    # #     x#
+    # ########
+    # {'b':(6,2)}),
 
     ("""
     ########
@@ -455,11 +455,13 @@ def test_cascade_kill_red():
     state = game.play_turn(state) # Bot 0 stands
     assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 1 stands
+    assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 2 stands
-    # Bot 3 moves, kills 0. Bot 0 lands on and kills Bot 1. Bot 1 lands on and kills Bot 2.
-    state = game.play_turn(state) 
-    #layout 1 and 2 are intermediate states of the cascade, left here for understanding purposes.
-    assert state['bots'] == layouts[3]['bots']
+    assert state['bots'] == layouts[0]['bots']
+    # Bot y moves, kills a. Bot a lands on and kills Bot x. Bot x lands on and kills Bot b. Bot b respawns
+    state = game.play_turn(state)
+
+    assert state['bots'] == layouts[1]['bots']
     assert state["score"] == [game.KILL_POINTS,game.KILL_POINTS*2]
     assert state["deaths"] == [1,1,1,0]
     assert state["kills"] == [1,1,0,1]
@@ -476,19 +478,19 @@ def test_cascade_kill_blue():
     ########
     """,{}),
 
-    ("""
-    ########
-    #a .. y#
-    #x     #
-    ########
-    """, {'b':(6,1)}),
+    # intermediate (hidden) stages
 
-    ("""
-    ########
-    #a .. y#
-    #b     #
-    ########
-    """, {'x':(1,2)}),
+    # ########
+    # #a .. y#
+    # #x     #
+    # ########
+    # {'b':(6,1)}),
+
+    # ########
+    # #a .. y#
+    # #b     #
+    # ########
+    # {'x':(1,2)}),
 
     ("""
     ########
@@ -504,109 +506,14 @@ def test_cascade_kill_blue():
     layouts = [parse_layout(l, bots=b) for l,b in cascade]
     state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
     assert state['bots'] == layouts[0]['bots']
-    # Bot 0 moves, kills Bot 3. Bot 3 lands on and kills Bot 2. Bot 2 lands on and kills Bot 1.
-    state = game.play_turn(state) 
-    #layout 1 and 2 are intermediate states of the cascade, left here for understanding purposes.
-    assert state['bots'] == layouts[3]['bots']
-    assert state["score"] == [game.KILL_POINTS*2,game.KILL_POINTS]
+    # Bot a moves, kills Bot y. Bot y lands on and kills Bot b. Bot b lands on and kills Bot x.
+    state = game.play_turn(state)
+
+    assert state['bots'] == layouts[1]['bots']
+    assert state["score"] == [game.KILL_POINTS*2, game.KILL_POINTS]
     assert state["deaths"] == [0,1,1,1]
     assert state["kills"] == [1,0,1,1]
     assert state["bot_was_killed"] == [False, True, True, True]
-
-
-def test_cascade_kill_rescue_1():
-    # It used to be possible to escape a cascade situation 
-    # because the kills were only computed at the bot turn
-    # in this test we verify that we don't implement the old behaviour
-    # one cannot escape a cascade kill 
-
-    cascade = [
-    ("""
-    ########
-    #ya.. b#
-    #x     #
-    ########
-    """,{}),
-
-    ("""
-    ########
-    #a .. b#
-    #x     #
-    ########
-    """, {'y':(6,1)}),
-    #historic layout
-    ("""
-    ########
-    #a ..by#
-    #x     #
-    ########
-    """,{}),
-    #expected layout
-    ("""
-    ########
-    #a .. y#
-    #b    x#
-    ########
-    """,{}),
-    ]
-    def move(bot, state):
-        if bot.is_blue and bot.turn == 0 and bot.round == 1:
-            return (1, 1)
-        return bot.position
-    layouts = [parse_layout(l,bots=b) for l,b in cascade]
-    state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
-    assert state['bots'] == layouts[0]['bots']
-    state = game.play_turn(state) # Bot 0 moves, kills 3. Bot 3 kills Bot 2. Bot 2 Kills Bot 1.
-    #check we aren't returning historical result
-    assert state['bots'] == layouts[3]['bots']
-    assert state['bots'] != layouts[1]['bots']
-
-
-def test_cascade_kill_rescue_2():
-    # same as above just that you can't move out of a cascade
-    # seeing as you are dead
-
-    cascade = [
-    ("""
-    ########
-    #y ..  #
-    #xa   b#
-    ########
-    """,{}),
-
-    ("""
-    ########
-    #y ..  #
-    #a    x#
-    ########
-    """, {'b':(6,2)}),
-    # historic layout
-    ("""
-    ########
-    #y ..  #
-    #a   xb#
-    ########
-    """, {}),
-    #expected layout
-    ("""
-    ########
-    #y ..  #
-    #a    x#
-    ########
-    """, {'b':(1,2)}),
-    ]
-    def move(bot, state):
-        if bot.is_blue and bot.turn == 0 and bot.round == 1:
-            return (1, 2)
-        return bot.position
-    layouts = [parse_layout(l, bots=b) for l,b in cascade]
-    state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
-    assert state['bots'] == layouts[0]['bots']
-    state = game.play_turn(state) # Bot 0 moves, kills Bot 1, Bot 1 kills Bot 2.
-    #check we aren't returning historical result
-    assert state['bots'] != layouts[1]['bots']
-    assert state['bots'] == layouts[3]['bots']
-   
 
 
 def test_cascade_suicide():
@@ -617,20 +524,6 @@ def test_cascade_suicide():
     #     b#
     ########
     """,{}),
-
-    ("""
-    ########
-    #a .. y#
-    #     b#
-    ########
-    """,{'x':(1,1)}),
-
-    ("""
-    ########
-    #a .. y#
-    #     x#
-    ########
-    """, {'b':(6,2)}),
 
     ("""
     ########
@@ -647,8 +540,12 @@ def test_cascade_suicide():
     state = setup_game([move, move], max_rounds=5, layout_dict=layouts[0])
     assert state['bots'] == layouts[0]['bots']
     state = game.play_turn(state) # Bot 0 moves onto 3. Gets killed. Bot 0 and 1 are on same spot.
-    assert state['bots'] == layouts[3]['bots']
-    
+    assert state['bots'] == layouts[1]['bots']
+
+    assert state["score"] == [game.KILL_POINTS, game.KILL_POINTS * 2]
+    assert state["kills"] == [1, 1, 0, 1]
+    assert state["deaths"] == [1, 1, 1, 0]
+    assert state["bot_was_killed"] == [True, True, True, False]
 
 
 def test_moving_through_maze():
