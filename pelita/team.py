@@ -101,8 +101,8 @@ def sanitize_say(string):
     except UnicodeEncodeError:
         raise ValueError(f'{string} is not valid Unicode')
     for c in string:
-        if c == '\n':
-            # convert newlines to blanks
+        if c.isspace():
+            # convert newlines and other whitespace to blanks
             char = ' '
         elif int(c.encode('utf8').hex(), 16) <= int("ffff", 16):
             # the character must belong to the Unicode Base Multilingual Plane

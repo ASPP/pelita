@@ -726,3 +726,43 @@ def test_bot_repr():
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
+
+
+@pytest.mark.parametrize('say, expected', [
+    ("a", "a"),
+    ("a   a", "a   a"), # duplicate whitespace is kept
+    ("a\n a", "a  a"), # line break becomes space
+    ("a \ra", "a  a"), # line break becomes space
+    ("I ♥ ℙ𝜺ℓ𝒾𝓽😱", "I  "), # Higher place unicode gets removed
+    ("αβγ", "αβγ"),
+    ("123456789 123456789 123456789 ", "123456789 123456789 123456789 "), # just right
+    ("123456789 123456789 123456789 1", "123456789 123456789 123456789 "), # too long
+    ])
+def test_bot_say(say, expected):
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+
+    parsed = parse_layout(test_layout)
+
+    def speaking_team(bot, state):
+        bot.say(say)
+        return bot.position
+
+    state = setup_game([speaking_team, speaking_team], max_rounds=1, layout_dict=parsed, allow_exceptions=True)
+    idx = 0
+    while not state["gameover"]:
+        state = play_turn(state)
+        assert state["say"][idx] == expected
+        idx += 1
+
+    # check that we finished without problem
+    assert state['round'] == 1
+    assert state['turn'] == 3
