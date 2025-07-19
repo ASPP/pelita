@@ -163,6 +163,12 @@ def setup():
             del config["bonusmatch"]
             break
 
+    res = input_choice("Should the web-viewer be activated? (publishes to tcp://127.0.0.1:5559) (y/n)", [], "yn")
+    if res == "y":
+        config['publish'] = "tcp://127.0.0.1:5559"
+    elif res == "n":
+        config['publish'] = None
+
     print("Specify the folder where we should look for teams (or none)")
     folder = input().strip()
     if folder:
@@ -294,6 +300,7 @@ def main():
     winner = tournament.play_round2(config, rr_ranking, state, rng)
 
     config.print('The winner of the %s Pelita tournament is...' % config.location, wait=2, end=" ")
+    config.print()
     config.print('{team_group}: {team_name}. Congratulations'.format(
         team_group=config.team_group(winner),
         team_name=config.team_name(winner)), wait=2)
