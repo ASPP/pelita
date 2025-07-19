@@ -52,17 +52,10 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
         team = load_team(team_spec)
     except Exception as e:
         # We could not load the team.
-        # Wait for the set_initial message from the server
-        # and reply with an error.
+        # Send an error.
         try:
-            json_message = socket.recv_unicode()
-            py_obj = json.loads(json_message)
-            uuid_ = py_obj["__uuid__"]
-            _action = py_obj["__action__"]
-            _data = py_obj["__data__"]
-
             socket.send_json({
-                '__uuid__': uuid_,
+                '__uuid__': None,
                 '__error__': e.__class__.__name__,
                 '__error_msg__': f'Could not load {team_spec}: {e}'
             })
@@ -75,6 +68,12 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
         raise
 
     _logger.info(f"Running player '{team_spec}' ({team.team_name})")
+    socket.send_json(
+        {
+            '__uuid__': None,
+            '__return__': f'{team.team_name}',
+        }
+    )
 
     while True:
         cont = player_handle_request(socket, team, team_name_override=team_name_override, silent_bots=silent_bots)
@@ -105,6 +104,11 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
 
     try:
         json_message = socket.recv_unicode()
+    except Exception:
+        # Exit without sending a value back on the socket
+        return True
+
+    try:
         py_obj = json.loads(json_message)
         msg_id = py_obj["__uuid__"]
         action = py_obj["__action__"]
