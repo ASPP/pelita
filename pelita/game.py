@@ -39,7 +39,7 @@ NOISE_RADIUS = 5
 MAX_FOOD_AGE = 30
 
 #: Food pellet shadow distance
-SHADOW_DISTANCE = 1
+SHADOW_DISTANCE = 2
 
 #: Default maze sizes
 MSIZE = {
