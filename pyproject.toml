@@ -31,6 +31,7 @@ dependencies = [
     "zeroconf",
     "rich",
     "click",
+    "pyxel",
 ]
 dynamic = ["version"]
 
