@@ -5,7 +5,7 @@ import tempfile
 
 import pytest
 
-from pelita.network import ZMQClientError
+from pelita.network import RemotePlayerFailure
 from pelita.scripts.pelita_tournament import firstNN
 from pelita.tournament import call_pelita, check_team
 
@@ -71,7 +71,7 @@ def test_check_team_external():
     assert check_team("pelita/player/StoppingPlayer") == "Stopping Players"
 
 def test_check_team_external_fails():
-    with pytest.raises(ZMQClientError):
+    with pytest.raises(RemotePlayerFailure):
         check_team("Unknown Module")
 
 def test_check_team_internal():
