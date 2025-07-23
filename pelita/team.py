@@ -389,6 +389,7 @@ class RemoteTeam:
             payload = {}
 
         try:
+            _logger.info("Sending exit to remote player %r.", self)
             self.conn.send_exit(payload)
         except RemotePlayerSendError:
             _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)

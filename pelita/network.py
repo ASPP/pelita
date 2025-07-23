@@ -195,6 +195,7 @@ class RemotePlayerConnection:
             return
 
         self.state = "EXITING"
+        self.send_req("exit", payload)
 
     def _recv(self):
         """ Receive the next message on the socket. Will wait forever
