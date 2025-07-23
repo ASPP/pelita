@@ -57,6 +57,9 @@ class RemotePlayerFailure(Exception):
         return f"{self.error_type}: {self.error_msg}"
 
 
+class BadState(Exception): pass
+
+
 #: The timeout to use during sending
 DEAD_CONNECTION_TIMEOUT = 3.0
 
@@ -105,15 +108,6 @@ def json_default_handler(o):
     # we don’t know the type: raise a Type error
     raise TypeError("Cannot convert %r of type %s to json" % (o, type(o)))
 
-class ConnectionState(enum.Enum):
-    UNCONNECTED = 1
-    AWAIT_ACK = 2
-    CONNECTED = 3
-    CLOSED = 4
-
-    # CLOSE_WAIT??
-    ERR = 5
-
 
 class RemotePlayerConnection:
     """ This class is supposed to ease request–reply connections
@@ -155,7 +149,7 @@ class RemotePlayerConnection:
         self.pollout = zmq.Poller()
         self.pollout.register(socket, zmq.POLLOUT)
 
-        self.state = ConnectionState.UNCONNECTED
+        self.state = "WAIT"
 
     def _send(self, action, data, msg_id):
         """ Sends a message or request `action`
@@ -196,6 +190,12 @@ class RemotePlayerConnection:
         self._send(action=action, data=data, msg_id=msg_id)
         return msg_id
 
+    def send_exit(self, payload):
+        if self.state == "EXITING":
+            return
+
+        self.state = "EXITING"
+
     def _recv(self):
         """ Receive the next message on the socket. Will wait forever
 
@@ -225,7 +225,7 @@ class RemotePlayerConnection:
             _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
 
-            self.state = ConnectionState.CLOSED
+            self.state = "CLOSED"
 
             # Failure in the pelita code on client side
             raise RemotePlayerFailure(error_type, error_message)
@@ -242,7 +242,7 @@ class RemotePlayerConnection:
             msg_data = py_obj.get('__data__')
             _logger.debug("<--- %r %r", msg_ack, msg_data)
 
-            self.state = ConnectionState.CONNECTED
+            self.state = "CONNECTED"
 
             return None, msg_data
 
@@ -265,11 +265,24 @@ class RemotePlayerConnection:
             if the message cannot be parsed from JSON
         PelitaRemoteError
             if an error message is returned
+
         """
+
+
+        if not self.state == "WAIT":
+            raise BadState
+
         status = self.recv_timeout(None, timeout)
+
+        self.state = "CONNECTED"
 
         return status
 
+    def recv_reply(self, expected_id, timeout):
+
+        if not self.state == "CONNECTED":
+            raise BadState
+        return self.recv_timeout(expected_id, timeout)
 
     def recv_timeout(self, expected_id, timeout):
         """ Waits `timeout` seconds for a reply with msg_id `expected_id`.
@@ -287,7 +300,7 @@ class RemotePlayerConnection:
         ZMQConnectionError
             if an error message is returned
         """
-        if self.state == ConnectionState.CLOSED:
+        if self.state == "CLOSED":
             return
 
         time_now = time.monotonic()

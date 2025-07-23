@@ -16,7 +16,7 @@ from .exceptions import NoFoodWarning, PelitaBotError, PelitaIllegalGameState
 from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
 from .network import Controller, RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher
-from .team import make_team
+from .team import RemoteTeam, make_team
 from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
                      ResultPrinter)
 
@@ -509,15 +509,15 @@ def setup_teams(team_specs, game_state, store_output=False, raise_bot_exceptions
     initial_timeout = game_state['initial_timeout']
     start = time.monotonic()
 
-    has_remote_teams = any(hasattr(team, 'zmqconnection') for team in teams)
+    has_remote_teams = any(isinstance(team, RemoteTeam) for team in teams)
     remote_sockets = {}
 
     if has_remote_teams:
         poll = zmq.Poller()
         for team_idx, team in enumerate(teams):
-            if hasattr(team, 'zmqconnection'):
-                poll.register(team.zmqconnection.socket, zmq.POLLIN)
-                remote_sockets[team.zmqconnection.socket] = team_idx
+            if isinstance(team, RemoteTeam):
+                poll.register(team.conn.socket, zmq.POLLIN)
+                remote_sockets[team.conn.socket] = team_idx
 
     break_error = False
     while remote_sockets and not break_error:
@@ -548,7 +548,7 @@ def setup_teams(team_specs, game_state, store_output=False, raise_bot_exceptions
     if not break_error and remote_sockets:
         break_error = True
         for socket, team_idx in remote_sockets.items():
-            game_print(team_idx, f"Team '{teams[team_idx]._team_spec}' did not start (timeout).")
+            game_print(team_idx, f"Team '{teams[team_idx].team_spec}' did not start (timeout).")
             add_fatal_error(game_state, round=None, turn=team_idx, type='Timeout', msg='Team did not start (timeout).', raise_bot_exceptions=raise_bot_exceptions)
 
     # if we encountered an error, the game_phase should have been set to FAILURE
@@ -1169,6 +1169,7 @@ def check_gameover(game_state):
 
 
 def exit_remote_teams(game_state):
+    # TODO: Should this be the same function in case of an error?
     """ If the we are gameover, we want the remote teams to shut down. """
     _logger.info("Telling teams to exit.")
     for idx, team in enumerate(game_state['teams']):
@@ -1176,11 +1177,12 @@ def exit_remote_teams(game_state):
             _logger.info(f"Not sending exit to team {idx} which had a fatal error.")
             # We pretend we already send the exit message, otherwise
             # the team’s __del__ method will do it once more.
+            # TODO: Do with state machine
             team._sent_exit = True
             continue
         try:
             team_game_state = prepare_bot_state(game_state, team_idx=idx)
-            team._exit(team_game_state)
+            team.send_exit(team_game_state)
         except AttributeError:
             pass
 

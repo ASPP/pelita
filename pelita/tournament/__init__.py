@@ -15,7 +15,7 @@ from dataclasses import dataclass
 import yaml
 import zmq
 
-from ..team import make_team
+from ..team import make_team, RemoteTeam
 from . import knockout_mode, roundrobin
 
 _logger = logging.getLogger(__name__)
@@ -34,9 +34,10 @@ def check_team(team_spec):
 
     """ Instantiates a team from a team_spec and returns its name """
     team, _zmq_context = make_team(team_spec)
-    if hasattr(team, 'zmqconnection'):
-        # TODO: Handle timeout
-        team.wait_ready(3)
+    match team:
+        case RemoteTeam():
+            team.wait_ready(3)
+
     return team.team_name
 
 
