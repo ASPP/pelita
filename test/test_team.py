@@ -756,7 +756,7 @@ def test_bot_say(say, expected):
         bot.say(say)
         return bot.position
 
-    state = setup_game([speaking_team, speaking_team], max_rounds=1, layout_dict=parsed, allow_exceptions=True)
+    state = setup_game([speaking_team, speaking_team], max_rounds=1, layout_dict=parsed, raise_bot_exceptions=True)
     idx = 0
     while not state["gameover"]:
         state = play_turn(state)
