@@ -1,5 +1,4 @@
 
-import enum
 import json
 import logging
 import sys
@@ -57,7 +56,8 @@ class RemotePlayerFailure(Exception):
         return f"{self.error_type}: {self.error_msg}"
 
 
-class BadState(Exception): pass
+class BadState(Exception):
+    pass
 
 
 #: The timeout to use during sending
