@@ -17,6 +17,9 @@ from .script_utils import start_logging
 
 _logger = logging.getLogger(__name__)
 
+# Maximum time that a player will wait for a move request
+TIMEOUT_SECS = 60 * 60
+
 @contextlib.contextmanager
 def with_sys_path(dirname):
     sys.path.insert(0, dirname)
@@ -40,6 +43,9 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
     # Connect to the given address
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
+    poller = zmq.Poller()
+    poller.register(socket, flags=zmq.POLLIN)
+
     try:
         socket.connect(address)
     except zmq.ZMQError as e:
@@ -68,12 +74,12 @@ def run_player(team_spec, address, team_name_override=False, silent_bots=False):
     socket.send_json({'__status__': 'ok', '__data__': data})
 
     while True:
-        cont = player_handle_request(socket, team, team_name_override=team_name_override, silent_bots=silent_bots)
+        cont = player_handle_request(socket, poller, team, team_name_override=team_name_override, silent_bots=silent_bots)
         if not cont:
             return
 
 
-def player_handle_request(socket, team, team_name_override=False, silent_bots=False):
+def player_handle_request(socket, poller, team, team_name_override=False, silent_bots=False):
     """ Awaits a new request on `socket` and dispatches it
     to `team`.
 
@@ -95,7 +101,15 @@ def player_handle_request(socket, team, team_name_override=False, silent_bots=Fa
     # answer from the player.
 
     try:
-        json_message = socket.recv_unicode()
+        socks = dict(poller.poll(timeout=TIMEOUT_SECS * 1000))
+        if socks.get(socket) == zmq.POLLIN:
+            json_message = socket.recv_unicode()
+        else:
+            # TODO: Would be nice to tell Pelita main that we’re exiting
+            _logger.warning(f"No request in {TIMEOUT_SECS} seconds. Exiting player.")
+
+            # returning False breaks the loop
+            return False
     except Exception:
         # Exit without sending a value back on the socket
         return True

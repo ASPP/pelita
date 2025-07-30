@@ -48,6 +48,8 @@ def test_simpleclient(zmq_context):
     team, _ = make_team(stopping, team_name='test stopping player')
     client_sock = zmq_context.socket(zmq.PAIR)
     client_sock.connect(f'tcp://127.0.0.1:{port}')
+    poller = zmq.Poller()
+    poller.register(client_sock, zmq.POLLIN)
 
     # Faking some data
     _uuid = uuid.uuid4().__str__()
@@ -68,7 +70,7 @@ def test_simpleclient(zmq_context):
         }
     }
     sock.send_json(set_initial)
-    player_handle_request(client_sock, team)
+    player_handle_request(client_sock, poller, team)
 
     assert sock.recv_json() == {
         '__uuid__': _uuid,
@@ -114,7 +116,7 @@ def test_simpleclient(zmq_context):
         }
     }
     sock.send_json(get_move)
-    player_handle_request(client_sock, team)
+    player_handle_request(client_sock, poller, team)
 
     assert sock.recv_json() == {
         '__uuid__': _uuid,
