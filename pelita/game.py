@@ -16,7 +16,7 @@ from .exceptions import NoFoodWarning, PelitaBotError, PelitaIllegalGameState
 from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
 from .network import Controller, RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher
-from .team import make_team
+from .team import RemoteTeam, make_team
 from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
                      ResultPrinter)
 
@@ -509,15 +509,15 @@ def setup_teams(team_specs, game_state, store_output=False, raise_bot_exceptions
     initial_timeout = game_state['initial_timeout']
     start = time.monotonic()
 
-    has_remote_teams = any(hasattr(team, 'zmqconnection') for team in teams)
+    has_remote_teams = any(isinstance(team, RemoteTeam) for team in teams)
     remote_sockets = {}
 
     if has_remote_teams:
         poll = zmq.Poller()
         for team_idx, team in enumerate(teams):
-            if hasattr(team, 'zmqconnection'):
-                poll.register(team.zmqconnection.socket, zmq.POLLIN)
-                remote_sockets[team.zmqconnection.socket] = team_idx
+            if isinstance(team, RemoteTeam):
+                poll.register(team.conn.socket, zmq.POLLIN)
+                remote_sockets[team.conn.socket] = team_idx
 
     break_error = False
     while remote_sockets and not break_error:
@@ -548,7 +548,7 @@ def setup_teams(team_specs, game_state, store_output=False, raise_bot_exceptions
     if not break_error and remote_sockets:
         break_error = True
         for socket, team_idx in remote_sockets.items():
-            game_print(team_idx, f"Team '{teams[team_idx]._team_spec}' did not start (timeout).")
+            game_print(team_idx, f"Team '{teams[team_idx].team_spec}' did not start (timeout).")
             add_fatal_error(game_state, round=None, turn=team_idx, type='Timeout', msg='Team did not start (timeout).', raise_bot_exceptions=raise_bot_exceptions)
 
     # if we encountered an error, the game_phase should have been set to FAILURE
@@ -568,6 +568,10 @@ def send_initial(game_state, raise_bot_exceptions=False):
     teams = game_state['teams']
 
     for team_idx, team in enumerate(teams):
+        # NB: Iterating over the teams may set the game_phase to FAILURE
+        if game_state['game_phase'] == 'FAILURE':
+            break
+
         try:
             _res = team.set_initial(team_idx, prepare_bot_state(game_state, team_idx))
 
@@ -732,6 +736,7 @@ def prepare_bot_state(game_state, team_idx=None):
             'shape': game_state['shape'], # only in initial round
             'seed': seed # only used in set_initial phase
         })
+
     return bot_state
 
 
@@ -1180,7 +1185,7 @@ def exit_remote_teams(game_state):
             continue
         try:
             team_game_state = prepare_bot_state(game_state, team_idx=idx)
-            team._exit(team_game_state)
+            team.send_exit(team_game_state)
         except AttributeError:
             pass
 

@@ -1,5 +1,4 @@
 
-import enum
 import json
 import logging
 import sys
@@ -16,26 +15,6 @@ _logger = logging.getLogger(__name__)
 # 41736 is the word PELI(T)A when read upside down in reverse without glasses
 # The missing T stands for tcp
 PELITA_PORT = 41736
-
-## Pelita network data structures
-
-# ControlRequest
-# {__action__}
-
-# ViewerUpdate
-# {__action__, __data__}
-
-# Request
-# {__uuid__, __action__, __data__}
-
-# Status
-# {__status__, __data__}
-
-# Reply
-# {__uuid__, __return__}
-
-# Error Reply
-# {__uuid__, __error__, __error_msg__}
 
 
 class RemotePlayerSendError(Exception):
@@ -55,6 +34,13 @@ class RemotePlayerFailure(Exception):
 
     def __str__(self):
         return f"{self.error_type}: {self.error_msg}"
+
+class RemotePlayerProtocolError(RemotePlayerFailure):
+    def __init__(self):
+        super().__init__("BadProtocol", "Bad protocol error")
+
+class BadState(Exception):
+    pass
 
 
 #: The timeout to use during sending
@@ -105,15 +91,6 @@ def json_default_handler(o):
     # we don’t know the type: raise a Type error
     raise TypeError("Cannot convert %r of type %s to json" % (o, type(o)))
 
-class ConnectionState(enum.Enum):
-    UNCONNECTED = 1
-    AWAIT_ACK = 2
-    CONNECTED = 3
-    CLOSED = 4
-
-    # CLOSE_WAIT??
-    ERR = 5
-
 
 class RemotePlayerConnection:
     """ This class is supposed to ease request–reply connections
@@ -155,7 +132,7 @@ class RemotePlayerConnection:
         self.pollout = zmq.Poller()
         self.pollout.register(socket, zmq.POLLOUT)
 
-        self.state = ConnectionState.UNCONNECTED
+        self.state = "WAIT"
 
     def _send(self, action, data, msg_id):
         """ Sends a message or request `action`
@@ -196,6 +173,13 @@ class RemotePlayerConnection:
         self._send(action=action, data=data, msg_id=msg_id)
         return msg_id
 
+    def send_exit(self, payload):
+        if self.state == "EXITING":
+            return
+
+        self.state = "EXITING"
+        self.send_req("exit", payload)
+
     def _recv(self):
         """ Receive the next message on the socket. Will wait forever
 
@@ -215,9 +199,13 @@ class RemotePlayerConnection:
         try:
             py_obj = json.loads(json_message)
         except ValueError:
-            _logger.warning('Received non-json message.')
-            # TODO This should probably produce a failure
-            raise RemotePlayerRecvTimeout()
+            _logger.warning('Received non-json message. Closing socket.')
+
+            # TODO: Should we tell the remote end that we are exiting?
+            self.socket.close()
+            self.state = "CLOSED"
+
+            raise RemotePlayerProtocolError
 
         if '__error__' in py_obj:
             error_type = py_obj['__error__']
@@ -225,7 +213,7 @@ class RemotePlayerConnection:
             _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
 
-            self.state = ConnectionState.CLOSED
+            self.state = "CLOSED"
 
             # Failure in the pelita code on client side
             raise RemotePlayerFailure(error_type, error_message)
@@ -242,13 +230,17 @@ class RemotePlayerConnection:
             msg_data = py_obj.get('__data__')
             _logger.debug("<--- %r %r", msg_ack, msg_data)
 
-            self.state = ConnectionState.CONNECTED
+            self.state = "CONNECTED"
 
             return None, msg_data
 
-        print("NO MATCH", py_obj)
+        _logger.warning('Received malformed json message. Closing socket.')
 
-        return None, None
+        # TODO: Should we tell the remote end that we are exiting?
+        self.socket.close()
+        self.state = "CLOSED"
+
+        raise RemotePlayerProtocolError
 
 
     def recv_status(self, timeout):
@@ -265,11 +257,22 @@ class RemotePlayerConnection:
             if the message cannot be parsed from JSON
         PelitaRemoteError
             if an error message is returned
+
         """
+        if not self.state == "WAIT":
+            raise BadState
+
         status = self.recv_timeout(None, timeout)
+
+        self.state = "CONNECTED"
 
         return status
 
+    def recv_reply(self, expected_id, timeout):
+
+        if not self.state == "CONNECTED":
+            raise BadState
+        return self.recv_timeout(expected_id, timeout)
 
     def recv_timeout(self, expected_id, timeout):
         """ Waits `timeout` seconds for a reply with msg_id `expected_id`.
@@ -287,7 +290,7 @@ class RemotePlayerConnection:
         ZMQConnectionError
             if an error message is returned
         """
-        if self.state == ConnectionState.CLOSED:
+        if self.state == "CLOSED":
             return
 
         time_now = time.monotonic()
