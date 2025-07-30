@@ -7,11 +7,12 @@ from contextlib import contextmanager
 from pathlib import Path
 from random import Random
 
+from pelita.network import RemotePlayerRecvTimeout
 import pytest
 
-from pelita import game, maze_generator
-from pelita.exceptions import NoFoodWarning
-from pelita.game import (apply_move, get_legal_positions, initial_positions,
+from pelita import game, layout, maze_generator
+from pelita.exceptions import NoFoodWarning, PelitaBotError
+from pelita.game import (add_fatal_error, apply_move, get_legal_positions, initial_positions,
                          play_turn, run_game, setup_game)
 from pelita.layout import parse_layout
 from pelita.player import stepping_player, stopping_player
@@ -181,28 +182,6 @@ def test_get_legal_positions_random(parsed_l, bot_idx):
         assert  abs((move[0] - bot[0])+(move[1] - bot[1])) <= 1
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
-def test_play_turn_apply_error(game_state, turn):
-    """check that quits when there are too many errors"""
-    error_dict = {
-        "type": 'PlayerTimeout',
-    }
-    game_state["turn"] = turn
-    team = turn % 2
-    game_state["errors"] = [{(r, t): error_dict for r in (1, 2) for t in (0, 1)},
-                            {(r, t): error_dict for r in (1, 2) for t in (0, 1)}]
-    # we pretend that two rounds have already been played
-    # so that the error dictionaries are sane
-    game_state["round"] = 3
-    # add a timeout to the current bot
-    game_state["errors"][team][(3, turn%2)] = error_dict
-    game_state_new = apply_move(game_state, game_state["bots"][turn])
-    assert game_state_new["gameover"]
-    assert len(game_state_new["errors"][team]) == 5
-    assert game_state_new["whowins"] == int(not team)
-    assert game_state_new["errors"][team][(3, turn%2)] == error_dict
-
-
-@pytest.mark.parametrize('turn', (0, 1, 2, 3))
 def test_illegal_position_is_fatal(game_state, turn):
     """check that quits when illegal position"""
     game_state["turn"] = turn
@@ -223,14 +202,15 @@ def test_illegal_position_is_fatal(game_state, turn):
 def test_play_turn_fatal(game_state, turn):
     """Checks that game quite after fatal error"""
     game_state["turn"] = turn
+    game_state["round"] = 1
+    game_state["game_phase"] = "RUNNING"
     team = turn % 2
-    fatal_list = [{}, {}]
-    fatal_list[team] = {"error":True}
-    game_state["fatal_errors"] = fatal_list
-    move = get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
-    game_state_new = apply_move(game_state, move[0])
-    assert game_state_new["gameover"]
-    assert game_state_new["whowins"] == int(not team)
+    add_fatal_error(game_state, round=1, turn=turn, type="some error", msg="")
+    # move = get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
+    # game_state_new = apply_move(game_state, move[0])
+    assert game_state["game_phase"] == "FINISHED"
+    assert game_state["gameover"]
+    assert game_state["whowins"] == int(not team)
 
 
 @pytest.mark.parametrize('turn', (0, 1, 2, 3))
@@ -344,6 +324,7 @@ def test_multiple_enemies_killing():
     for bot in (0, 2):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l0)
 
+        game_state['round'] = 1
         game_state['turn'] = bot
         # get position of bots x (and y)
         kill_position = game_state['bots'][1]
@@ -358,6 +339,7 @@ def test_multiple_enemies_killing():
     for bot in (1, 3):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l1)
 
+        game_state['round'] = 1
         game_state['turn'] = bot
         # get position of bots 0 (and 2)
         kill_position = game_state['bots'][0]
@@ -390,6 +372,7 @@ def test_suicide():
     for bot in (1, 3):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l0)
 
+        game_state['round'] = 1
         game_state['turn'] = bot
         # get position of bot 2
         suicide_position = game_state['bots'][2]
@@ -406,6 +389,7 @@ def test_suicide():
     for bot in (0, 2):
         game_state = setup_game([dummy_bot, dummy_bot], layout_dict=parsed_l1)
 
+        game_state['round'] = 1
         game_state['turn'] = bot
         # get position of bot 3
         suicide_position = game_state['bots'][3]
@@ -767,9 +751,10 @@ def test_play_turn_move():
         "kills":[0]*4,
         "deaths": [0]*4,
         "bot_was_killed": [False]*4,
-        "errors": [[], []],
+        "timeouts": [[], []],
         "fatal_errors": [{}, {}],
-        "rng": Random()
+        "rng": Random(),
+        "game_phase": "RUNNING",
         }
     legal_positions = get_legal_positions(game_state["walls"], game_state["shape"], game_state["bots"][turn])
     game_state_new = apply_move(game_state, legal_positions[0])
@@ -787,7 +772,6 @@ def test_max_rounds():
         # in the first round (round #1),
         # all bots move to the south
         if bot.round == 1:
-            # go one step to the right
             return (bot.position[0], bot.position[1] + 1)
         else:
             # There should not be more then one round in this test
@@ -816,8 +800,8 @@ def test_max_rounds():
     assert final_state['gameover']
     assert final_state['whowins'] == 1
     assert final_state['fatal_errors'][0][0] == {
-        'type': 'FatalException',
-        'description': 'Exception in client (RuntimeError): We should not be here in this test',
+        'type': 'RuntimeError',
+        'description': 'We should not be here in this test',
         'round': 2,
         'turn': 0,
     }
@@ -845,29 +829,27 @@ def test_update_round_counter():
                                         'round': round0,
                                         'gameover': True,})
 
-
-def test_last_round_check():
-    # (max_rounds, current_round, turn): gameover
-    test_map = {
-        (1, None, None): False,
-        (1, 1, 0): False,
-        (1, 1, 3): True,
+@pytest.mark.parametrize(
+    'max_rounds, current_round, turn, game_phase, gameover', [
+        [1, None, None, 'INIT', False],
+        [1, 1, 0, 'RUNNING', False],
+        [1, 1, 3, 'RUNNING', True],
+    ])
+def test_last_round_check(max_rounds, current_round, turn, game_phase, gameover):
+    state = {
+        'max_rounds': max_rounds,
+        'round': current_round,
+        'turn': turn,
+        'error_limit': 5,
+        'fatal_errors': [[],[]],
+        'timeouts': [[],[]],
+        'gameover': False,
+        'score': [0, 0],
+        'food': [{(1,1)}, {(1,1)}], # dummy food
+        'game_phase': game_phase
     }
-    for test_val, test_res in test_map.items():
-        max_rounds, current_round, current_turn = test_val
-        state = {
-            'max_rounds': max_rounds,
-            'round': current_round,
-            'turn': current_turn,
-            'error_limit': 5,
-            'fatal_errors': [[],[]],
-            'errors': [[],[]],
-            'gameover': False,
-            'score': [0, 0],
-            'food': [{(1,1)}, {(1,1)}] # dummy food
-        }
-        res = game.check_gameover(state, detect_final_move=True)
-        assert res['gameover'] == test_res
+    res = game.check_gameover(state)
+    assert res['gameover'] == gameover
 
 
 @pytest.mark.parametrize(
@@ -881,11 +863,11 @@ def test_last_round_check():
         (((0, 4), (0, 4)), False),
         (((0, 5), (0, 0)), 1),
         (((0, 0), (0, 5)), 0),
-        (((0, 5), (0, 5)), 2),
+        (((0, 5), (0, 5)), 1), # earlier team fails first
         (((1, 0), (0, 0)), 1),
         (((0, 0), (1, 0)), 0),
-        (((1, 0), (1, 0)), 2),
-        (((1, 1), (1, 0)), 2),
+        (((1, 0), (1, 0)), 1), # earlier team fails first
+        (((1, 1), (1, 0)), 1), # earlier team fails first
         (((1, 0), (0, 5)), 1),
         (((0, 5), (1, 0)), 0),
     ]
@@ -893,22 +875,69 @@ def test_last_round_check():
 def test_error_finishes_game(team_errors, team_wins):
     # the mapping is as follows:
     # [(num_fatal_0, num_errors_0), (num_fatal_1, num_errors_1), result_flag]
-    # the result flag: 0/1: team 0/1 wins, 2: draw, False: no winner yet
+    # the result flag: 0/1: team 0/1 wins, 2: draw, False: draw after 20 rounds
 
-    (fatal_0, errors_0), (fatal_1, errors_1) = team_errors
-    # just faking a bunch of errors in our game state
-    state = {
-        "error_limit": 5,
-        "fatal_errors": [[None] * fatal_0, [None] * fatal_1],
-        "errors": [[None] * errors_0, [None] * errors_1]
-    }
+    (fatal_0, timeouts_0), (fatal_1, timeouts_1) = team_errors
+
+    def move0(b, s):
+        if not s:
+            s['count'] = 0
+        s['count'] += 1
+
+        if s['count'] <= fatal_0:
+            return None
+
+        if s['count'] <= timeouts_0:
+            raise RemotePlayerRecvTimeout
+
+        return b.position
+
+    def move1(b, s):
+        if not s:
+            s['count'] = 0
+        s['count'] += 1
+
+        if s['count'] <= fatal_1:
+            return None
+
+        if s['count'] <= timeouts_1:
+            raise RemotePlayerRecvTimeout
+
+        return b.position
+
+    l = maze_generator.generate_maze()
+    state = game.setup_game([move0, move1], max_rounds=20, layout_dict=l)
+
+    # We must patch apply_move_fn so that RemotePlayerRecvTimeout is not caught
+    # and we can actually test timeouts
+    def apply_move_fn(move_fn, bot, state):
+        move = move_fn(bot, state)
+        if move is None:
+            return {
+                'error': 'Some fatal error',
+                'error_msg': 'Some fatal error'
+            }
+        return { "move": move }
+
+    state['teams'][0].apply_move_fn = apply_move_fn
+    state['teams'][1].apply_move_fn = apply_move_fn
+
+    # Play the game until it is gameover.
+    while state['game_phase'] == 'RUNNING':
+        # play the next turn
+        state = play_turn(state)
+
     res = game.check_gameover(state)
     if team_wins is False:
-        assert res["whowins"] is None
-        assert res["gameover"] is False
+        assert res["whowins"] == 2
+        assert res["gameover"] is True
+        assert state["round"] == 20
+        assert len(state['timeouts'][0]) == timeouts_0
+        assert len(state['timeouts'][1]) == timeouts_1
     else:
         assert res["whowins"] == team_wins
         assert res["gameover"] is True
+        assert state["round"] < 20
 
 
 @pytest.mark.parametrize('bot_to_move', [0, 1, 2, 3])
@@ -979,15 +1008,26 @@ def test_minimal_remote_game():
 
 
 def test_non_existing_file():
-    # TODO: Change error message to be more meaningful
     l = maze_generator.generate_maze()
     res = run_game(["blah", "nothing"], max_rounds=1, layout_dict=l)
-    assert res['fatal_errors'][0][0] == {
-        'description': '("Could not load blah: No module named \'blah\'", \'ModuleNotFoundError\')',
-        'round': None,
-        'turn': 0,
-        'type': 'PlayerDisconnected'
-    }
+    print(res['fatal_errors'])
+
+    # We might only catch only one of the errors
+    assert len(res['fatal_errors'][0]) > 0 or len(res['fatal_errors'][1]) > 0
+    if len(res['fatal_errors'][0]) > 0:
+        assert res['fatal_errors'][0][0] == {
+            'description': "ModuleNotFoundError: Could not load blah: No module named \'blah\'",
+            'round': None,
+            'turn': 0,
+            'type': 'RemotePlayerFailure'
+        }
+    if len(res['fatal_errors'][1]) > 0:
+        assert res['fatal_errors'][1][0] == {
+            'description': "ModuleNotFoundError: Could not load nothing: No module named \'nothing\'",
+            'round': None,
+            'turn': 1,
+            'type': 'RemotePlayerFailure'
+        }
 
 # TODO: Get it working again on Windows
 @pytest.mark.skipif(_mswindows, reason="Test fails on some Python versions.")
@@ -1000,34 +1040,55 @@ def test_remote_errors(tmp_path):
     l = maze_generator.generate_maze()
 
     res = run_game([str(syntax_error), str(import_error)], layout_dict=l, max_rounds=20)
-    # Error messages have changed in Python 3.10. We can only do approximate matching
-    assert "SyntaxError" in res['fatal_errors'][0][0].pop('description')
-    assert res['fatal_errors'][0][0] == {
-        'round': None,
-        'turn': 0,
-        'type': 'PlayerDisconnected'
-    }
-    # Both teams fail during setup: DRAW
-    assert res['whowins'] == 2
+    print(res['fatal_errors'])
+
+    # We might only catch only one of the errors
+    assert len(res['fatal_errors'][0]) > 0 or len(res['fatal_errors'][1]) > 0
+    if len(res['fatal_errors'][0]) > 0:
+        # Error messages have changed in Python 3.10. We can only do approximate matching
+        assert "SyntaxError" in res['fatal_errors'][0][0].pop('description')
+        assert res['fatal_errors'][0][0] == {
+            'round': None,
+            'turn': 0,
+            'type': 'RemotePlayerFailure'
+        }
+
+    if len(res['fatal_errors'][1]) > 0:
+        assert "ModuleNotFoundError" in res['fatal_errors'][1][0].pop('description')
+        assert res['fatal_errors'][1][0] == {
+            'round': None,
+            'turn': 1,
+            'type': 'RemotePlayerFailure'
+        }
+
+    # Both teams fail during setup: FAILURE
+    assert res['game_phase'] == "FAILURE"
+    assert res['gameover'] is True
+    assert res['whowins'] == -1
+
     res = run_game(["0", str(import_error)], layout_dict=l, max_rounds=20)
     # Error messages have changed in Python 3.10. We can only do approximate matching
     assert "ModuleNotFoundError" in res['fatal_errors'][1][0].pop('description')
     assert res['fatal_errors'][1][0] == {
         'round': None,
         'turn': 1,
-        'type': 'PlayerDisconnected'
+        'type': 'RemotePlayerFailure'
     }
-    assert res['whowins'] == 0
+    assert res['game_phase'] == "FAILURE"
+    assert res['gameover'] is True
+    assert res['whowins'] == -1
+
     res = run_game([str(import_error), "1"], layout_dict=l, max_rounds=20)
     # Error messages have changed in Python 3.10. We can only do approximate matching
     assert "ModuleNotFoundError" in res['fatal_errors'][0][0].pop('description')
     assert res['fatal_errors'][0][0] == {
         'round': None,
         'turn': 0,
-        'type': 'PlayerDisconnected'
+        'type': 'RemotePlayerFailure'
     }
-    assert res['whowins'] == 1
-
+    assert res['game_phase'] == "FAILURE"
+    assert res['gameover'] is True
+    assert res['whowins'] == -1
 
 @pytest.mark.parametrize('team_to_test', [0, 1])
 def test_bad_move_function(team_to_test):
@@ -1055,30 +1116,35 @@ def test_bad_move_function(team_to_test):
             teams = [stopping, move]
         return run_game(teams, layout_dict=l, max_rounds=10)
 
+    res = test_run_game(stopping)
+    assert res['gameover']
+    assert res['whowins'] == 2
+    assert res['fatal_errors'] == [[], []]
+
     other = 1 - team_to_test
 
     res = test_run_game(move0)
     assert res['gameover']
     assert res['whowins'] == other
-    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
-    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return a valid position: got None instead.'
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'ValueError'
+    assert res['fatal_errors'][team_to_test][0]['description'] == "Function move did not return a valid position: got 'None' instead."
 
     res = test_run_game(move1)
     assert res['gameover']
     assert res['whowins'] == other
-    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
-    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return a valid position: got 0 instead.'
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'ValueError'
+    assert res['fatal_errors'][team_to_test][0]['description'] == "Function move did not return a valid position: got '0' instead."
 
     res = test_run_game(move3)
     assert res['gameover']
     assert res['whowins'] == other
-    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
-    assert res['fatal_errors'][team_to_test][0]['description'] == 'Exception in client (ValueError): Function move did not return a valid position: got (0, 0, 0) instead.'
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'ValueError'
+    assert res['fatal_errors'][team_to_test][0]['description'] == "Function move did not return a valid position: got '(0, 0, 0)' instead."
 
     res = test_run_game(move4)
     assert res['gameover']
     assert res['whowins'] == other
-    assert res['fatal_errors'][team_to_test][0]['type'] == 'FatalException'
+    assert res['fatal_errors'][team_to_test][0]['type'] == 'TypeError'
     assert "takes 1 positional argument but 2 were given" in res['fatal_errors'][team_to_test][0]['description']
 
 
@@ -1216,40 +1282,56 @@ def test_remote_game_closes_players_on_exit():
     l = maze_generator.generate_maze()
 
     # run a remote demo game with "0" and "1"
-    state = run_game(["0", "1"], layout_dict=l, max_rounds=20, allow_exceptions=True)
+    state = run_game(["0", "1"], layout_dict=l, max_rounds=20, raise_bot_exceptions=True)
     assert state["gameover"]
     # Check that both processes have exited
-    assert state["teams"][0].proc[0].wait(timeout=3) == 0
-    assert state["teams"][1].proc[0].wait(timeout=3) == 0
+    assert state["teams"][0].proc.wait(timeout=3) == 0
+    assert state["teams"][1].proc.wait(timeout=3) == 0
 
 
 def test_manual_remote_game_closes_players():
     l = maze_generator.generate_maze()
 
     # run a remote demo game with "0" and "1"
-    state = setup_game(["0", "1"], layout_dict=l, max_rounds=10, allow_exceptions=True)
+    state = setup_game(["0", "1"], layout_dict=l, max_rounds=10, raise_bot_exceptions=True)
     assert not state["gameover"]
     while not state["gameover"]:
         # still running
         # still running
-        assert state["teams"][0].proc[0].poll() is None
-        assert state["teams"][1].proc[0].poll() is None
+        assert state["teams"][0].proc.poll() is None
+        assert state["teams"][1].proc.poll() is None
         state = play_turn(state)
 
     # Check that both processes have exited
-    assert state["teams"][0].proc[0].wait(timeout=3) == 0
-    assert state["teams"][1].proc[0].wait(timeout=3) == 0
+    assert state["teams"][0].proc.wait(timeout=3) == 0
+    assert state["teams"][1].proc.wait(timeout=3) == 0
 
 
 def test_invalid_setup_game_closes_players():
     l = maze_generator.generate_maze()
 
     # setup a remote demo game with "0" and "1" but bad max rounds
-    state = setup_game(["0", "1"], layout_dict=l, max_rounds=0, allow_exceptions=True)
-    assert state["gameover"]
+    state = setup_game(["0", "1"], layout_dict=l, max_rounds=0, raise_bot_exceptions=True)
+    assert state["game_phase"] == "FAILURE"
     # Check that both processes have exited
-    assert state["teams"][0].proc[0].wait(timeout=3) == 0
-    assert state["teams"][1].proc[0].wait(timeout=3) == 0
+    assert state["teams"][0].proc.wait(timeout=3) == 0
+    assert state["teams"][1].proc.wait(timeout=3) == 0
+
+def test_raises_and_exits_cleanly():
+    l = layout.parse_layout(small_layout)
+
+    path = FIXTURE_DIR / "player_move_division_by_zero"
+    state = setup_game([str(path), "1"], layout_dict=l, max_rounds=2)
+    with pytest.raises(PelitaBotError):
+        while not state["gameover"]:
+            state = play_turn(state, raise_bot_exceptions=True)
+
+    # Game state is updated before the exception is raised
+    assert state["gameover"] is True
+    assert state["fatal_errors"][0][0]["type"] == "ZeroDivisionError"
+    # Check that both processes have exited
+    assert state["teams"][0].proc.wait(timeout=3) == 0
+    assert state["teams"][1].proc.wait(timeout=3) == 0
 
 
 @pytest.mark.parametrize('move_request, expected_prev, expected_req, expected_success', [
