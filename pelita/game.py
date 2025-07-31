@@ -1177,6 +1177,8 @@ def check_gameover(game_state):
 
 
 def exit_remote_teams(game_state):
+    # TODO: Should this be the same function in case of an error?
+    # TODO: Handle in network?
     """ If the we are gameover, we want the remote teams to shut down. """
     _logger.info("Telling teams to exit.")
     for idx, team in enumerate(game_state['teams']):
@@ -1184,6 +1186,7 @@ def exit_remote_teams(game_state):
             _logger.info(f"Not sending exit to team {idx} which had a fatal error.")
             # We pretend we already send the exit message, otherwise
             # the team’s __del__ method will do it once more.
+            # TODO: Do with state machine
             team._sent_exit = True
             continue
         try:
