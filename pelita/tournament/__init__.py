@@ -335,10 +335,16 @@ class Config:
 
             tmp.write(string+'\n')
             tmp.flush()
-            cmd = shlex.split(self.speaker)
-            full_cmd = [*cmd, tmp.name]
+
+            if '{}' in self.speaker:
+                full_cmd = self.speaker.replace('{}', tmp.name)
+                shell = True
+            else:
+                cmd = shlex.split(self.speaker)
+                full_cmd = [*cmd, tmp.name]
+                shell = False
             try:
-                _speaker_proc = subprocess.run(full_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+                _speaker_proc = subprocess.run(full_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, shell=shell)
             except FileNotFoundError:
                 # If we could not find the executable then there is not need to keep on trying.
                 # Disabling speak. (Although self.say() will still attempt to speak.)
