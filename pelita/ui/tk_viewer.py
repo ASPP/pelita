@@ -98,6 +98,11 @@ class TkViewer:
     def run(self):
         try:
             self.root = tkinter.Tk()
+            # self.root.tk.call('tk', 'scaling', 4.0)
+            font = tkinter.font.Font(size=10)
+            text_width = font.measure("m")
+            scale = text_width / 13
+            print(text_width)
         except tkinter.TclError as e:
             _logger.error('TclError: %s. Exiting.', e)
             if self.controller_address:
@@ -112,7 +117,7 @@ class TkViewer:
         if self.fullscreen:
             self.root.attributes('-fullscreen',True)
         else:
-            root_geometry = str(self.geometry[0])+'x'+str(self.geometry[1])
+            root_geometry = f"{(self.geometry[0] * scale):.0f}x{(self.geometry[1] * scale):.0f}"
             # put the root window in some sensible position
             self.root.geometry(root_geometry+'+40+40')
 
