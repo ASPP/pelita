@@ -11,7 +11,8 @@ class Layout(TypedDict):
     bots: list[Pos]
     walls: set[Pos]
     shape: Shape
-    food: tuple[set[Pos], set[Pos]]
+    food: list[Pos]
+    # food: tuple[set[Pos], set[Pos]]
 
 class GameState(TypedDict):
     walls: set[Pos]
@@ -24,7 +25,7 @@ class GameState(TypedDict):
     gameover: bool
     whowins: None|int
     bots: list[Pos]
-    score: tuple[int, int]
+    score: list[int]
     fatal_errors: tuple[list[Any], list[Any]]
     timeouts: tuple[Any, Any]
     max_rounds: int
