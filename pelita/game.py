@@ -378,7 +378,7 @@ def setup_game(team_specs, *, layout_dict: Layout, max_rounds=300, rng=None,
         'bots': layout_dict['bots'][:],
 
         #: Score of the teams. List of int
-        'score': (0, 0),
+        'score': [0, 0],
 
         #: Fatal errors
         'fatal_errors': ([], []),
