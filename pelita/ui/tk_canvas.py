@@ -512,6 +512,7 @@ class TkApplication:
 
         # we don’t use scaling for the grid width currently
         grid_width = 0.01
+        grid_width = - (self.mesh_graph.mesh_to_screen_x(0, 0) - self.mesh_graph.mesh_to_screen_x(0, 0.1))
 
         def draw_line(x0, y0, x1, y1):
             x0_ = self.mesh_graph.mesh_to_screen_x(x0, 0)
@@ -879,7 +880,8 @@ class TkApplication:
         status_font_size = max(font_size - 5, 3)
 
         top = HEADER_MARGIN_TOP
-        status_top = top + font_size + SUBHEADER_MARGIN_TOP
+        SUBHEADER_MARGIN_TOP = tkinter.font.Font(font=(self._default_font, font_size)).metrics('linespace')
+        status_top = top + SUBHEADER_MARGIN_TOP
         padding = MAZE_PADDING
 
         # middle colon
