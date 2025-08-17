@@ -391,7 +391,9 @@ class RemoteTeam:
             raise RemotePlayerRecvTimeout("", "") from None
 
     def set_initial(self, team_id, game_state):
+        # TODO: timeout length should be set when object is created
         timeout_length = game_state['timeout_length']
+        self.request_timeout = timeout_length
 
         msg_id = self.conn.send_req("set_initial", {"team_id": team_id,
                                                 "game_state": game_state})
@@ -401,7 +403,7 @@ class RemoteTeam:
         return reply
 
     def get_move(self, game_state):
-        timeout_length = game_state['timeout_length']
+        timeout_length = self.request_timeout
 
         msg_id = self.conn.send_req("get_move", {"game_state": game_state})
         reply = self.conn.recv_reply(msg_id, timeout_length)

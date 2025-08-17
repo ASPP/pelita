@@ -16,7 +16,7 @@ from .exceptions import NoFoodWarning, PelitaBotError, PelitaIllegalGameState
 from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
 from .network import Controller, RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher
-from .spec import GameState, Layout, Pos
+from .spec import GameState, Layout, Pos, TeamInitial, TeamState, TeamStateFinished
 from .team import RemoteTeam, make_team
 from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
                      ResultPrinter)
@@ -660,89 +660,98 @@ def request_new_position(game_state):
     return bot_reply
 
 
-def prepare_bot_state(game_state, team_idx=None):
+def prepare_bot_state(game_state: GameState, team_idx=None) -> TeamState | TeamInitial | TeamStateFinished:
     """ Prepares the bot’s game state for the current bot.
 
     NB: This will update the game_state to store new noisy positions.
     """
-    if game_state['game_phase'] == 'INIT':
-        # We assume that we are in get_initial phase
-        turn = team_idx
-        bot_turn = None
-        seed = game_state['rng'].randint(0, sys.maxsize)
-    elif game_state['game_phase'] == 'FINISHED':
-        # Called for remote players in _exit
-        turn = team_idx
-        bot_turn = None
-        seed = None
-    elif game_state['game_phase'] == 'RUNNING':
-        turn = game_state['turn']
-        bot_turn = game_state['turn'] // 2
-        seed = None
-    else:
-        _logger.warning("Got bad game_state in prepare_bot_state")
-        return
+    match game_state['game_phase']:
+        case "INIT":
+            turn = team_idx
+            seed = game_state['rng'].randint(0, sys.maxsize)
 
-    bot_position = game_state['bots'][turn]
-    own_team = turn % 2
-    enemy_team = 1 - own_team
-    enemy_positions = game_state['bots'][enemy_team::2]
-    noised_positions = noiser(walls=game_state['walls'],
-                              shape=game_state['shape'],
-                              bot_position=bot_position,
-                              enemy_positions=enemy_positions,
-                              noise_radius=game_state['noise_radius'],
-                              sight_distance=game_state['sight_distance'],
-                              rng=game_state['rng'])
+            team_state_initial: TeamInitial = {
+                'walls': game_state['walls'],
+                'shape': game_state['shape'],
+                'seed': seed,
+                'max_rounds': game_state['max_rounds'],
+                'team_names': game_state['team_names'][:],
+                'timeout_length': game_state['timeout_length'],
+            }
+            return team_state_initial
+        case "RUNNING":
 
+            turn = game_state['turn']
 
-    # Update noisy_positions in the game_state
-    # reset positions
-    game_state['noisy_positions'] = [None] * 4
-    noisy_or_none = [
-        noisy_pos if is_noisy else None
-            for is_noisy, noisy_pos in
-            zip(noised_positions['is_noisy'], noised_positions['enemy_positions'])
-    ]
-    game_state['noisy_positions'][enemy_team::2] = noisy_or_none
+            bot_position = game_state['bots'][turn]
+            own_team = turn % 2
+            enemy_team = 1 - own_team
+            enemy_positions = game_state['bots'][enemy_team::2]
+            noised_positions = noiser(walls=game_state['walls'],
+                                    shape=game_state['shape'],
+                                    bot_position=bot_position,
+                                    enemy_positions=enemy_positions,
+                                    noise_radius=game_state['noise_radius'],
+                                    sight_distance=game_state['sight_distance'],
+                                    rng=game_state['rng'])
 
-    bots = game_state['bots'][:]
-    bots[enemy_team::2] = noised_positions['enemy_positions']
+            # Update noisy_positions in the game_state
+            # reset positions
+            game_state['noisy_positions'] = [None] * 4
+            noisy_or_none = [
+                noisy_pos if is_noisy else None
+                    for is_noisy, noisy_pos in
+                    zip(noised_positions['is_noisy'], noised_positions['enemy_positions'])
+            ]
+            game_state['noisy_positions'][enemy_team::2] = noisy_or_none
 
-    is_noisy = [False for _ in range(4)]
-    is_noisy[enemy_team::2] = noised_positions['is_noisy']
+            bots = game_state['bots'][:]
+            bots[enemy_team::2] = noised_positions['enemy_positions']
 
-    shaded_food_own = list(pos for pos, age in game_state['food_age'][own_team].items()
-                       if age > 0)
-    shaded_food = [[], []]
-    shaded_food[own_team] = shaded_food_own
+            is_noisy = [False for _ in range(4)]
+            is_noisy[enemy_team::2] = noised_positions['is_noisy']
 
-    bot_state = {
-        'bots': bots,
-        'score': game_state['score'][:],
-        'kills': game_state['kills'][:],
-        'deaths': game_state['deaths'][:],
-        'bot_was_killed': game_state['bot_was_killed'][:],
-        'error_count': [len(e) for e in game_state['timeouts'][:]],
-        'food': [list(team_food) for team_food in game_state['food']],
-        'shaded_food': shaded_food,
-        'team_time': game_state['team_time'][:],
-        'is_noisy': is_noisy,
-        'round': game_state['round'],
-        'turn': turn,
-        'timeout_length': game_state['timeout_length'],
-    }
+            shaded_food_own = list(pos for pos, age in game_state['food_age'][own_team].items()
+                            if age > 0)
+            shaded_food = [[], []]
+            shaded_food[own_team] = shaded_food_own
 
-    if game_state['game_phase'] == 'INIT':
-        bot_state.update({
-            'walls': game_state['walls'], # only in initial round
-            'shape': game_state['shape'], # only in initial round
-            'seed': seed, # only used in set_initial phase
-            'max_rounds': game_state['max_rounds'],
-            'team_names': game_state['team_names'][:],
-        })
+            bot_state: TeamState = {
+                'bots': bots,
+                'score': game_state['score'][:],
+                'kills': game_state['kills'][:],
+                'deaths': game_state['deaths'][:],
+                'bot_was_killed': game_state['bot_was_killed'][:],
+                'error_count': [len(e) for e in game_state['timeouts'][:]],
+                'food': [list(team_food) for team_food in game_state['food']],
+                'shaded_food': shaded_food,
+                'team_time': game_state['team_time'][:],
+                'is_noisy': is_noisy,
+                'round': game_state['round'],
+                'turn': turn,
+            }
+            return bot_state
 
-    return bot_state
+        case "FINISHED":
+            # Called for remote players in _exit
+            turn = team_idx
+            # TODO: is turn needed?
+
+            team_state_final: TeamStateFinished = {
+                'bots': game_state['bots'][:],
+                'score': game_state['score'][:],
+                'kills': game_state['kills'][:],
+                'deaths': game_state['deaths'][:],
+                'bot_was_killed': game_state['bot_was_killed'][:],
+                'error_count': [len(e) for e in game_state['timeouts'][:]],
+                'food': [list(team_food) for team_food in game_state['food']],
+                'team_time': game_state['team_time'][:],
+                'round': game_state['round'],
+                'turn': turn,
+            }
+            return team_state_final
+
+    raise PelitaIllegalGameState("Got bad game_state in prepare_bot_state")
 
 
 def update_viewers(game_state):

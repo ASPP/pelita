@@ -49,3 +49,38 @@ class GameState(TypedDict):
     error_limit: int
     viewers: list[Any]
     controller: None|Any
+
+class TeamInitial(TypedDict):
+    walls: set[Pos]
+    shape: Shape
+    seed: int
+    max_rounds: int
+    team_names: list[str]
+    timeout_length: float
+
+class TeamState(TypedDict):
+    bots: list[Pos]
+    score: list[int]
+    kills: list[int]
+    deaths: list[int]
+    bot_was_killed: list[bool]
+    error_count: list[int]
+    food: list[list[Pos]]
+    shaded_food: list[list[Pos]]
+    team_time: list[float]
+    is_noisy: list[bool]
+    round: int|None
+    turn: int
+
+class TeamStateFinished(TypedDict):
+    bots: list[Pos]
+    score: list[int]
+    kills: list[int]
+    deaths: list[int]
+    bot_was_killed: list[bool]
+    error_count: list[bool]
+    food: list[list[Pos]]
+    team_time: list[float]
+    round: int|None
+    turn: int
+
