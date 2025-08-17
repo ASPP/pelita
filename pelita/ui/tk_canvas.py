@@ -877,12 +877,21 @@ class TkApplication:
 
         left_status = status(0)
         right_status = status(1)
-        status_font_size = max(font_size - 5, 3)
+
+
+        status_font_size = guess_size(f" {left_status}  {right_status} ",
+                                      self.ui_game_canvas.winfo_width() - 2 * MAZE_PADDING,
+                                      30,
+                                      rel_size = 0)
+
+        # status_font_size = max(font_size - 5, 3)
 
         top = HEADER_MARGIN_TOP
         SUBHEADER_MARGIN_TOP = tkinter.font.Font(font=(self._default_font, font_size)).metrics('linespace')
         status_top = top + SUBHEADER_MARGIN_TOP
         padding = MAZE_PADDING
+
+        self.mesh_graph.top_margin = (tkinter.font.Font(font=(self._default_font, font_size)).metrics('linespace') + tkinter.font.Font(font=(self._default_font, status_font_size)).metrics('linespace'))
 
         # middle colon
         self.ui_game_canvas.create_text(center, top, text=":", font=(self._default_font, font_size), fill="black", tags="title", anchor=tkinter.N)
