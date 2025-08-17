@@ -98,11 +98,12 @@ class TkViewer:
     def run(self):
         try:
             self.root = tkinter.Tk()
-            # self.root.tk.call('tk', 'scaling', 4.0)
+            # self.root.tk.call('tk', 'scaling', 2.0)
             font = tkinter.font.Font(size=10)
             text_width = font.measure("m")
-            scale = text_width / 13
-            print(text_width)
+            text_height = tkinter.font.Font(size=10).metrics('linespace')
+            scale = text_height / 16
+            print(text_width, text_height)
         except tkinter.TclError as e:
             _logger.error('TclError: %s. Exiting.', e)
             if self.controller_address:
