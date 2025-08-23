@@ -679,8 +679,8 @@ def prepare_bot_state(game_state: GameState, team_idx=None) -> TeamState | TeamI
                 'timeout_length': game_state['timeout_length'],
             }
             return team_state_initial
-        case "RUNNING":
 
+        case "RUNNING":
             turn = game_state['turn']
 
             bot_position = game_state['bots'][turn]
@@ -728,14 +728,12 @@ def prepare_bot_state(game_state: GameState, team_idx=None) -> TeamState | TeamI
                 'team_time': game_state['team_time'][:],
                 'is_noisy': is_noisy,
                 'round': game_state['round'],
-                'turn': turn,
+                'turn': game_state['turn'],
             }
             return bot_state
 
         case "FINISHED":
             # Called for remote players in _exit
-            turn = team_idx
-            # TODO: is turn needed?
 
             team_state_final: TeamStateFinished = {
                 'bots': game_state['bots'][:],
@@ -747,9 +745,13 @@ def prepare_bot_state(game_state: GameState, team_idx=None) -> TeamState | TeamI
                 'food': [list(team_food) for team_food in game_state['food']],
                 'team_time': game_state['team_time'][:],
                 'round': game_state['round'],
-                'turn': turn,
+                'turn': game_state['turn'],
+                'whowins': game_state['whowins']
             }
             return team_state_final
+
+        case "FAILURE":
+            raise PelitaIllegalGameState(game_state)
 
     raise PelitaIllegalGameState("Got bad game_state in prepare_bot_state")
 

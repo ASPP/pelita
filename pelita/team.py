@@ -168,7 +168,7 @@ class Team:
         self._bot_track = [[], []]
 
 
-    def set_initial(self, team_id, game_state):
+    def set_initial(self, team_id, initial_state):
         """ Sets the bot indices for the team and returns the team name.
         Currently, we do not call _set_initial on the user side.
 
@@ -182,24 +182,26 @@ class Team:
         # Reset the team state
         self._state.clear()
 
-        self._game_state = {}
-        self._game_state.update(game_state)
+        self._team_id = team_id
+
+        self._initial_state = {}
+        self._initial_state.update(initial_state)
 
         # Initialize the random number generator
         # with the seed that we received from game
-        self._rng = Random(game_state['seed'])
+        self._rng = Random(initial_state['seed'])
 
         # Reset the bot tracks
         self._bot_track = [[], []]
 
         # Store the walls, which are only transmitted once
-        self._walls = _ensure_tuple_tuples(game_state['walls'])
+        self._walls = _ensure_tuple_tuples(initial_state['walls'])
 
         # Store the shape, which is only transmitted once
-        self._shape = tuple(game_state['shape'])
+        self._shape = tuple(initial_state['shape'])
 
-        self._team_names = tuple(game_state['team_names'])
-        self._max_rounds = game_state['max_rounds']
+        self._team_names = tuple(initial_state['team_names'])
+        self._max_rounds = initial_state['max_rounds']
 
         # Cache the initial positions so that we don’t have to calculate them at each step
         self._initial_positions = layout.initial_positions(self._walls, self._shape)
@@ -253,8 +255,8 @@ class Team:
                        rng=self._rng,
                        graph=self._graph)
 
-        self._game_state.update(game_state)
-        me._game_state = self._game_state
+        me._game_state = dict(game_state)
+        me._game_state.update(self._initial_state)
         team = me._team
 
         for idx, mybot in enumerate(team):
@@ -396,7 +398,7 @@ class RemoteTeam:
         self.request_timeout = timeout_length
 
         msg_id = self.conn.send_req("set_initial", {"team_id": team_id,
-                                                "game_state": game_state})
+                                                "initial_state": game_state})
         reply = self.conn.recv_reply(msg_id, timeout_length)
         # reply should be None
 

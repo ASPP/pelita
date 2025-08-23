@@ -84,3 +84,5 @@ class TeamStateFinished(TypedDict):
     round: int|None
     turn: int
 
+class FullTeamState(TeamInitial, TeamState):
+    pass
