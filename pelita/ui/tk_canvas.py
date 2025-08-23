@@ -355,7 +355,7 @@ class TkApplication:
         # previous
         tkinter.Button(self.ui_status_00,
                        text="previous",
-                       command=self.show_previous,
+                       command=self.button_show_previous,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         # play/pause
@@ -367,7 +367,7 @@ class TkApplication:
         # next
         tkinter.Button(self.ui_status_00,
                        text="next",
-                       command=self.show_next,
+                       command=self.button_show_next,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_01,
@@ -1225,6 +1225,16 @@ class TkApplication:
 
         # update ui
         self.update()
+
+    def button_show_previous(self):
+        # put game in pause automatically when pushing the button
+        self.running = False
+        self.show_previous()
+
+    def button_show_next(self):
+        # put game in pause automatically when pushing the button
+        self.running = False
+        self.show_next()
 
     def request_round(self):
         if not self.controller_socket:
