@@ -1,10 +1,11 @@
 
 from pelita.game import apply_move, next_round_turn
 from pelita.player import food_eating_player
+from pelita.spec import FullTeamState
 from pelita.team import Bot, _ensure_list_tuples, make_bots
 
 def simulate_move(bot: Bot, next_pos):
-    game_state = bot._game_state
+    game_state: FullTeamState = dict(bot._game_state)
     game_state['bots'] = _ensure_list_tuples(game_state['bots'])
     game_state['error_limit'] = 0
     game_state['gameover'] = False
@@ -14,7 +15,12 @@ def simulate_move(bot: Bot, next_pos):
     game_state['errors'] = [[], []]
     game_state['game_phase'] = 'RUNNING'
 
+    print(bot)
+    print(game_state)
     game_state = apply_move(game_state, next_pos)
+    if not game_state['game_phase'] == 'RUNNING':
+        return None
+
     game_state.update(next_round_turn(game_state))
 
 
@@ -47,8 +53,8 @@ def simulate_move(bot: Bot, next_pos):
 
 
 def smart_eating_player(bot, state):
-
-    print(simulate_move(bot, next_pos=bot.position))
+    for pos in bot.legal_positions:
+        print(simulate_move(bot, next_pos=pos))
 
     # food eating player but won’t do kamikaze (although a sufficiently smart
     # enemy will be able to kill the bot in its next turn as it doesn’t flee)
