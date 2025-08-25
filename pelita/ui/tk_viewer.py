@@ -153,6 +153,8 @@ class TkViewer:
             if game_state:
                 self.app.observe(game_state, self.standalone_mode)
 
+                self.app.history[self.app.get_current_pointer()] = game_state
+
             self._delay = 2
             self._after(2, self.read_queue)
         except zmq.Again:

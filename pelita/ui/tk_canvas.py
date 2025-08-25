@@ -290,6 +290,7 @@ class TkApplication:
         self.init_bot_sprites([None] * 4)
 
         self._game_state = {}
+        self.history = {}
 
         self.ui_game_canvas = tkinter.Canvas(self.window)
         self.ui_game_canvas.configure(background="white", bd=0, highlightthickness=0, relief='flat')
@@ -351,19 +352,22 @@ class TkApplication:
             **LABEL_STYLE)
         self.ui_status_selected.pack(side=tkinter.RIGHT)
 
+        # previous
         tkinter.Button(self.ui_status_00,
-                       text="PLAY/PAUSE",
+                       text="previous",
+                       command=self.show_previous,
+                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
+
+        # play/pause
+        tkinter.Button(self.ui_status_00,
+                       text="play/pause",
                        command=self.toggle_running,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
+        # next
         tkinter.Button(self.ui_status_00,
-                       text="STEP",
-                       command=self.request_step,
-                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
-
-        tkinter.Button(self.ui_status_00,
-                       text="ROUND",
-                       command=self.request_round,
+                       text="next",
+                       command=self.show_next,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_01,
@@ -1152,6 +1156,49 @@ class TkApplication:
         else:
             _logger.debug('---> play_step')
             self.controller_socket.send_json({"__action__": "play_step"})
+
+    def get_current_pointer(self):
+        GS = self._game_state
+
+        round = GS["round"]
+        turn = GS["turn"]
+
+        if round is None:
+            return None
+
+        return (round - 1) * 4 + turn
+
+    def show_previous(self):
+        # get new game state
+        current_pointer = self.get_current_pointer()
+
+        if current_pointer is None:
+            new_pointer = current_pointer
+        elif current_pointer == 0:
+            new_pointer = None
+        else:
+            new_pointer = current_pointer - 1
+        self._game_state = self.history[new_pointer]
+
+        # update ui
+        self.update()
+
+    def show_next(self):
+        # get new game state
+        current_pointer = self.get_current_pointer()
+
+        if current_pointer is None:
+            new_pointer = 0
+        else:
+            new_pointer = current_pointer + 1
+
+        if new_pointer not in self.history:
+            self.request_step()
+        else:
+            self._game_state = self.history[new_pointer]
+
+        # update ui
+        self.update()
 
     def request_round(self):
         if not self.controller_socket:
