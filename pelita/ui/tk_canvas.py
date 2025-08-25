@@ -290,6 +290,7 @@ class TkApplication:
         self.init_bot_sprites([None] * 4)
 
         self._game_state = {}
+        self.history = {}
 
         self.ui_game_canvas = tkinter.Canvas(self.window)
         self.ui_game_canvas.configure(background="white", bd=0, highlightthickness=0, relief='flat')
@@ -351,19 +352,22 @@ class TkApplication:
             **LABEL_STYLE)
         self.ui_status_selected.pack(side=tkinter.RIGHT)
 
+        # previous
         tkinter.Button(self.ui_status_00,
-                       text="PLAY/PAUSE",
+                       text="previous",
+                       command=self.button_show_previous,
+                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
+
+        # play/pause
+        tkinter.Button(self.ui_status_00,
+                       text="play/pause",
                        command=self.toggle_running,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
+        # next
         tkinter.Button(self.ui_status_00,
-                       text="STEP",
-                       command=self.request_step,
-                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
-
-        tkinter.Button(self.ui_status_00,
-                       text="ROUND",
-                       command=self.request_round,
+                       text="next",
+                       command=self.button_show_next,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_01,
@@ -1152,6 +1156,85 @@ class TkApplication:
         else:
             _logger.debug('---> play_step')
             self.controller_socket.send_json({"__action__": "play_step"})
+
+    def get_current_pointer(self):
+        GS = self._game_state
+
+        # the game state might be empty;
+        # happens before any message has been received
+        if not GS:
+            return None
+
+        round = GS["round"]
+        turn = GS["turn"]
+
+        # the round is None on INIT game phase;
+        # return this game state to be saved under key `None`
+        if round is None:
+            return None
+
+        # convert 1-indexed round to 0-indexed, convert to total turns
+        # played and add the turns in the current round
+        return (round - 1) * 4 + turn
+
+    def show_previous(self):
+        """
+        Show the previous game step.
+        """
+        current = self.get_current_pointer()
+
+        if current in (None, 0):
+            # we are either in the first or second game state recorded;
+            # so the previous step is always the first game state
+            new = None
+        else:
+            new = current - 1
+
+        # set the currently displayed game state
+        self._game_state = self.history[new]
+
+        # update ui
+        self.update()
+
+    def get_next_pointer(self):
+        """
+        Get the pointer to the next game step.
+        """
+        current = self.get_current_pointer()
+
+        if current is None:
+            new = 0
+        else:
+            new = current + 1
+
+        return new
+
+    def show_next(self):
+        """
+        Show the next step either from history or message queue.
+        """
+        pointer = self.get_next_pointer()
+
+        if pointer not in self.history:
+            # this gamestate is not existing yet;
+            # we need to get it from the message queue
+            self.request_step()
+        else:
+            # set the currently displayed game state
+            self._game_state = self.history[pointer]
+
+        # update ui
+        self.update()
+
+    def button_show_previous(self):
+        # put game in pause automatically when pushing the button
+        self.running = False
+        self.show_previous()
+
+    def button_show_next(self):
+        # put game in pause automatically when pushing the button
+        self.running = False
+        self.show_next()
 
     def request_round(self):
         if not self.controller_socket:
