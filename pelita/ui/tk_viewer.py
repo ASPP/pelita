@@ -140,21 +140,26 @@ class TkViewer:
         if self._delay > 100:
             self._delay = 100
         try:
-            # read all events.
-            # if queue is empty, try again in a few ms
-            # we don’t want to block here and lock
-            # Tk animations
-            message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
-            message = json.loads(message)
+            next_history_pointer = self.app.get_next_pointer()
+            if self.app.running and next_history_pointer in self.app.history:
+                # we are running in history, so just show the next game state
+                # in history until we run out of states
+                self.app.show_next()
+            else:
+                # read all events.
+                # if queue is empty, try again in a few ms
+                # we don’t want to block here and lock
+                # Tk animations
+                message = self.socket.recv_unicode(flags=zmq.NOBLOCK)
+                message = json.loads(message)
 
-            _logger.debug(message["__action__"])
-            # we currently don’t care about the action
-            game_state = message["__data__"]
-            if game_state:
-                self.app.observe(game_state, self.standalone_mode)
+                _logger.debug(message["__action__"])
+                # we currently don’t care about the action
+                game_state = message["__data__"]
 
-                self.app.history[self.app.get_current_pointer()] = game_state
-
+                if game_state:
+                    self.app.observe(game_state, self.standalone_mode)
+                    self.app.history[self.app.get_current_pointer()] = game_state
             self._delay = 2
             self._after(2, self.read_queue)
         except zmq.Again:

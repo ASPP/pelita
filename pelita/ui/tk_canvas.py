@@ -1160,6 +1160,9 @@ class TkApplication:
     def get_current_pointer(self):
         GS = self._game_state
 
+        if not GS:
+            return None
+
         round = GS["round"]
         turn = GS["turn"]
 
@@ -1169,33 +1172,35 @@ class TkApplication:
         return (round - 1) * 4 + turn
 
     def show_previous(self):
-        # get new game state
-        current_pointer = self.get_current_pointer()
+        current = self.get_current_pointer()
 
-        if current_pointer is None:
-            new_pointer = current_pointer
-        elif current_pointer == 0:
-            new_pointer = None
+        if current in (None, 0):
+            new = None
         else:
-            new_pointer = current_pointer - 1
-        self._game_state = self.history[new_pointer]
+            new = current - 1
+
+        self._game_state = self.history[new]
 
         # update ui
         self.update()
 
-    def show_next(self):
-        # get new game state
-        current_pointer = self.get_current_pointer()
+    def get_next_pointer(self):
+        current = self.get_current_pointer()
 
-        if current_pointer is None:
-            new_pointer = 0
+        if current is None:
+            new = 0
         else:
-            new_pointer = current_pointer + 1
+            new = current + 1
 
-        if new_pointer not in self.history:
+        return new
+
+    def show_next(self):
+        pointer = self.get_next_pointer()
+
+        if pointer not in self.history:
             self.request_step()
         else:
-            self._game_state = self.history[new_pointer]
+            self._game_state = self.history[pointer]
 
         # update ui
         self.update()
