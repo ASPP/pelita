@@ -1160,31 +1160,46 @@ class TkApplication:
     def get_current_pointer(self):
         GS = self._game_state
 
+        # the game state might be empty;
+        # happens before any message has been received
         if not GS:
             return None
 
         round = GS["round"]
         turn = GS["turn"]
 
+        # the round is None on INIT game phase;
+        # return this game state to be saved under key `None`
         if round is None:
             return None
 
+        # convert 1-indexed round to 0-indexed, convert to total turns
+        # played and add the turns in the current round
         return (round - 1) * 4 + turn
 
     def show_previous(self):
+        """
+        Show the previous game step.
+        """
         current = self.get_current_pointer()
 
         if current in (None, 0):
+            # we are either in the first or second game state recorded;
+            # so the previous step is always the first game state
             new = None
         else:
             new = current - 1
 
+        # set the currently displayed game state
         self._game_state = self.history[new]
 
         # update ui
         self.update()
 
     def get_next_pointer(self):
+        """
+        Get the pointer to the next game step.
+        """
         current = self.get_current_pointer()
 
         if current is None:
@@ -1195,11 +1210,17 @@ class TkApplication:
         return new
 
     def show_next(self):
+        """
+        Show the next step either from history or message queue.
+        """
         pointer = self.get_next_pointer()
 
         if pointer not in self.history:
+            # this gamestate is not existing yet;
+            # we need to get it from the message queue
             self.request_step()
         else:
+            # set the currently displayed game state
             self._game_state = self.history[pointer]
 
         # update ui
