@@ -3,6 +3,7 @@
 import json
 import logging
 import sys
+import time
 
 import zmq
 from rich.console import Console
@@ -119,22 +120,49 @@ class AsciiViewer:
         s1=game_state["score"][1]
         state=state
         universe=uni_str
-        length = len(universe.splitlines()[0])
         info = (
             f"Round: {round!r} | Team: {team} | Bot: {bot_name} | Score {s0}:{s1}\n"
             f"Game State: {state!r}\n"
             f"\n"
         )
 
-        print(info)
-        pprint(universe)
-        print("–"*length)
+        screen = "\n".join((info, universe))
+
         if state.get("gameover"):
             if state["whowins"] == 2:
-                pprint("Game Over: Draw.")
+                screen += "\nGame Over: Draw."
             else:
                 winner = game_state["team_names"][state["whowins"]]
-                pprint(f"Game Over: Team: '{winner}' wins!")
+                screen += f"\nGame Over: Team '{winner}' wins!"
+
+        if round is None:
+            # the cursor might be somewhere in the terminal screen
+            # alongside some content
+            self.clear_screen()
+
+        # print in one go to avoid screen flicker
+        pprint(screen)
+
+        # give the user time to recognize the content
+        time.sleep(0.2)
+
+        if not state.get("gameover"):
+            # clear for new content to achieve an update effect;
+            # relies on consistent formatting
+            self.clear_screen()
+
+    def clear_screen(self):
+        """
+        Clear the terminal screen.
+
+        This method uses ANSI control sequences.
+        See https://en.wikipedia.org/wiki/ANSI_escape_code#Control_Sequence_Introducer_commands for more detail
+        """
+        # \033 starts an ANSI escape code
+        # \033[ inits a Control Sequence Introducer command
+        # \033[H brings the cursor the default position 1, 1
+        # \033[2J erases the entire screen
+        print("\033[H\033[2J", end="")
 
 
 class ReplyToViewer:
