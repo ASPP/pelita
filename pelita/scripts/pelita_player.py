@@ -18,6 +18,7 @@ from .script_utils import start_logging
 _logger = logging.getLogger(__name__)
 
 # Maximum time that a player will wait for a move request
+# Note that this means that a player will exit when a game has been paused for one hour
 TIMEOUT_SECS = 60 * 60
 
 @contextlib.contextmanager

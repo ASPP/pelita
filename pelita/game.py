@@ -25,7 +25,6 @@ _mswindows = (sys.platform == "win32")
 
 
 ### Global constants
-# All constants that are currently not redefinable in setup_game
 
 #: The points a team gets for killing another bot
 KILL_POINTS = 5
@@ -41,6 +40,10 @@ MAX_FOOD_AGE = 30
 
 #: Food pellet shadow distance
 SHADOW_DISTANCE = 2
+
+#: Timeout to be chosen when run with --no-timeout
+# (Players are expected to exit after 60 minutes without contact from pelita main)
+MAX_TIMEOUT_SECS = 60 * 60
 
 #: Default maze sizes
 MSIZE = {

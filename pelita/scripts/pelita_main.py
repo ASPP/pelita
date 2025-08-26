@@ -245,7 +245,7 @@ layout_opt.add_argument('--size', type=w_h_string, metavar="STRING", default='no
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
                          dest='timeout_length', help='Time before timeout is triggered (default: 3 seconds).')
-timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
+timeout_opt.add_argument('--no-timeout', const=pelita.game.MAX_TIMEOUT_SECS, action='store_const',
                          dest='timeout_length', help='Run game without timeouts.')
 game_settings.add_argument('--error-limit', type=int, default=5,
                            dest='error_limit', help='Error limit. Reaching this limit disqualifies a team (default: 5).')
