@@ -201,6 +201,9 @@ class AsciiViewer:
             new_bot = self.color(bot, color)
             maze = maze.replace(tmp_bot, new_bot)
 
+        # replace ASCII with block characters
+        maze = maze.replace("#", "\N{FULL BLOCK}")
+
         return maze
 
     def format_footer(self, game_state):
