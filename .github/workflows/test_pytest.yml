@@ -55,6 +55,9 @@ jobs:
     - name: Run Pelita CLI as a script
       run: |
         pelita --null --rounds 100 --size small
+    - name: Run Pelita CLI without timeouts
+      run: |
+        pelita --null --rounds 100 --size small --no-timeout
     - name: Test Pelita template repo
       run: |
         # We must clone pelita_template to a location outside of the pelita repo
