@@ -70,72 +70,19 @@ class ProgressViewer:
 class AsciiViewer:
     """ A viewer that dumps ASCII charts on stdout. """
 
-    def color_bots(self, layout_str):
-        out_str = layout_str
-        # we have to do the replace in two steps to avoid
-        # that the ‘b’ in ‘[blue]’ gets replaced with itself
-        for turn, char in layout.BOT_I2N.items():
-            team = turn % 2
-            col = '[B]' if team == 0 else '[R]'
-            out_str = out_str.replace(char, f'{col}{char}[/]')
-
-        out_str = out_str.replace('B', 'blue').replace('R', 'red')
-
-        return out_str
-
     def show_state(self, game_state):
-        uni_str = layout.layout_as_str(walls=game_state['walls'],
-                                       food=game_state['food'],
-                                       bots=game_state['bots'])
+        G = game_state
 
-        # color bots
-        uni_str = self.color_bots(uni_str)
-        # Everything that we print explicitly is removed from the state dict.
-        state = {}
-        state.update(game_state)
-        # for death and kills just leave a summary
-        state['blue deaths'] = state['deaths'][::2]
-        state['blue kills'] = state['kills'][::2]
-        state['red deaths'] = state['deaths'][1::2]
-        state['red kills'] = state['kills'][1::2]
-        del state['kills']
-        del state['deaths']
-        del state['walls']
-        del state['food']
-        del state['bots']
-        del state['round']
-        del state['turn']
-        del state['score']
+        # get the parts to printed on screen
+        parts = [
+            format_part(G) 
+            for format_part in (
+                self.format_header, self.format_maze, self.format_footer
+            )
+        ]
+        screen = "\n".join(parts)
 
-        turn = game_state["turn"]
-        if turn is not None:
-            team = 'Blue' if turn % 2 == 0 else 'Red'
-            bot_idx = turn // 2
-            bot_name = layout.BOT_I2N[bot_idx]
-        else:
-            team = '–'
-            bot_name = '–'
-        round=game_state["round"]
-        s0=game_state["score"][0]
-        s1=game_state["score"][1]
-        state=state
-        universe=uni_str
-        info = (
-            f"Round: {round!r} | Team: {team} | Bot: {bot_name} | Score {s0}:{s1}\n"
-            f"Game State: {state!r}\n"
-            f"\n"
-        )
-
-        screen = "\n".join((info, universe))
-
-        if state.get("gameover"):
-            if state["whowins"] == 2:
-                screen += "\nGame Over: Draw."
-            else:
-                winner = game_state["team_names"][state["whowins"]]
-                screen += f"\nGame Over: Team '{winner}' wins!"
-
-        if round is None:
+        if G["round"] is None:
             # the cursor might be somewhere in the terminal screen
             # alongside some content
             self.clear_screen()
@@ -146,7 +93,7 @@ class AsciiViewer:
         # give the user time to recognize the content
         time.sleep(0.2)
 
-        if not state.get("gameover"):
+        if not G.get("gameover"):
             # clear for new content to achieve an update effect;
             # relies on consistent formatting
             self.clear_screen()
@@ -163,6 +110,134 @@ class AsciiViewer:
         # \033[H brings the cursor the default position 1, 1
         # \033[2J erases the entire screen
         print("\033[H\033[2J", end="")
+
+    def format_header(self, game_state):
+        """
+        Create the header from the game state.
+        """
+        G = game_state
+        lines = []
+
+        # format the rounds counter
+        rounds = G["round"] or "-"
+        max_rounds = G["max_rounds"]
+        length = len(str(max_rounds))
+        template = f"R {{rounds: >{length}}}/{max_rounds}"
+
+        lines.append(template.format(rounds=rounds))
+
+        # separate counter from team stats
+        lines.append("")
+
+        # prepare arguments for team stats
+        turn = G["turn"]
+        turns = [False] * 4
+        if turn is not None:
+            turns[turn] = True
+
+        turns = ((turns[0], turns[2]), (turns[1], turns[3]))
+
+        # append team stats
+        for args in zip(
+            G["score"],
+            [["a", "b"], ["x", "y"]],
+            turns,
+            G["team_names"],
+            ("blue", "red"),
+        ):
+            lines.append(self.format_team_stats(*args))
+
+        # separate header from following parts
+        lines.append("")
+
+        return "\n".join(lines)
+
+    def format_team_stats(self, score, bots, turns, name, color):
+        """
+        Arrange stats for a team.
+        """
+        # color all bots;
+        # mark the currently moving bot
+        for i, bot in enumerate(bots.copy()):
+            bot = self.color(bot, color)
+            if turns[i]:
+                bots[i] = f"({bot})"
+            else:
+                bots[i] = f" {bot} "
+
+        # color pacman symbol and team name
+        pie = self.color("ᗧ", color)
+        name = self.color(name, color)
+            
+        return f"{pie} {score:4d} {bots[0]} {bots[1]} {name}"
+
+    def format_maze(self, game_state):
+        """
+        Create the maze from the game state.
+        """
+        G = game_state
+
+        maze = layout.layout_as_str(
+            walls=G["walls"], food=G["food"], bots=G["bots"]
+        )
+
+        # prepare bots and colors
+        bots = layout.BOT_N2I.keys()
+        colors = ["blue"] * 2 + ["red"] * 2
+        bots_and_colors = tuple(zip(bots, colors))
+
+        # choose a temporary bot name not included in the color
+        # formatting itself, like bot `b`
+        template = "_{}_"
+
+        # replace bot names with temporary ones
+        for bot, color in bots_and_colors:
+            tmp_bot = template.format(bot)
+            maze = maze.replace(bot, tmp_bot)
+
+        # replace temporary bot names with colored names
+        for bot, color in bots_and_colors:
+            tmp_bot = template.format(bot)
+            new_bot = self.color(bot, color)
+            maze = maze.replace(tmp_bot, new_bot)
+
+        return maze
+
+    def format_footer(self, game_state):
+        """
+        Create the footer from the game state.
+
+        If bots are saying a message, it shows up here.
+        """
+        G = game_state
+
+        lines = []
+        template = "{bot}: '{msg}'"
+
+        # prepare bots and colors
+        bots = layout.BOT_N2I.keys()
+        colors = ["blue"] * 2 + ["red"] * 2
+
+        # color a non-empty bot message
+        for color, bot, msg in zip(colors, bots, G["say"]):
+            if msg:
+                bot_line = template.format(bot=bot, msg=msg)
+                bot_line = self.color(bot_line, color)
+                lines.append(bot_line)
+
+        # only separate from following parts if there is any content
+        if lines:
+            lines.append("")
+
+        return "\n".join(lines)
+
+    def color(self, out, color):
+        """
+        Color a given string.
+        """
+        return f"[{color}]{out}[/]"
+
+
 
 
 class ReplyToViewer:
