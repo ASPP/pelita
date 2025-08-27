@@ -15,4 +15,6 @@ def default_rng(seed=None):
     return Random(seed)
 
 def default_zmq_context(zmq_context=None):
-    return zmq.Context()
+    if zmq_context is None:
+        return zmq.Context()
+    return zmq_context
