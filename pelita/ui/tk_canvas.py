@@ -459,15 +459,19 @@ class TkApplication:
         for food_pos in eaten_food:
             del self.food_items[food_pos]
 
-        winning_team_idx = game_state.get("whowins")
-        if winning_team_idx is None:
-            self.draw_end_of_game(None)
-        elif winning_team_idx in (0, 1):
-            team_name = game_state["team_names"][winning_team_idx]
-            self.draw_game_over(team_name)
-        elif winning_team_idx == 2:
-            self.draw_game_draw()
+        if game_state.get("game_phase") == "FINISHED":
+            winning_team_idx = game_state.get("whowins")
+            if winning_team_idx in (0, 1):
+                team_name = game_state["team_names"][winning_team_idx] or "???"
+                self.draw_game_over(team_name)
+            elif winning_team_idx == 2:
+                self.draw_game_draw()
 
+        elif game_state.get("game_phase") == "FAILURE":
+            self.draw_game_failure()
+
+        else:
+            self.draw_end_of_game(None)
 
     def draw_universe(self, game_state, redraw):
         self.draw_overlay(game_state.get('overlays', []))
@@ -824,8 +828,8 @@ class TkApplication:
 
         center = self.ui_game_canvas.winfo_width() // 2
 
-        left_name = game_state["team_names"][0]
-        right_name = game_state["team_names"][1]
+        left_name = game_state["team_names"][0] or '???'
+        right_name = game_state["team_names"][1] or '???'
 
         left_score = game_state["score"][0]
         right_score = game_state["score"][1]
@@ -856,7 +860,7 @@ class TkApplication:
                     # sum the deaths of both bots in this team
                     deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
                     kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
-                    ret = "Errors: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
+                    ret = "Timeouts: %d, Kills: %d, Deaths: %d, Time: %.2f" % (game_state["num_errors"][team_idx], kills, deaths, game_state["team_time"][team_idx])
                 return ret
             except TypeError:
                 return ""
@@ -964,7 +968,6 @@ class TkApplication:
                 fill="#FFC903", tags="gameover",
                 justify=tkinter.CENTER, anchor=tkinter.CENTER)
 
-
     def draw_game_over(self, win_name):
         """ Draw the game over string. """
         # shorten the winning name
@@ -976,6 +979,10 @@ class TkApplication:
     def draw_game_draw(self):
         """ Draw the game draw string. """
         self.draw_end_of_game("GAME OVER\nDRAW!")
+
+    def draw_game_failure(self):
+        """ Draw the game draw string. """
+        self.draw_end_of_game("No Game\nCannot run Pelita")
 
     def clear(self):
         self.ui_game_canvas.delete(tkinter.ALL)

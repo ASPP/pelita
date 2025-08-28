@@ -8,45 +8,39 @@ from urllib.parse import urlparse
 
 import zmq
 
+from .base_utils import default_zmq_context
+
 _logger = logging.getLogger(__name__)
 
 # 41736 is the word PELI(T)A when read upside down in reverse without glasses
 # The missing T stands for tcp
 PELITA_PORT = 41736
 
-## Pelita network data structures
 
-# ControlRequest
-# {__action__}
-
-# ViewerUpdate
-# {__action__, __data__}
-
-# Request
-# {__uuid__, __action__, __data__}
-
-# Reply
-# {__uuid__, __return__}
-
-# Error
-# {__uuid__, __error__, __error_msg__}
-
-
-class ZMQUnreachablePeer(Exception):
+class RemotePlayerSendError(Exception):
     """ Raised when ZMQ cannot send a message (connection may have been lost). """
 
 
-class ZMQReplyTimeout(Exception):
+class RemotePlayerRecvTimeout(Exception):
     """ Is raised when an ZMQ socket does not answer in time. """
 
-
-class ZMQClientError(Exception):
+class RemotePlayerFailure(Exception):
     """ Used to propagate errors from the client.
     Raised when the zmq connection receives an __error__ message. """
-    def __init__(self, message, error_type, *args):
-        self.message = message
+    def __init__(self, error_type, error_msg):
         self.error_type = error_type
-        super().__init__(message, error_type, *args)
+        self.error_msg = error_msg
+        super().__init__(error_type, error_msg)
+
+    def __str__(self):
+        return f"{self.error_type}: {self.error_msg}"
+
+class RemotePlayerProtocolError(RemotePlayerFailure):
+    def __init__(self):
+        super().__init__("BadProtocol", "Bad protocol error")
+
+class BadState(Exception):
+    pass
 
 
 #: The timeout to use during sending
@@ -98,7 +92,7 @@ def json_default_handler(o):
     raise TypeError("Cannot convert %r of type %s to json" % (o, type(o)))
 
 
-class ZMQConnection:
+class RemotePlayerConnection:
     """ This class is supposed to ease request–reply connections
     through a zmq socket. It does so by attaching a uuid to each
     request. It will only accept a reply if this also includes
@@ -125,7 +119,8 @@ class ZMQConnection:
     pollout : zmq poller
         Poller for outgoing connections
     """
-    def __init__(self, socket):
+
+    def __init__(self, socket: zmq.Socket):
         self.socket = socket
 
         self.socket.setsockopt(zmq.LINGER, 0)
@@ -137,37 +132,56 @@ class ZMQConnection:
         self.pollout = zmq.Poller()
         self.pollout.register(socket, zmq.POLLOUT)
 
-    def send(self, action, data, timeout=None):
+        self.state = "WAIT"
+
+    def _send(self, action, data, msg_id):
         """ Sends a message or request `action`
-        and attached data to the socket and returns the
-        message id that is needed to receive the reply.
+        and attached data to the socket.
         """
 
-        if timeout is None:
-            timeout = DEAD_CONNECTION_TIMEOUT
+        timeout = DEAD_CONNECTION_TIMEOUT
 
-        msg_id = str(uuid.uuid4())
-        _logger.debug("---> %r [%s]", action, msg_id)
+        if msg_id is not None:
+            message_obj = {"__uuid__": msg_id, "__action__": action, "__data__": data}
+            _logger.debug("---> %r [%s]", action, msg_id)
+        else:
+            message_obj = {"__action__": action, "__data__": data}
+            _logger.debug("---> %r", action)
 
         # Check before sending that the socket can receive
         socks = dict(self.pollout.poll(timeout * 1000))
-        if socks.get(self.socket) == zmq.POLLOUT:
+        if self.socket in socks and socks[self.socket] == zmq.POLLOUT:
             # I think we need to set NOBLOCK here, else we may run into a
             # race condition if a connection was closed between poll and send.
             # NOBLOCK should raise, so we can catch that
-            message_obj = {"__uuid__": msg_id, "__action__": action, "__data__": data}
             json_message = json.dumps(message_obj, cls=SetEncoder)
             try:
                 self.socket.send_unicode(json_message, flags=zmq.NOBLOCK)
             except zmq.ZMQError as e:
-                _logger.info("Could not send message. Assume socket is unavailable. %r", e)
-                raise ZMQUnreachablePeer()
+                _logger.info("Could not send message. Socket is unavailable. %r", e)
+                raise RemotePlayerSendError()
         else:
-            raise ZMQUnreachablePeer()
+            raise RemotePlayerSendError()
         return msg_id
 
+    def send_req(self, action, data):
+        """ Sends a message or request `action`
+        and attached data to the socket and returns the
+        message id that is needed to receive the reply.
+        """
+        msg_id = str(uuid.uuid4())
+        self._send(action=action, data=data, msg_id=msg_id)
+        return msg_id
+
+    def send_exit(self, payload):
+        if self.state == "EXITING":
+            return
+
+        self.state = "EXITING"
+        self.send_req("exit", payload)
+
     def _recv(self):
-        """ Receive the next message on the socket.
+        """ Receive the next message on the socket. Will wait forever
 
         Returns
         -------
@@ -178,35 +192,87 @@ class ZMQConnection:
         ------
         ZMQReplyTimeout
             if the message cannot be parsed from JSON
-        ZMQClientError
+        PelitaRemoteError
             if an error message is returned
         """
         json_message = self.socket.recv_unicode()
         try:
             py_obj = json.loads(json_message)
         except ValueError:
-            _logger.warning('Received non-json message from self. Triggering a timeout.')
-            raise ZMQReplyTimeout()
+            _logger.warning('Received non-json message. Closing socket.')
 
-        try:
+            # TODO: Should we tell the remote end that we are exiting?
+            self.socket.close()
+            self.state = "CLOSED"
+
+            raise RemotePlayerProtocolError
+
+        if '__error__' in py_obj:
             error_type = py_obj['__error__']
             error_message = py_obj.get('__error_msg__', '')
             _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
-            raise ZMQClientError(error_message, error_type)
-        except KeyError:
-            pass
 
-        try:
-            msg_id = py_obj["__uuid__"]
-        except KeyError:
-            msg_id = None
-            _logger.warning('__uuid__ missing in message.')
+            self.state = "CLOSED"
 
-        msg_return = py_obj.get("__return__")
+            # Failure in the pelita code on client side
+            raise RemotePlayerFailure(error_type, error_message)
 
-        _logger.debug("<--- %r [%s]", msg_return, msg_id)
-        return msg_id, msg_return
+        if '__uuid__' in py_obj:
+            msg_id = py_obj['__uuid__']
+            msg_return = py_obj.get("__return__")
+            _logger.debug("<--- %r [%s]", msg_return, msg_id)
+
+            return msg_id, msg_return
+
+        if '__status__' in py_obj:
+            msg_ack = py_obj['__status__'] # == 'ok'
+            msg_data = py_obj.get('__data__')
+            _logger.debug("<--- %r %r", msg_ack, msg_data)
+
+            self.state = "CONNECTED"
+
+            return None, msg_data
+
+        _logger.warning('Received malformed json message. Closing socket.')
+
+        # TODO: Should we tell the remote end that we are exiting?
+        self.socket.close()
+        self.state = "CLOSED"
+
+        raise RemotePlayerProtocolError
+
+
+    def recv_status(self, timeout):
+        """ Receive the next message on the socket.
+
+        Returns
+        -------
+        status
+            The message status
+
+        Raises
+        ------
+        ZMQReplyTimeout
+            if the message cannot be parsed from JSON
+        PelitaRemoteError
+            if an error message is returned
+
+        """
+        if not self.state == "WAIT":
+            raise BadState
+
+        status = self.recv_timeout(None, timeout)
+
+        self.state = "CONNECTED"
+
+        return status
+
+    def recv_reply(self, expected_id, timeout):
+
+        if not self.state == "CONNECTED":
+            raise BadState
+        return self.recv_timeout(expected_id, timeout)
 
     def recv_timeout(self, expected_id, timeout):
         """ Waits `timeout` seconds for a reply with msg_id `expected_id`.
@@ -224,15 +290,8 @@ class ZMQConnection:
         ZMQConnectionError
             if an error message is returned
         """
-        # special case for no timeout
-        # just loop until we receive the correct reply
-        if timeout is None:
-            while True:
-                msg_id, reply = self._recv()
-                if msg_id == expected_id:
-                    return reply
-
-        # normal timeout handling
+        if self.state == "CLOSED":
+            return
 
         time_now = time.monotonic()
         # calculate until when it may take
@@ -241,7 +300,7 @@ class ZMQConnection:
         # can still be handled
         timeout_until = time_now + timeout
 
-        while time_now < timeout_until:
+        while time_now <= timeout_until:
             time_left = timeout_until - time_now
 
             socks = dict(self.pollin.poll(time_left * 1000)) # poll needs milliseconds
@@ -262,10 +321,10 @@ class ZMQConnection:
                 # answer did not arrive in time
                 break
 
-        raise ZMQReplyTimeout()
+        raise RemotePlayerRecvTimeout()
 
     def __repr__(self):
-        return "ZMQConnection(%r)" % self.socket
+        return "RemotePlayerConnection(%r)" % self.socket
 
 class ZMQPublisher:
     """ Sets up a simple Publisher which sends all viewed events
@@ -278,9 +337,9 @@ class ZMQPublisher:
     bind : bool
         Whether we are in bind or connect mode
     """
-    def __init__(self, address, bind=True):
+    def __init__(self, address, bind=True, zmq_context=None):
         self.address = address
-        self.context = zmq.Context()
+        self.context = default_zmq_context(zmq_context)
         self.socket = self.context.socket(zmq.PUB)
         if bind:
             self.socket_addr = bind_socket(self.socket, self.address, '--publish')
@@ -291,6 +350,7 @@ class ZMQPublisher:
 
     def _send(self, action, data):
         info = {'round': data['round'], 'turn': data['turn']}
+        # TODO: this should be game_phase
         if data['gameover']:
             info['gameover'] = True
         _logger.debug(f"--#> [{action}] %r", info)
@@ -305,10 +365,8 @@ class ZMQPublisher:
 class Controller:
     def __init__(self, address='tcp://127.0.0.1', zmq_context=None):
         self.address = address
-        if zmq_context:
-            self.context = zmq_context
-        else:
-            self.context = zmq.Context()
+        self.context = default_zmq_context(zmq_context)
+
         # We use a ROUTER which we bind.
         # This means other DEALERs can connect and
         # each one can take over control.
@@ -351,20 +409,3 @@ class Controller:
                 if action in expected_actions:
                     return action
                 _logger.warning('Unexpected action %r. (Expected: %s) Ignoring.', action, ", ".join(expected_actions))
-                continue
-
-
-    def recv_start(self, timeout=None):
-        """ Waits `timeout` seconds for start message.
-
-        Returns `True`, when the message arrives, `False` when an exit
-        message arrives or a timeout occurs.
-        """
-
-
-def setup_controller(zmq_context=None):
-    if not zmq_context:
-        import zmq
-        zmq_context = zmq.Context()
-    controller = Controller(zmq_context=zmq_context)
-    return controller

@@ -245,7 +245,7 @@ layout_opt.add_argument('--size', type=w_h_string, metavar="STRING", default='no
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
                          dest='timeout_length', help='Time before timeout is triggered (default: 3 seconds).')
-timeout_opt.add_argument('--no-timeout', const=None, action='store_const',
+timeout_opt.add_argument('--no-timeout', const=pelita.game.MAX_TIMEOUT_SECS, action='store_const',
                          dest='timeout_length', help='Run game without timeouts.')
 game_settings.add_argument('--error-limit', type=int, default=5,
                            dest='error_limit', help='Error limit. Reaching this limit disqualifies a team (default: 5).')
@@ -332,7 +332,7 @@ def main():
             try:
                 team_name = check_team(team_spec)
                 print("NAME:", team_name)
-            except pelita.network.ZMQClientError as e:
+            except pelita.network.RemotePlayerFailure as e:
                 if e.error_type == 'ModuleNotFoundError':
                     #print(f"{e.message}")
                     pass
@@ -368,7 +368,7 @@ def main():
 
     if args.replayfile:
         viewer_state = pelita.game.setup_viewers(viewers)
-        if pelita.game.controller_exit(viewer_state, await_action='set_initial'):
+        if pelita.game.controller_await(viewer_state, await_action='set_initial'):
             sys.exit(0)
 
         old_game = Path(args.replayfile).read_text().split("\x04")
@@ -382,7 +382,7 @@ def main():
             state['food'] = list(map(tuple, state['food']))
             for viewer in viewer_state['viewers']:
                 viewer.show_state(state)
-            if pelita.game.controller_exit(viewer_state):
+            if pelita.game.controller_await(viewer_state):
                 break
 
         sys.exit(0)

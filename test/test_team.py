@@ -39,7 +39,7 @@ class TestStoppingTeam:
             stopping,
             round_counting
         ]
-        state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout), allow_exceptions=True)
+        state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout), raise_bot_exceptions=True)
         assert state['bots'][0] == (1, 1)
         assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 1
@@ -49,7 +49,7 @@ class TestStoppingTeam:
             stopping,
             round_counting
         ]
-        state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout), allow_exceptions=True)
+        state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout), raise_bot_exceptions=True)
         assert state['bots'][0] == (1, 1)
         assert state['bots'][1] == (10, 1)
         assert round_counting._storage['rounds'] == 3
@@ -240,7 +240,7 @@ def test_eaten_flag_kill(bot_to_move):
 
         # otherwise return current position
         return new_pos
-    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), allow_exceptions=True)
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
@@ -322,7 +322,7 @@ def test_eaten_flag_suicide(bot_to_move):
 
         # otherwise return current position
         return new_pos
-    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), allow_exceptions=True)
+    state = run_game([move, move], max_rounds=3, layout_dict=parse_layout(layout), raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
@@ -418,7 +418,7 @@ def test_bot_attributes():
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
     # assertions might have been caught in run_game
     # check that all is good
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
 def test_bot_graph():
@@ -448,7 +448,7 @@ def test_bot_graph():
     state  = run_game([rough_bot, stopping], max_rounds=1, layout_dict=parse_layout(layout))
     # assertions might have been caught in run_game
     # check that all is good
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
 def test_bot_graph_is_half_mutable():
@@ -491,7 +491,7 @@ def test_bot_graph_is_half_mutable():
     state  = run_game([blue, red], max_rounds=2, layout_dict=parse_layout(layout))
     # assertions might have been caught in run_game
     # check that all is good
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
     assert "".join(observer) == 'BRbrbrbr'
 
@@ -527,12 +527,12 @@ def test_team_names():
 
     state = play_turn(state)
     # check that player did not fail
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
     state = play_turn(state)
     # check that player did not fail
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
 
@@ -594,7 +594,7 @@ def test_team_time():
 
         return bot.position
 
-    state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3, allow_exceptions=True)
+    state = setup_game([team_1, team_2], layout_dict=parse_layout(test_layout), max_rounds=3, raise_bot_exceptions=True)
 
     state = play_turn(state)
     assert state['team_time'][0] >= 0
@@ -627,7 +627,7 @@ def test_team_time():
     assert check == old_time
 
     # check that player did not fail
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
     assert state['team_time'][0] >= 1.0
     assert state['team_time'][1] >= 2.0
@@ -661,7 +661,7 @@ def test_bot_str_repr():
         return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
-                     allow_exceptions=True)
+                     raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
@@ -690,7 +690,7 @@ def test_bot_html_repr():
         return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
-                     allow_exceptions=True)
+                     raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
@@ -713,16 +713,16 @@ def test_bot_repr():
     def asserting_team(bot, state):
         bot_repr = repr(bot)
         if bot.is_blue and bot.round == 1:
-            assert bot_repr == f"<Bot: {bot.char} (blue), {bot.position}, turn: {bot.turn}, round: 1>"
+            assert bot_repr == f"<Bot: {bot.char} (team blue), pos: {bot.position}, turn: {bot.turn}, round: 1>"
         elif not bot.is_blue and bot.round == 1:
-            assert bot_repr == f"<Bot: {bot.char} (red), {bot.position}, turn: {bot.turn}, round: 1>"
+            assert bot_repr == f"<Bot: {bot.char} (team red), pos: {bot.position}, turn: {bot.turn}, round: 1>"
         else:
             assert False, "Should never be here."
 
         return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
-                     allow_exceptions=True)
+                     raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
@@ -756,7 +756,7 @@ def test_bot_say(say, expected):
         bot.say(say)
         return bot.position
 
-    state = setup_game([speaking_team, speaking_team], max_rounds=1, layout_dict=parsed, allow_exceptions=True)
+    state = setup_game([speaking_team, speaking_team], max_rounds=1, layout_dict=parsed, raise_bot_exceptions=True)
     idx = 0
     while not state["gameover"]:
         state = play_turn(state)

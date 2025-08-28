@@ -55,7 +55,7 @@ import click
 from rich.console import Console
 from rich.table import Table
 
-from pelita.network import ZMQClientError
+from pelita.network import RemotePlayerFailure
 from pelita.scripts.script_utils import start_logging
 from pelita.tournament import call_pelita, check_team
 
@@ -126,7 +126,7 @@ class CI_Engine:
                 _logger.debug('Querying team name for %s.' % pname)
                 team_name = check_team(player['path'])
                 self.dbwrapper.add_team_name(pname, team_name)
-            except ZMQClientError as e:
+            except RemotePlayerFailure as e:
                 e_type, e_msg = e.args
                 _logger.debug(f'Could not import {player} at path {path} ({e_type}): {e_msg}')
                 player['error'] = e.args

@@ -105,7 +105,7 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
 
     game_state = run_game((blue_move, red_move), layout_dict=layout_dict,
                           max_rounds=max_rounds, rng=rng,
-                          team_names=('blue', 'red'), allow_exceptions=True, print_result=False)
+                          team_names=('blue', 'red'), raise_bot_exceptions=True, print_result=False)
     out = {}
     out['seed'] = seed
     out['walls'] = game_state['walls']
@@ -117,8 +117,8 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     out['red_bots'] = game_state['bots'][1::2]
     out['blue_score'] = game_state['score'][0]
     out['red_score'] = game_state['score'][1]
-    out['blue_errors'] = game_state['errors'][0]
-    out['red_errors'] = game_state['errors'][1]
+    out['blue_errors'] = game_state['timeouts'][0]
+    out['red_errors'] = game_state['timeouts'][1]
     out['blue_deaths'] = game_state['deaths'][::2]
     out['red_deaths'] = game_state['deaths'][1::2]
     out['blue_kills'] = game_state['kills'][::2]

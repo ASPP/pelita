@@ -43,7 +43,7 @@ def test_remote_call_pelita(remote_teams):
     assert res['fatal_errors'] == [[], []]
     # errors for call_pelita only contains the last thrown error, hence None
     # TODO: should be aligned so that call_pelita and run_game return the same thing
-    assert res['errors'] == [None, None]
+    assert res['timeouts'] == [None, None]
 
 
 def test_remote_run_game(remote_teams):
@@ -57,10 +57,9 @@ def test_remote_run_game(remote_teams):
     state = pelita.game.run_game(remote_teams, max_rounds=30, layout_dict=pelita.layout.parse_layout(layout))
     assert state['whowins'] == 1
     assert state['fatal_errors'] == [[], []]
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
 
 
-@pytest.mark.xfail(reason="TODO: Fails in CI for macOS. Unclear why.")
 def test_remote_timeout():
     # We have a slow player that also generates a bad move
     # in its second turn.
@@ -83,13 +82,42 @@ def test_remote_timeout():
                                  timeout_length=0.4)
 
     assert state['whowins'] == 0
-    assert state['fatal_errors'] == [[], []]
-    assert state['errors'] == [{},
-        {(1, 1): {'description': '', 'type': 'PlayerTimeout'},
-        (1, 3): {'bot_position': (-2, 0), 'reason': 'illegal move'},
-        (2, 1): {'description': '', 'type': 'PlayerTimeout'},
-        (2, 3): {'description': '', 'type': 'PlayerTimeout'},
-        (3, 1): {'description': '', 'type': 'PlayerTimeout'}}]
+    assert state['fatal_errors'][0] == []
+    assert state['fatal_errors'][1][0]['type'] == 'IllegalPosition'
+    assert state['fatal_errors'][1][0]['turn'] == 3
+    assert state['fatal_errors'][1][0]['round'] == 2
+    assert state['timeouts'][0] == {}
+    assert set(state['timeouts'][1].keys()) == {(1, 1), (1, 3), (2, 1)}
+    assert state['timeouts'][1][(1, 1)]['type'] == 'timeout'
+    assert state['timeouts'][1][(1, 3)]['type'] == 'timeout'
+    assert state['timeouts'][1][(2, 1)]['type'] == 'timeout'
+
+
+@pytest.mark.parametrize("failing_team", [0, 1])
+def test_bad_team_name(failing_team):
+    layout = """
+        ##########
+        #  b  y  #
+        #a  ..  x#
+        ##########
+        """
+
+    failing_player = FIXTURE_DIR / 'player_bad_team_name.py'
+    good_player = "0"
+
+    if failing_team == 0:
+        teams = [str(failing_player), str(good_player)]
+    elif failing_team == 1:
+        teams = [str(good_player), str(failing_player)]
+
+    state = pelita.game.run_game(teams,
+                                 max_rounds=8,
+                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 timeout_length=0.4)
+
+    assert state['whowins'] == -1
+    assert state['fatal_errors'][failing_team][0]['type'] == "RemotePlayerFailure"
+    assert "longer than 25" in state['fatal_errors'][failing_team][0]['description']
 
 
 def test_remote_dumps_are_written():
@@ -114,7 +142,7 @@ def test_remote_dumps_are_written():
 
     assert state['whowins'] == 2
     assert state['fatal_errors'] == [[], []]
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
 
     path = Path(out_folder.name)
     blue_lines = (path / 'blue.out').read_text().split('\n')
@@ -158,12 +186,12 @@ def test_remote_dumps_with_failure(failing_team):
         fail_turn = 0
     elif failing_team == 1:
         fail_turn = 1
-    assert state['fatal_errors'][failing_team][0] == {'type': 'FatalException',
-                                           'description': 'Exception in client (ZeroDivisionError): division by zero',
+    assert state['fatal_errors'][failing_team][0] == {'type': 'ZeroDivisionError',
+                                           'description': 'division by zero',
                                            'turn': fail_turn,
                                            'round': 2}
     assert state['fatal_errors'][1 - failing_team] == []
-    assert state['errors'] == [{}, {}]
+    assert state['timeouts'] == [{}, {}]
 
     path = Path(out_folder.name)
 
@@ -231,15 +259,16 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
                                       max_rounds=2,
                                       layout_dict=pelita.layout.parse_layout(layout))
 
-        assert state['whowins'] == 1
+        assert state['whowins'] == -1
+        assert state['game_phase'] == 'FAILURE'
 
-        assert state['fatal_errors'][0][0]['type'] == 'PlayerDisconnected'
+        assert state['fatal_errors'][0][0]['type'] == 'RemotePlayerFailure'
         assert 'Could not load' in state['fatal_errors'][0][0]['description']
         assert error_type in state['fatal_errors'][0][0]['description']
         assert state['fatal_errors'][0][0]['turn'] == 0
         assert state['fatal_errors'][0][0]['round'] is None
         assert state['fatal_errors'][1] == []
-        assert state['errors'] == [{}, {}]
+        assert state['timeouts'] == [{}, {}]
 
     else:
         state = pelita.game.run_game([str(failing_player), str(good_player)],
@@ -247,10 +276,10 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
                                       layout_dict=pelita.layout.parse_layout(layout))
 
         assert state['whowins'] == 1
+        assert state['game_phase'] == 'FINISHED'
 
-        assert state['fatal_errors'][0][0]['type'] == 'FatalException'
-        assert f'Exception in client ({error_type})' in state['fatal_errors'][0][0]['description']
+        assert state['fatal_errors'][0][0]['type'] == error_type
         assert state['fatal_errors'][0][0]['turn'] == 0
         assert state['fatal_errors'][0][0]['round'] == 1
         assert state['fatal_errors'][1] == []
-        assert state['errors'] == [{}, {}]
+        assert state['timeouts'] == [{}, {}]
