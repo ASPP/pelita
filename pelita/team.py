@@ -278,12 +278,13 @@ class Team:
 
             # console.print_exception(show_locals=True) #, suppress=["pelita"])
 
-            try:
+            # Output colourful stacktraces from Python 3.13 onwards
+            if sys.version_info >= (3, 13):
                 import _colorize
                 colorize = _colorize.can_colorize()
-                # This probably only works from Python 3.13 onwards
+
                 traceback.print_exception(sys.exception(), limit=None, file=None, chain=True, colorize=colorize)
-            except (ImportError, AttributeError):
+            else:
                 traceback.print_exc()
 
             return {
