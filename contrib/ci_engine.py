@@ -46,7 +46,6 @@ import asyncio
 import collections
 from concurrent.futures import ThreadPoolExecutor
 import configparser
-import heapq
 import itertools
 import json
 import logging
@@ -55,7 +54,6 @@ import queue
 import shlex
 import signal
 import sqlite3
-import subprocess
 import sys
 import threading
 from random import Random
