@@ -352,6 +352,7 @@ class RemoteTeam:
         self.request_timeout = 3
 
         self.conn = RemotePlayerConnection(socket)
+        self.remote_is_running = True
 
     @property
     def team_name(self):
@@ -381,6 +382,8 @@ class RemoteTeam:
         reply = self.conn.recv_reply(msg_id, timeout_length)
 
         if "error" in reply:
+            # The remote client produced an error and exited
+            self.remote_is_running = False
             return reply
         # make sure that the move is a tuple
         try:
@@ -400,11 +403,18 @@ class RemoteTeam:
         else:
             payload = {}
 
-        try:
-            _logger.info("Sending exit to remote player %r.", self)
-            self.conn.send_exit(payload)
-        except RemotePlayerSendError:
-            _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
+        if not self.remote_is_running:
+            _logger.info("Not sending exit to remote player %r.", self)
+
+        else:
+            try:
+                _logger.info("Sending exit to remote player %r.", self)
+                self.conn.send_exit(payload)
+            except RemotePlayerSendError:
+                _logger.info("Remote player %r is already dead during exit. Ignoring.", self)
+
+        # TODO: Ideally we should wait for a reply from the remote end before we kill its process
+        self.remote_is_running = False
 
     def _teardown(self):
         pass

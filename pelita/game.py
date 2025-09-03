@@ -1178,20 +1178,14 @@ def check_gameover(game_state):
 
 def exit_remote_teams(game_state):
     """ If the we are gameover, we want the remote teams to shut down. """
-    _logger.info("Telling teams to exit.")
+    _logger.info("Telling remote teams to exit.")
     for idx, team in enumerate(game_state['teams']):
-        if len(game_state['fatal_errors'][idx]) > 0:
-            _logger.info(f"Not sending exit to team {idx} which had a fatal error.")
-            # We pretend we already send the exit message, otherwise
-            # the team’s __del__ method will do it once more.
-            team._sent_exit = True
+        if not isinstance(team, RemoteTeam):
             continue
-        try:
-            team_game_state = prepare_bot_state(game_state, team_idx=idx)
-            team.send_exit(team_game_state)
-        except AttributeError:
-            pass
-
+        # We do not need to send this when a team has already exited but
+        # we rely on send_exit to check and handle this
+        team_game_state = prepare_bot_state(game_state, team_idx=idx)
+        team.send_exit(team_game_state)
 
 
 def split_food(width, food):
