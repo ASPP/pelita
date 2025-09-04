@@ -177,6 +177,10 @@ class RemotePlayerConnection:
         if self.state == "EXITING":
             return
 
+        if self.state == "CLOSED":
+            # TODO: For now we simply ignore if the state is CLOSED
+            return
+
         self.state = "EXITING"
         self.send_req("exit", payload)
 
