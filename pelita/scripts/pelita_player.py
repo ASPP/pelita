@@ -140,16 +140,15 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
                 retval = team.team_name
             # TODO: Log team name override
         elif action == "exit":
-            # quit and don’t return anything
-            message_obj = {
-                "__uuid__": msg_id,
-                "__return__": None
+            # quit
+            reply = {
+                "__exit__": "bye",
             }
             return False
         else:
             _logger.warning(f"Player received unknown action {action}.")
 
-        message_obj = {
+        reply = {
             "__uuid__": msg_id,
             "__return__": retval
         }
@@ -171,7 +170,7 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
     except KeyboardInterrupt as e:
         # catch KeyboardInterrupt to avoid spamming stderr
         msg_id = None
-        message_obj = {
+        reply = {
             '__error__': e.__class__.__name__
         }
         return True
@@ -183,7 +182,7 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
 
         msg = "Exception in client code for team %s." % team
         print(msg, file=sys.stderr)
-        message_obj = {
+        reply = {
             '__uuid__': msg_id,
             '__error__': e.__class__.__name__,
             '__error_msg__': str(e)
@@ -194,13 +193,18 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
         if msg_id is not None:
             # we use our own json_default_handler
             # to automatically convert numpy ints to json
-            json_message = json.dumps(message_obj, default=json_default_handler)
+            json_message = json.dumps(reply, default=json_default_handler)
             # return the message
             socket.send_unicode(json_message)
-            if '__error__' in message_obj:
-                _logger.warning("o-!> %r [%s]", message_obj['__error__'], msg_id)
-            else:
-                _logger.debug("o--> %r [%s]", message_obj['__return__'], msg_id)
+            match reply:
+                case {'__error__': err, '__uuid__': msg_id}:
+                    _logger.warning("o-!> %r [%s]", err, msg_id)
+                case {'__exit__': exit_status}:
+                    _logger.info("o-!> exit", exit_status)
+                case {'__return__': retval, '__uuid__': msg_id}:
+                    _logger.debug("o--> %r [%s]", retval, msg_id)
+                case _:
+                    raise RuntimeError("Created bad reply message")
 
 
 def check_team_name(name):

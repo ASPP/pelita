@@ -3,6 +3,7 @@ import concurrent.futures
 import queue
 import sys
 import uuid
+import traceback
 
 import pytest
 import zmq
@@ -34,7 +35,7 @@ def test_bind_socket_fail(zmq_context):
     socket.close()
 
 
-def test_simpleclient(zmq_context):
+def test_client_protocol(zmq_context):
     res = []
     def stopping(bot, state):
         print(bot)
@@ -137,7 +138,7 @@ def test_simpleclient(zmq_context):
 
 
 @pytest.mark.parametrize("checkpoint", range(11))
-def test_simpleclient_broken(zmq_context, checkpoint):
+def test_client_broken(zmq_context, checkpoint):
     # This test runs a test game against a (malicious) server client
     # (a malicious subprocess client is harder to test)
     # Depending on the checkpoint selected, the broken test client will
@@ -169,6 +170,7 @@ def test_simpleclient_broken(zmq_context, checkpoint):
         _available_socks = poll.poll(timeout=timeout)
         set_initial = sock.recv_json(flags=zmq.NOBLOCK)
         if set_initial['__action__'] == 'exit':
+            sock.send_json({'__exit__': "bye"})
             return
         assert set_initial['__action__'] == "set_initial"
         sock.send_json({'__uuid__': set_initial['__uuid__'], '__return__': None})
@@ -179,7 +181,9 @@ def test_simpleclient_broken(zmq_context, checkpoint):
 
             action = game_state['__action__']
             if action == 'exit':
+                sock.send_json({'__exit__': "bye"})
                 return
+
             assert set_initial['__action__'] == "set_initial"
 
             current_pos = game_state['__data__']['game_state']['team']['bot_positions'][game_state['__data__']['game_state']['bot_turn']]
@@ -189,6 +193,8 @@ def test_simpleclient_broken(zmq_context, checkpoint):
         exit_state = sock.recv_json(flags=zmq.NOBLOCK)
 
         assert exit_state['__action__'] == 'exit'
+        sock.send_json({'__exit__': "bye"})
+
 
     def dealer_bad(q):
         zmq_context = zmq.Context()
@@ -233,6 +239,7 @@ def test_simpleclient_broken(zmq_context, checkpoint):
 
             action = game_state['__action__']
             if action == 'exit':
+                sock.send_json({'__exit__': "bye"})
                 return
 
             current_pos = game_state['__data__']['game_state']['team']['bot_positions'][game_state['__data__']['game_state']['bot_turn']]
@@ -255,6 +262,7 @@ def test_simpleclient_broken(zmq_context, checkpoint):
                 return
             else:
                 sock.send_json({'__uuid__': game_state['__uuid__'], '__return__': {'move': current_pos}})
+
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         players = []
@@ -301,4 +309,4 @@ def test_simpleclient_broken(zmq_context, checkpoint):
 
         # check that no player had an uncaught exception
         for player in concurrent.futures.as_completed(players):
-            assert player.exception() is None
+            assert player.exception() is None, traceback.print_exception(player.exception(), limit=None, file=None, chain=True)
