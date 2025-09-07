@@ -1186,29 +1186,20 @@ def check_gameover(game_state):
 def exit_remote_teams(game_state):
     """ If the we are gameover, we want the remote teams to shut down. """
     _logger.info("Telling remote teams to exit.")
-    remote_teams = [
-        (idx, team)
-        for idx, team in enumerate(game_state['teams'])
-        if isinstance(team, RemoteTeam)
-    ]
+    for idx, team in enumerate(game_state['teams']):
+        if isinstance(team, RemoteTeam):
+            # We do not need to send this when a team has already exited but
+            # we rely on send_exit to check and handle this
+            team_game_state = prepare_bot_state(game_state, team_idx=idx)
+            team.send_exit(team_game_state)
 
-    for idx, team in remote_teams:
-        # We do not need to send this when a team has already exited but
-        # we rely on send_exit to check and handle this
-        team_game_state = prepare_bot_state(game_state, team_idx=idx)
-        team.send_exit(team_game_state)
 
 def cleanup_remote_teams(game_state):
     """ Shutdown remote team processes (if needed) """
     _logger.info("Terminating remote teams.")
-    remote_teams = [
-        (idx, team)
-        for idx, team in enumerate(game_state['teams'])
-        if isinstance(team, RemoteTeam)
-    ]
-
-    for idx, team in remote_teams:
-        team.cleanup()
+    for team in game_state['teams']:
+        if isinstance(team, RemoteTeam):
+            team.cleanup()
 
 
 def split_food(width, food):
