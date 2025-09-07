@@ -1010,7 +1010,6 @@ def test_minimal_remote_game():
 def test_non_existing_file():
     l = maze_generator.generate_maze()
     res = run_game(["blah", "nothing"], max_rounds=1, layout_dict=l)
-    print(res['fatal_errors'])
 
     # We might only catch only one of the errors
     assert len(res['fatal_errors'][0]) > 0 or len(res['fatal_errors'][1]) > 0

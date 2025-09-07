@@ -355,7 +355,7 @@ def setup_game(team_specs, *, layout_dict: Layout, max_rounds=300, rng=None,
         'food': food,
 
         #: Food ages per team. Dict of (int, int) to int
-        'food_age': ({}, {}),
+        'food_age': [{}, {}],
 
         ### Round/turn information
         #: Phase
@@ -381,10 +381,10 @@ def setup_game(team_specs, *, layout_dict: Layout, max_rounds=300, rng=None,
         'score': [0, 0],
 
         #: Fatal errors
-        'fatal_errors': ([], []),
+        'fatal_errors': [[], []],
 
         #: Number of timeouts for a team
-        'timeouts': ({}, {}),
+        'timeouts': [{}, {}],
 
         ### Configuration
         #: Maximum number of rounds, int
@@ -411,10 +411,10 @@ def setup_game(team_specs, *, layout_dict: Layout, max_rounds=300, rng=None,
         ### Informative
 
         #: Name of the teams. Tuple of str
-        'team_names': team_names,
+        'team_names': list(team_names),
 
         #: Additional team info. Tuple of str|None
-        'team_infos': team_infos,
+        'team_infos': list(team_infos),
 
         #: Time each team needed, list of float
         'team_time': [0.0, 0.0],
