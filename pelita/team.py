@@ -481,7 +481,7 @@ class SubprocessTeam(RemoteTeam):
             return (subprocess.Popen(external_call), None, None)
 
     def cleanup(self):
-        # Clean up of the running subprocess
+        # Cleanup of the running subprocess
 
         # Check if the subprocess is still running
         try:
@@ -491,17 +491,8 @@ class SubprocessTeam(RemoteTeam):
         except subprocess.TimeoutExpired:
             pass
 
-        # It should have been sent by run_game but if it hasn’t, we’ll kindly ask the remote end to shut down
+        # This should have been sent by run_game but if it hasn’t, we’ll kindly ask the remote end to shut down
         self.send_exit()
-
-        #
-        # try:
-        #     timeout = self.shutdown_timeout - (time.monotonic() - self.time_sent_exit)
-        #     if timeout < 0:
-        #         timeout = 0
-        #     self.await_exit(timeout=timeout)
-        # except (RemotePlayerSendError, RemotePlayerRecvTimeout, RemotePlayerFailure) as e:
-        #     _logger.warning("%r", e)
 
         # Give the subprocess some time to finish
         timeout = self.shutdown_timeout - (time.monotonic() - self.time_sent_exit)
