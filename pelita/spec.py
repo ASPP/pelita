@@ -19,8 +19,8 @@ class GameState(TypedDict):
     game_uuid: UUID
     walls: set[Pos]
     shape: Shape
-    food: tuple[set[Pos], set[Pos]]
-    food_age: tuple[FoodAges, FoodAges]
+    food: list[set[Pos]]
+    food_age: list[FoodAges]
     game_phase: Literal["INIT", "RUNNING", "FAILURE", "FINISHED"]
     turn: None|int
     round: None|int
@@ -28,8 +28,8 @@ class GameState(TypedDict):
     whowins: None|int
     bots: list[Pos]
     score: list[int]
-    fatal_errors: tuple[list[Any], list[Any]]
-    timeouts: tuple[Any, Any]
+    timeouts: list[Any]
+    fatal_errors: list[list[Any]]
     max_rounds: int
     timeout_length: int
     initial_timeout: int
@@ -37,8 +37,8 @@ class GameState(TypedDict):
     sight_distance: int
     max_food_age: float|int
     shadow_distance: int
-    team_names: tuple[None|str, None|str]
-    team_infos: tuple[None|str, None|str]
+    team_names: list[None|str]
+    team_infos: list[None|str]
     team_time: list[float]
     deaths: list[int]
     kills: list[int]
