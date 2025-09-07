@@ -392,7 +392,7 @@ class RemoteTeam:
         # make sure that the move is a tuple
         try:
             reply["move"] = tuple(reply.get("move"))
-        except TypeError as e:
+        except (AttributeError, TypeError) as e:
             # This should also exit the remote connection
             reply = {
                 "error": type(e).__name__,
