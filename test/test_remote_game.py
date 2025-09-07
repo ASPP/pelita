@@ -1,5 +1,6 @@
 import sys
 import tempfile
+import time
 from pathlib import Path
 from random import Random
 
@@ -283,3 +284,33 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
         assert state['fatal_errors'][0][0]['round'] == 1
         assert state['fatal_errors'][1] == []
         assert state['timeouts'] == [{}, {}]
+
+
+def test_cleanup_timeout():
+    layout = """
+        ##########
+        #  b  y  #
+        #a  ..  x#
+        ##########
+        """
+
+    failing_player = FIXTURE_DIR / 'player_long_cleanup.py'
+    good_player = FIXTURE_DIR / 'remote_dumps_with_failure_good.py'
+
+    start = time.monotonic()
+
+    state = pelita.game.run_game([str(failing_player), str(good_player)],
+                                    max_rounds=2,
+                                    layout_dict=pelita.layout.parse_layout(layout),
+                                    raise_bot_exceptions=True)
+
+    duration = time.monotonic() - start
+
+    assert state['whowins'] == 2
+    assert state['game_phase'] == 'FINISHED'
+    assert state['timeouts'] == [{}, {}]
+
+    # 1s is the current RemoteTeam.shutdown_timeout
+    # 10s is the cleanup time in player_long_cleanup.py
+    assert 1 < duration < 10
+
