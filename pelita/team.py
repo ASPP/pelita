@@ -368,10 +368,6 @@ class RemoteTeam:
         except TypeError:
             raise RemotePlayerRecvTimeout("", "") from None
 
-    def await_exit(self, timeout):
-        reply = self.conn.recv_exit(timeout)
-        return reply
-
     def set_initial(self, team_id, game_state):
         timeout_length = game_state['timeout_length']
 

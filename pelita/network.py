@@ -240,14 +240,6 @@ class RemotePlayerConnection:
 
             return None, msg_data
 
-        if '__exit__' in py_obj:
-            msg_ack = py_obj['__exit__'] # == 'bye'
-            _logger.debug("<--. exit %r", msg_ack)
-
-            self.state = "CLOSED"
-
-            return None, None
-
         _logger.warning('Received malformed json message. Closing socket.')
 
         # TODO: Should we tell the remote end that we are exiting?
@@ -281,11 +273,6 @@ class RemotePlayerConnection:
         self.state = "CONNECTED"
 
         return status
-
-    def recv_exit(self, timeout):
-        status = self.recv_timeout(None, timeout)
-        return status
-
 
     def recv_reply(self, expected_id, timeout):
         match self.state:

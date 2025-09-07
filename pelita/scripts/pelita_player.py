@@ -140,10 +140,10 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
                 retval = team.team_name
             # TODO: Log team name override
         elif action == "exit":
-            # quit
-            reply = {
-                "__exit__": "bye",
-            }
+            # quit.
+            # This could be an opportunity to send data back to the main Pelita process
+            _logger.info("Got exit request. Shutting down the player.")
+            reply = None
             return False
         else:
             _logger.warning(f"Player received unknown action {action}.")
@@ -190,6 +190,8 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
         return False
 
     finally:
+        if reply is None:
+            return
         if msg_id is not None:
             # we use our own json_default_handler
             # to automatically convert numpy ints to json
@@ -199,8 +201,6 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
             match reply:
                 case {'__error__': err, '__uuid__': msg_id}:
                     _logger.warning("o-!> %r [%s]", err, msg_id)
-                case {'__exit__': exit_status}:
-                    _logger.info("o-!> exit", exit_status)
                 case {'__return__': retval, '__uuid__': msg_id}:
                     _logger.debug("o--> %r [%s]", retval, msg_id)
                 case _:
