@@ -481,12 +481,15 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
 
     # send_initial might have changed our game phase to FAILURE or FINISHED
     if game_state['game_phase'] == 'INIT':
+        _logger.info("Setting game phase to RUNNING.")
         game_state['game_phase'] = 'RUNNING'
     else:
         # exit remote teams in case there was a failure or the game has finished
         # In this case, we also want to update the viewers
+        _logger.info("Game phase is %s. Exiting.", game_state['game_phase'])
         update_viewers(game_state)
         exit_remote_teams(game_state)
+        cleanup_remote_teams(game_state)
 
     return game_state
 
@@ -870,7 +873,9 @@ def play_turn(game_state, raise_bot_exceptions=False):
 
     # exit remote teams in case we are game over
     if game_state["game_phase"] != "RUNNING":
+        _logger.info("Game phase is %s. Exiting.", game_state['game_phase'])
         exit_remote_teams(game_state)
+        cleanup_remote_teams(game_state)
 
     return game_state
 
@@ -1105,7 +1110,9 @@ def add_fatal_error(game_state, *, round, turn, type, msg, raise_bot_exceptions=
                     })
 
     if raise_bot_exceptions:
+        _logger.warning("Raising the bot exception. Exiting.")
         exit_remote_teams(game_state)
+        cleanup_remote_teams(game_state)
         raise PelitaBotError(type, msg)
 
 
@@ -1178,20 +1185,21 @@ def check_gameover(game_state):
 
 def exit_remote_teams(game_state):
     """ If the we are gameover, we want the remote teams to shut down. """
-    _logger.info("Telling teams to exit.")
+    _logger.info("Telling remote teams to exit.")
     for idx, team in enumerate(game_state['teams']):
-        if len(game_state['fatal_errors'][idx]) > 0:
-            _logger.info(f"Not sending exit to team {idx} which had a fatal error.")
-            # We pretend we already send the exit message, otherwise
-            # the team’s __del__ method will do it once more.
-            team._sent_exit = True
-            continue
-        try:
+        if isinstance(team, RemoteTeam):
+            # We do not need to send this when a team has already exited but
+            # we rely on send_exit to check and handle this
             team_game_state = prepare_bot_state(game_state, team_idx=idx)
             team.send_exit(team_game_state)
-        except AttributeError:
-            pass
 
+
+def cleanup_remote_teams(game_state):
+    """ Shutdown remote team processes (if needed) """
+    _logger.info("Terminating remote teams.")
+    for team in game_state['teams']:
+        if isinstance(team, RemoteTeam):
+            team.cleanup()
 
 
 def split_food(width, food):

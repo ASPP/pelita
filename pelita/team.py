@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 import sys
+import time
 import traceback
 from io import StringIO
 from pathlib import Path
@@ -350,8 +351,11 @@ class RemoteTeam:
 
         #: Default timeout for a request, unless specified in the game_state
         self.request_timeout = 3
+        self.shutdown_timeout = 1
 
         self.conn = RemotePlayerConnection(socket)
+        self.remote_is_running = True
+        self.time_sent_exit = 0
 
     @property
     def team_name(self):
@@ -381,11 +385,14 @@ class RemoteTeam:
         reply = self.conn.recv_reply(msg_id, timeout_length)
 
         if "error" in reply:
+            # The remote client produced an error and exited
+            self.remote_is_running = False
+            self.time_sent_exit = time.monotonic()
             return reply
         # make sure that the move is a tuple
         try:
             reply["move"] = tuple(reply.get("move"))
-        except TypeError as e:
+        except (AttributeError, TypeError) as e:
             # This should also exit the remote connection
             reply = {
                 "error": type(e).__name__,
@@ -394,28 +401,27 @@ class RemoteTeam:
         return reply
 
     def send_exit(self, game_state=None):
-
         if game_state:
             payload = {'game_state': game_state}
         else:
             payload = {}
 
-        try:
-            _logger.info("Sending exit to remote player %r.", self)
-            self.conn.send_exit(payload)
-        except RemotePlayerSendError:
-            _logger.info("Remote Player %r is already dead during exit. Ignoring.", self)
+        if not self.remote_is_running:
+            _logger.info("Not sending exit to remote player %r.", self)
 
-    def _teardown(self):
+        else:
+            try:
+                _logger.info("Sending exit to remote player %r.", self)
+                self.conn.send_exit(payload)
+
+            except RemotePlayerSendError:
+                _logger.info("Remote player %r is already dead during exit. Ignoring.", self)
+
+            self.remote_is_running = False
+            self.time_sent_exit = time.monotonic()
+
+    def cleanup(self):
         pass
-
-    def __del__(self):
-        try:
-            self.send_exit()
-            self._teardown()
-        except AttributeError:
-            # in case we exit before self.proc or self.zmqconnection have been set
-            pass
 
     def __repr__(self):
         team_name = f" ({self._team_name})" if self._team_name is not None else ""
@@ -474,9 +480,39 @@ class SubprocessTeam(RemoteTeam):
         else:
             return (subprocess.Popen(external_call), None, None)
 
-    def _teardown(self):
-        if self.proc:
+    def cleanup(self):
+        # Cleanup of the running subprocess
+
+        # Check if the subprocess is still running
+        try:
+            self.proc.wait(0)
+            # No subprocess. We are finished here
+            return
+        except subprocess.TimeoutExpired:
+            pass
+
+        # This should have been sent by run_game but if it hasn’t, we’ll kindly ask the remote end to shut down
+        self.send_exit()
+
+        # Give the subprocess some time to finish
+        timeout = self.shutdown_timeout - (time.monotonic() - self.time_sent_exit)
+        if timeout < 0:
+            timeout = 0
+        try:
+            self.proc.wait(timeout)
+        except subprocess.TimeoutExpired:
             self.proc.terminate()
+
+    def __del__(self):
+
+        # This is implemented here as a last resort. Ideally run_game would take care
+        # that all processes have shut down and only then would it return
+
+        try:
+            self.cleanup()
+        except AttributeError:
+            # in case we exit before self.proc or self.conn have been set
+            pass
 
 
 class RemoteServerTeam(RemoteTeam):
@@ -534,6 +570,11 @@ class RemoteServerTeam(RemoteTeam):
         socket.send_json({"REQUEST": team_spec})
 
         super().__init__(team_spec, socket)
+
+    def __del__(self):
+        # We inform the server that we are exiting. The server should take care of
+        # terminating all running processes.
+        self.send_exit()
 
 
 def make_team(team_spec, team_name=None, zmq_context=None, idx=None, store_output=False):

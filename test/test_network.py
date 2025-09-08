@@ -3,6 +3,7 @@ import concurrent.futures
 import queue
 import sys
 import uuid
+import traceback
 
 import pytest
 import zmq
@@ -34,7 +35,7 @@ def test_bind_socket_fail(zmq_context):
     socket.close()
 
 
-def test_simpleclient(zmq_context):
+def test_client_protocol(zmq_context):
     res = []
     def stopping(bot, state):
         print(bot)
@@ -136,8 +137,8 @@ def test_simpleclient(zmq_context):
     assert res[0] == "success"
 
 
-@pytest.mark.parametrize("checkpoint", range(11))
-def test_simpleclient_broken(zmq_context, checkpoint):
+@pytest.mark.parametrize("checkpoint", range(12))
+def test_client_broken(zmq_context, checkpoint):
     # This test runs a test game against a (malicious) server client
     # (a malicious subprocess client is harder to test)
     # Depending on the checkpoint selected, the broken test client will
@@ -251,7 +252,11 @@ def test_simpleclient_broken(zmq_context, checkpoint):
                 sock.send_json({'__uuid__': game_state['__uuid__'], '__return__': {'move': "NOTHING"}})
                 return
             elif checkpoint == 9:
-                sock.send_json({'__uuid__': game_state['__uuid__'], '__return__': {'move': [0, 0]}})
+                # cannot become a tuple
+                sock.send_json({'__uuid__': game_state['__uuid__'], '__return__': {'move': 12345}})
+                return
+            elif checkpoint == 10:
+                sock.send_json({'__uuid__': game_state['__uuid__'], '__return__': "NOT A DICT"})
                 return
             else:
                 sock.send_json({'__uuid__': game_state['__uuid__'], '__return__': {'move': current_pos}})
@@ -281,7 +286,7 @@ def test_simpleclient_broken(zmq_context, checkpoint):
 
         # check that the game_state ends in the expected phase
         match checkpoint:
-            case 0|5|6|7|8|9|10:
+            case 0|5|6|7|8|9|10|11:
                 assert game_state['game_phase'] == 'RUNNING'
             case 1|2|3|4:
                 assert game_state['game_phase'] == 'FAILURE'
@@ -290,10 +295,10 @@ def test_simpleclient_broken(zmq_context, checkpoint):
             game_state = play_turn(game_state)
 
         match checkpoint:
-            case 0|6|10:
+            case 0|6|11:
                 assert game_state['game_phase'] == 'FINISHED'
                 assert game_state['whowins'] == 2
-            case 5|7|8|9:
+            case 5|7|8|9|10:
                 assert game_state['game_phase'] == 'FINISHED'
                 assert game_state['whowins'] == 0
             case 1|2|3|4:
@@ -301,4 +306,4 @@ def test_simpleclient_broken(zmq_context, checkpoint):
 
         # check that no player had an uncaught exception
         for player in concurrent.futures.as_completed(players):
-            assert player.exception() is None
+            assert player.exception() is None, traceback.print_exception(player.exception(), limit=None, file=None, chain=True)

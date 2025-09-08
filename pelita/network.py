@@ -143,7 +143,7 @@ class RemotePlayerConnection:
 
         if msg_id is not None:
             message_obj = {"__uuid__": msg_id, "__action__": action, "__data__": data}
-            _logger.debug("---> %r [%s]", action, msg_id)
+            _logger.debug("?--> %r [%s]", action, msg_id)
         else:
             message_obj = {"__action__": action, "__data__": data}
             _logger.debug("---> %r", action)
@@ -177,8 +177,13 @@ class RemotePlayerConnection:
         if self.state == "EXITING":
             return
 
+        if self.state == "CLOSED":
+            # TODO: For now we simply ignore if the state is CLOSED
+            return
+
         self.state = "EXITING"
-        self.send_req("exit", payload)
+        msg_id = self.send_req("exit", payload)
+        return msg_id
 
     def _recv(self):
         """ Receive the next message on the socket. Will wait forever
@@ -210,6 +215,7 @@ class RemotePlayerConnection:
         if '__error__' in py_obj:
             error_type = py_obj['__error__']
             error_message = py_obj.get('__error_msg__', '')
+            _logger.debug("<--X %r: %s", error_type, error_message)
             _logger.warning(f'Received error reply ({error_type}): {error_message}. Closing socket.')
             self.socket.close()
 
@@ -221,14 +227,14 @@ class RemotePlayerConnection:
         if '__uuid__' in py_obj:
             msg_id = py_obj['__uuid__']
             msg_return = py_obj.get("__return__")
-            _logger.debug("<--- %r [%s]", msg_return, msg_id)
+            _logger.debug("<--! %r [%s]", msg_return, msg_id)
 
             return msg_id, msg_return
 
         if '__status__' in py_obj:
             msg_ack = py_obj['__status__'] # == 'ok'
             msg_data = py_obj.get('__data__')
-            _logger.debug("<--- %r %r", msg_ack, msg_data)
+            _logger.debug("<--o %r %r", msg_ack, msg_data)
 
             self.state = "CONNECTED"
 
@@ -269,10 +275,11 @@ class RemotePlayerConnection:
         return status
 
     def recv_reply(self, expected_id, timeout):
+        match self.state:
+            case "CONNECTED"|"EXITING":
+                return self.recv_timeout(expected_id, timeout)
 
-        if not self.state == "CONNECTED":
-            raise BadState
-        return self.recv_timeout(expected_id, timeout)
+        raise BadState(self.state)
 
     def recv_timeout(self, expected_id, timeout):
         """ Waits `timeout` seconds for a reply with msg_id `expected_id`.
