@@ -152,7 +152,7 @@ class CI_Engine:
             pname, path = args
             try:
                 _logger.debug('Querying team name for %s.' % pname)
-                team_name = check_team(path)
+                team_name = check_team(path, timeout=6*concurrency)
                 return { 'team_name': team_name }
             except RemotePlayerFailure as e:
                 e_type, e_msg = e.args
@@ -195,6 +195,8 @@ class CI_Engine:
                                                             size=self.size,
                                                             viewer=self.viewer,
                                                             seed=self.seed,
+                                                            timeout=10,
+                                                            initial_timeout=120,
                                                             exit_flag=EXIT
                                                             )
 
