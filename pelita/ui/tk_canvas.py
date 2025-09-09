@@ -352,22 +352,29 @@ class TkApplication:
             **LABEL_STYLE)
         self.ui_status_selected.pack(side=tkinter.RIGHT)
 
+        self.ui_status_history = tkinter.Label(self.ui_status_11,
+            text="",
+            font=(self._default_font, 8),
+            foreground=RED,
+            **LABEL_STYLE)
+        self.ui_status_history.pack(side=tkinter.BOTTOM)
+
         # previous
         tkinter.Button(self.ui_status_00,
                        text="previous",
                        command=self.button_show_previous,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
-        # play/pause
-        tkinter.Button(self.ui_status_00,
-                       text="play/pause",
-                       command=self.toggle_running,
-                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
-
         # next
         tkinter.Button(self.ui_status_00,
                        text="next",
                        command=self.button_show_next,
+                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
+
+        # play/pause
+        tkinter.Button(self.ui_status_00,
+                       text="play/pause",
+                       command=self.toggle_running,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_01,
@@ -412,6 +419,8 @@ class TkApplication:
         self.window.bind('<space>', lambda event: self.toggle_running())
         self.window.bind('<Return>', lambda event: self.request_step())
         self.window.bind('<Shift-Return>', lambda event: self.request_round())
+        self.window.bind('<Left>', lambda event: self.button_show_previous())
+        self.window.bind('<Right>', lambda event: self.button_show_next())
         self.window.createcommand('exit', self.quit)
         self.window.protocol("WM_DELETE_WINDOW", self.quit)
 
@@ -1134,6 +1143,12 @@ class TkApplication:
                                     force=redraw,
                                     show_id=self._grid_enabled)
 
+    def set_history_mode_status(self, status):
+        if status:
+            self.ui_status_history.configure(text="playback mode")
+        else:
+            self.ui_status_history.configure(text="")
+
     def toggle_running(self):
         self.running = not self.running
         if self.running:
@@ -1154,13 +1169,21 @@ class TkApplication:
         if self._stop_after is not None:
             next_step = next_round_turn(self._game_state)
             if (next_step['round'] < self._stop_after):
+                # update status bar
+                self.set_history_mode_status(False)
+
                 _logger.debug('---> play_step')
                 self.controller_socket.send_json({"__action__": "play_step"})
             else:
+                # update status bar
+                self.set_history_mode_status(True)
                 self._stop_after = None
                 self.running = False
                 self._delay = self._stop_after_delay
         else:
+            # update status bar
+            self.set_history_mode_status(False)
+
             _logger.debug('---> play_step')
             self.controller_socket.send_json({"__action__": "play_step"})
 
@@ -1188,6 +1211,9 @@ class TkApplication:
         """
         Show the previous game step.
         """
+        # update status bar
+        self.set_history_mode_status(True)
+
         current = self.get_current_pointer()
 
         if current in (None, 0):
@@ -1223,10 +1249,17 @@ class TkApplication:
         pointer = self.get_next_pointer()
 
         if pointer not in self.history:
-            # this gamestate is not existing yet;
+            # this gamestate is not existing yet
+
+            # update status bar
+            self.set_history_mode_status(False)
+
             # we need to get it from the message queue
             self.request_step()
         else:
+            # update status bar
+            self.set_history_mode_status(True)
+
             # set the currently displayed game state
             self._game_state = self.history[pointer]
 
