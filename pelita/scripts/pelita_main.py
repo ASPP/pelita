@@ -244,12 +244,14 @@ layout_opt.add_argument('--size', type=w_h_string, metavar="STRING", default='no
 
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
-                         dest='timeout_length', help='Time before timeout is triggered (default: 3 seconds).')
+                         dest='timeout_length', help=f'Time before timeout is triggered (default: {pelita.game.TIMEOUT_SECS} seconds).')
 timeout_opt.add_argument('--no-timeout', const=pelita.game.MAX_TIMEOUT_SECS, action='store_const',
                          dest='timeout_length', help='Run game without timeouts.')
+game_settings.add_argument('--initial-timeout', type=float,  metavar="SEC", default=pelita.game.INITIAL_TIMEOUT_SECS,
+                           dest='initial_timeout_length', help=long_help('Timeout to load a team'))
 game_settings.add_argument('--error-limit', type=int, default=5,
                            dest='error_limit', help='Error limit. Reaching this limit disqualifies a team (default: 5).')
-parser.set_defaults(timeout_length=3)
+parser.set_defaults(timeout_length=pelita.game.TIMEOUT_SECS)
 game_settings.add_argument('--stop-at', dest='stop_at', type=int, metavar="N",
                            help='Stop before playing round N.')
 game_settings.add_argument('--stop-after-kill', dest='stop_after_kill', action='store_true',
@@ -330,7 +332,7 @@ def main():
             raise ValueError("No teams specified.")
         for team_spec in args.team_specs:
             try:
-                team_name = check_team(team_spec)
+                team_name = check_team(team_spec, timeout=args.initial_timeout_length)
                 print("NAME:", team_name)
             except pelita.network.RemotePlayerFailure as e:
                 if e.error_type == 'ModuleNotFoundError':
@@ -462,7 +464,8 @@ def main():
         print(f"Replay this game with --seed {seed}")
 
     pelita.game.run_game(team_specs=team_specs, max_rounds=args.rounds, layout_dict=layout_dict, rng=rng,
-                         allow_camping=args.allow_camping, timeout_length=args.timeout_length, error_limit=args.error_limit,
+                         allow_camping=args.allow_camping, timeout_length=args.timeout_length,
+                         initial_timeout_length=args.initial_timeout_length, error_limit=args.error_limit,
                          viewers=viewers,
                          store_output=args.store_output,
                          team_infos=(args.append_blue, args.append_red))

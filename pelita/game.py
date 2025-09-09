@@ -41,9 +41,15 @@ MAX_FOOD_AGE = 30
 #: Food pellet shadow distance
 SHADOW_DISTANCE = 2
 
+#: Default timeout given to a player
+TIMEOUT_SECS = 3
+
 #: Timeout to be chosen when run with --no-timeout
 # (Players are expected to exit after 60 minutes without contact from pelita main)
 MAX_TIMEOUT_SECS = 60 * 60
+
+#: Timeout for starting a Pelita player
+INITIAL_TIMEOUT_SECS = 6
 
 #: Default maze sizes
 MSIZE = {
@@ -110,7 +116,8 @@ def controller_await(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, max_rounds=300,
-             rng=None, allow_camping=False, error_limit=5, timeout_length=3,
+             rng=None, allow_camping=False, error_limit=5, timeout_length=TIMEOUT_SECS,
+             initial_timeout_length=INITIAL_TIMEOUT_SECS,
              viewers=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
              raise_bot_exceptions=False, print_result=True):
@@ -152,6 +159,9 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
                   Time in seconds to wait for the move function (or for the remote
                   client) to return. After timeout_length seconds are elapsed a
                   non-fatal error is recorded for the team.
+
+    initial_timeout_length : int or float
+            Time in seconds to wait for a remote player to have started
 
     viewers : list[viewer1, viewer2, ...]
            List of viewers to attach to the game. Implemented viewers: 'ascii',
@@ -212,6 +222,7 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
     state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds,
                        allow_camping=allow_camping,
                        error_limit=error_limit, timeout_length=timeout_length,
+                       initial_timeout_length=initial_timeout_length,
                        rng=rng, viewers=viewers,
                        store_output=store_output, team_names=team_names,
                        team_infos=team_infos,
@@ -284,7 +295,7 @@ def setup_viewers(viewers, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
-               allow_camping=False, error_limit=5, timeout_length=3,
+               allow_camping=False, error_limit=5, timeout_length=TIMEOUT_SECS, initial_timeout_length=INITIAL_TIMEOUT_SECS,
                viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
                raise_bot_exceptions=False, print_result=True):
@@ -382,7 +393,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         timeout_length=timeout_length,
 
         #: Initial timeout, int
-        initial_timeout=6,
+        initial_timeout=initial_timeout_length,
 
         #: Noise radius, int
         noise_radius=NOISE_RADIUS,
