@@ -412,6 +412,8 @@ class TkApplication:
         self.window.bind('<space>', lambda event: self.toggle_running())
         self.window.bind('<Return>', lambda event: self.request_step())
         self.window.bind('<Shift-Return>', lambda event: self.request_round())
+        self.window.bind('<Left>', lambda event: self.button_show_previous())
+        self.window.bind('<Right>', lambda event: self.button_show_next())
         self.window.createcommand('exit', self.quit)
         self.window.protocol("WM_DELETE_WINDOW", self.quit)
 
