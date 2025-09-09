@@ -83,6 +83,7 @@ class TeamStateFinished(TypedDict):
     team_time: list[float]
     round: int|None
     turn: int
+    whowins: int
 
 class FullTeamState(TeamInitial, TeamState):
     pass

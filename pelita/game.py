@@ -751,6 +751,7 @@ def prepare_bot_state(game_state: GameState, team_idx=None) -> TeamState | TeamI
             return team_state_final
 
         case "FAILURE":
+            return
             raise PelitaIllegalGameState(game_state)
 
     raise PelitaIllegalGameState("Got bad game_state in prepare_bot_state")
