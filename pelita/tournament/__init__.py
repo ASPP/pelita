@@ -98,7 +98,8 @@ def run_and_terminate_process(args, **kwargs):
                     p.kill()
 
 
-def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, write_replay=False, store_output=False, exit_flag=None):
+def call_pelita(team_specs, *, rounds, size, viewer, seed, timeout=3, initial_timeout=6,
+                team_infos=None, write_replay=False, store_output=False, exit_flag=None):
     """ Starts a new process with the given command line arguments and waits until finished.
 
     Returns
@@ -134,6 +135,8 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, writ
     size = ['--size', size] if size else []
     viewer = ['--' + viewer] if viewer else []
     seed = ['--seed', seed] if seed else []
+    timeout = ['--timeout', str(timeout)]
+    initial_timeout = ['--initial-timeout', str(initial_timeout)]
     write_replay = ['--write-replay', write_replay] if write_replay else []
     store_output = ['--store-output', store_output] if store_output else []
     append_blue = ['--append-blue', team_infos[0]] if team_infos[0] else []
@@ -148,6 +151,8 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, team_infos=None, writ
            *size,
            *viewer,
            *seed,
+           *timeout,
+           *initial_timeout,
            *write_replay,
            *store_output]
 
