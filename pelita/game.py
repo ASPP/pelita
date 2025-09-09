@@ -379,7 +379,7 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         max_rounds=max_rounds,
 
         #: Time till timeout, int
-        timeout=3,
+        timeout_length=timeout_length,
 
         #: Initial timeout, int
         initial_timeout=6,
@@ -436,9 +436,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
 
         #: Random number generator
         rng=rng,
-
-        #: Timeout length, int, None
-        timeout_length=timeout_length,
 
         #: Error limit. A team loses when the limit is reached, int
         error_limit=error_limit,
