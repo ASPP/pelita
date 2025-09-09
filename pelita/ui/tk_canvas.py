@@ -358,16 +358,16 @@ class TkApplication:
                        command=self.button_show_previous,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
-        # play/pause
-        tkinter.Button(self.ui_status_00,
-                       text="play/pause",
-                       command=self.toggle_running,
-                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
-
         # next
         tkinter.Button(self.ui_status_00,
                        text="next",
                        command=self.button_show_next,
+                       **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
+
+        # play/pause
+        tkinter.Button(self.ui_status_00,
+                       text="play/pause",
+                       command=self.toggle_running,
                        **BUTTON_STYLE).pack(side=tkinter.LEFT, expand=True, **BUTTON_PADDING)
 
         tkinter.Button(self.ui_status_01,
