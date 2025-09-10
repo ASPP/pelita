@@ -50,12 +50,14 @@ import itertools
 import json
 import logging
 import operator
+from pathlib import Path
 import queue
 import shlex
 import signal
 import sqlite3
 import sys
 import threading
+from tempfile import TemporaryDirectory
 from random import Random
 
 from rich.console import Console
@@ -189,34 +191,44 @@ class CI_Engine:
         """
         team_specs = [self.players[p1]['path'], self.players[p2]['path']]
 
-        final_state, stdout, stderr = call_pelita(team_specs,
-                                                            rounds=self.rounds,
-                                                            size=self.size,
-                                                            viewer=self.viewer,
-                                                            seed=self.seed,
-                                                            timeout=10,
-                                                            initial_timeout=120,
-                                                            exit_flag=EXIT
-                                                            )
+        with TemporaryDirectory() as tmpdir:
 
-        if not final_state:
-            res = (p1, p2, None, final_state, stdout, stderr)
+            final_state, stdout, stderr = call_pelita(team_specs,
+                                                                rounds=self.rounds,
+                                                                size=self.size,
+                                                                viewer=self.viewer,
+                                                                seed=self.seed,
+                                                                store_output=tmpdir,
+                                                                timeout=10,
+                                                                initial_timeout=120,
+                                                                exit_flag=EXIT
+                                                                )
+
+            if not final_state:
+                res = (p1, p2, None, final_state, stdout, stderr)
+                return res
+
+            if final_state['whowins'] == 2:
+                result = -1
+            else:
+                result = final_state['whowins']
+
+            del final_state['walls']
+            del final_state['food']
+
+            _logger.info('Final state: %r', final_state)
+            _logger.debug('Stdout: %r', stdout)
+            if stderr:
+                _logger.warning('Stderr: %r', stderr)
+
+            p1_stdout = (Path(tmpdir) / 'blue.out').read_text()
+            p1_stderr = (Path(tmpdir) / 'blue.err').read_text()
+
+            p2_stdout = (Path(tmpdir) / 'red.out').read_text()
+            p2_stderr = (Path(tmpdir) / 'red.err').read_text()
+
+            res = (p1, p2, result, final_state, [stdout, stderr], [p1_stdout, p1_stderr], [p2_stdout, p2_stderr])
             return res
-
-        if final_state['whowins'] == 2:
-            result = -1
-        else:
-            result = final_state['whowins']
-
-        del final_state['walls']
-        del final_state['food']
-
-        _logger.info('Final state: %r', final_state)
-        _logger.debug('Stdout: %r', stdout)
-        if stderr:
-            _logger.warning('Stderr: %r', stderr)
-        res = (p1, p2, result, final_state, stdout, stderr)
-        return res
 
 
     def start(self, n, thread_count):
@@ -742,7 +754,7 @@ class DB_Wrapper:
         WHERE name = ?""", (pname,))
         self.connection.commit()
 
-    def add_gameresult(self, p1_name, p2_name, result, final_state, std_out, std_err):
+    def add_gameresult(self, p1_name, p2_name, result, final_state, std, p1_out, p2_out):
         """Add a new game result to the database.
 
         Parameters
@@ -757,6 +769,11 @@ class DB_Wrapper:
             STDOUT and STDERR of the game
 
         """
+
+        stdout, stderr = std
+        p1_stdout, p1_stderr = p1_out
+        p2_stdout, p2_stderr = p2_out
+
         if not final_state:
             return
         self.cursor.execute("""
@@ -765,8 +782,8 @@ class DB_Wrapper:
         """, [p1_name, p2_name, result, json.dumps(final_state),
               final_state['num_errors'][0], final_state['num_errors'][1],
               len(final_state['fatal_errors'][0]), len(final_state['fatal_errors'][1]),
-              std_out, std_err,
-              "", "", "", ""])
+              stdout, stderr,
+              p1_stdout, p1_stderr, p2_stdout, p2_stderr])
         self.connection.commit()
 
     def get_results(self, p1_name, p2_name=None):
