@@ -314,3 +314,38 @@ def test_cleanup_timeout():
     # 10s is the cleanup time in player_long_cleanup.py
     assert 1 < duration < 10
 
+
+def test_remote_initial_timeout_zero():
+    layout = """
+        ##########
+        #  b  y  #
+        #a  ..  x#
+        ##########
+        """
+
+    teams = ["0", "0"]
+
+    state = pelita.game.run_game(teams,
+                                    max_rounds=2,
+                                    initial_timeout_length=6,
+                                    layout_dict=pelita.layout.parse_layout(layout),
+                                    raise_bot_exceptions=True)
+
+    assert state['game_phase'] == 'FINISHED'
+    assert state['whowins'] == 2
+    assert state['timeouts'] == [{}, {}]
+
+    state = pelita.game.run_game(teams,
+                                    max_rounds=2,
+                                    initial_timeout_length=0,
+                                    layout_dict=pelita.layout.parse_layout(layout),
+                                    raise_bot_exceptions=True)
+
+    assert state['game_phase'] == 'FAILURE'
+    assert state['whowins'] == -1
+    # The test should fail on both teams but there may be an edge case where only one failure is detected
+    assert (
+            state['fatal_errors'][0] == [{'type': 'Timeout', 'description': 'Team did not start (timeout).', 'turn': 0, 'round': None}] or
+            state['fatal_errors'][1] == [{'type': 'Timeout', 'description': 'Team did not start (timeout).', 'turn': 1, 'round': None}]
+        )
+
