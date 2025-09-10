@@ -430,7 +430,7 @@ class CI_Engine:
 
         return elo
 
-    def pretty_print_results(self, full=False, highlight=None):
+    def pretty_print_results(self, full=False, team=None, highlight=None):
         """Pretty print the current results.
 
         """
@@ -441,6 +441,56 @@ class CI_Engine:
         bad_players = [p for p, player in self.players.items() if player.get('error')]
 
         console = Console()
+
+
+        table = Table(title="Bot ranking")
+
+        table.add_column("Name")
+        table.add_column("# Matches")
+        table.add_column("# Wins")
+        table.add_column("# Draws")
+        table.add_column("# Losses")
+        table.add_column("Score")
+        table.add_column("ELO")
+        table.add_column("Error count")
+        table.add_column("# Fatal Errors")
+
+        elo = dict(self.dbwrapper.get_elo())
+        # elo = self.gen_elo()
+
+        result = []
+        for idx, pname in enumerate(good_players):
+            win, loss, draw = self.get_results(pname)
+            error_count, fatalerror_count = self.get_errorcount(pname)
+            try:
+                team_name = self.get_team_name(pname)
+            except ValueError:
+                team_name = None
+            score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
+            result.append([score, win, draw, loss, pname, team_name, error_count, fatalerror_count])
+
+        result.sort(reverse=True)
+        for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
+            style = "bold" if name in highlight else None
+            display_name = f"{name} ({team_name})" if team_name else f"{name}"
+            table.add_row(
+                display_name,
+                f"{win+draw+loss}",
+                f"{win}",
+                f"{draw}",
+                f"{loss}",
+                f"{score:6.3f}",
+                f"{elo.get(name, 0): >4.0f}",
+                f"{error_count}",
+                f"{fatalerror_count}",
+                style=style,
+            )
+
+        console.print(table)
+
+        for p in bad_players:
+            print("% 30s ***%30s***" % (p, self.players[p]['error']))
+
 
         if full:
             # Some guesswork in here
@@ -511,53 +561,49 @@ class CI_Engine:
 
             console.print(table)
 
-        table = Table(title="Bot ranking")
+        elif team:
+            MAX_COLUMNS = (console.width - 40) // 12
+            if MAX_COLUMNS < 4:
+                # Let’s be honest: You should enlarge your terminal window even before that
+                MAX_COLUMNS = 4
 
-        table.add_column("Name")
-        table.add_column("# Matches")
-        table.add_column("# Wins")
-        table.add_column("# Draws")
-        table.add_column("# Losses")
-        table.add_column("Score")
-        table.add_column("ELO")
-        table.add_column("Error count")
-        table.add_column("# Fatal Errors")
+            res = self.dbwrapper.get_wins_losses(team=team)
+            rows = {k: list(v) for k, v in itertools.groupby(res, key=lambda x:x[1])}
 
-        elo = dict(self.dbwrapper.get_elo())
-        # elo = self.gen_elo()
+            row_style = ["", "dim"]
 
-        result = []
-        for idx, pname in enumerate(good_players):
-            win, loss, draw = self.get_results(pname)
-            error_count, fatalerror_count = self.get_errorcount(pname)
-            try:
-                team_name = self.get_team_name(pname)
-            except ValueError:
-                team_name = None
-            score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, win, draw, loss, pname, team_name, error_count, fatalerror_count])
+            table = Table(row_styles=row_style, title=f"Match results for team {team}")
+            table.add_column("Name")
+            table.add_column("# Matches")
+            table.add_column("# Wins")
+            table.add_column("# Draws")
+            table.add_column("# Losses")
 
-        result.sort(reverse=True)
-        for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
-            style = "bold" if name in highlight else None
-            display_name = f"{name} ({team_name})" if team_name else f"{name}"
-            table.add_row(
-                display_name,
-                f"{win+draw+loss}",
-                f"{win}",
-                f"{draw}",
-                f"{loss}",
-                f"{score:6.3f}",
-                f"{elo.get(name, 0): >4.0f}",
-                f"{error_count}",
-                f"{fatalerror_count}",
-                style=style,
-            )
+            for idx, pname in enumerate(good_players):
+                try:
+                    team_name = self.get_team_name(pname)
+                except ValueError:
+                    team_name = None
 
-        console.print(table)
+                try:
+                    row = rows[pname]
+                except KeyError:
+                    continue
 
-        for p in bad_players:
-            print("% 30s ***%30s***" % (p, self.players[p]['error']))
+                for r in row: # there should only be one row
+                    p1, p2, win, loss, draw = r
+
+                    display_name = f"{pname} ({team_name})" if team_name else f"{pname}"
+
+                    table.add_row(
+                        display_name,
+                        f"{win+draw+loss}",
+                        f"{win}",
+                        f"{draw}",
+                        f"{loss}",
+                    )
+
+            console.print(table)
 
 
 class DB_Wrapper:
@@ -1040,7 +1086,7 @@ def run(args):
 def print_scores(args):
     with open(args.config) as f:
         ci_engine = CI_Engine(f)
-        ci_engine.pretty_print_results(full=args.full)
+        ci_engine.pretty_print_results(full=args.full, team=args.team)
 
 def hash_teams(args):
     with open(args.config) as f:
@@ -1064,7 +1110,9 @@ if __name__ == '__main__':
     parser_run.set_defaults(func=run)
 
     parser_print_scores = subparsers.add_parser('print-scores')
+    full_or_team = parser_print_scores.add_mutually_exclusive_group()
     parser_print_scores.add_argument('--full', help='show full pair statistics', action='store_true', default=False)
+    parser_print_scores.add_argument('--team', help='show statistics for team', type=str, default=None)
     parser_print_scores.set_defaults(func=print_scores)
 
     parser_hash = subparsers.add_parser('hash-teams')
