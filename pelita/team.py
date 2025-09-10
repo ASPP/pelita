@@ -726,7 +726,7 @@ class Bot:
     def say(self, text):
         """ Print some text in the graphical interface. """
         # sanitize text so that funny users can't break the GUI
-        self._say = sanitize_say(text)
+        self._say = sanitize_say(str(text))
 
     # def get_direction(self, position):
         # """ Return the direction needed to get to the given position.
