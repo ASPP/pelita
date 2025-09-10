@@ -30,13 +30,13 @@ POINTS_WIN = 2
 LOGFILE = None
 
 
-def check_team(team_spec):
+def check_team(team_spec, timeout=6):
 
     """ Instantiates a team from a team_spec and returns its name """
     team, _zmq_context = make_team(team_spec)
     match team:
         case RemoteTeam():
-            team.wait_ready(3)
+            team.wait_ready(timeout)
 
     return team.team_name
 
