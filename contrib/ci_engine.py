@@ -452,7 +452,7 @@ class CI_Engine:
         table.add_column("# Losses")
         table.add_column("Score")
         table.add_column("ELO")
-        table.add_column("Error count")
+        table.add_column("# Timeouts")
         table.add_column("# Fatal Errors")
 
         elo = dict(self.dbwrapper.get_elo())
@@ -643,7 +643,12 @@ class DB_Wrapper:
         """)
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS games
-        (player1 text, player2 text, result int, final_state text, stdout text, stderr text,
+        (player1 text, player2 text, result int, final_state text,
+        player1_timeouts int, player2_timeouts int,
+        player1_fatal_errors int, player2_fatal_errors int,
+        stdout text, stderr text,
+        player1_stdout text, player1_stderr text,
+        player2_stdout text, player2_stderr text,
         FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
         FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
         """)
@@ -756,8 +761,12 @@ class DB_Wrapper:
             return
         self.cursor.execute("""
         INSERT INTO games
-        VALUES (?, ?, ?, ?, ?, ?)
-        """, [p1_name, p2_name, result, json.dumps(final_state), std_out, std_err])
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, [p1_name, p2_name, result, json.dumps(final_state),
+              final_state['num_errors'][0], final_state['num_errors'][1],
+              len(final_state['fatal_errors'][0]), len(final_state['fatal_errors'][1]),
+              std_out, std_err,
+              "", "", "", ""])
         self.connection.commit()
 
     def get_results(self, p1_name, p2_name=None):
@@ -879,45 +888,29 @@ class DB_Wrapper:
         Returns
         -------
         error_count, fatalerror_count : errorcount
-
         """
         self.cursor.execute("""
-        SELECT sum(c) FROM
+        SELECT sum(timeouts), sum(fatal_errors) FROM
             (
-                SELECT sum(json_extract(final_state, '$.num_errors[0]')) AS c
+                SELECT
+                    sum(player1_timeouts) AS timeouts,
+                    sum(player1_fatal_errors) AS fatal_errors
                 FROM games
                 WHERE player1 = :p1
 
                 UNION ALL
 
-                SELECT sum(json_extract(final_state, '$.num_errors[1]')) AS c
+                SELECT
+                    sum(player2_timeouts) AS timeouts,
+                    sum(player2_fatal_errors) AS fatal_errors
                 FROM games
                 WHERE player2 = :p1
             )
         """,
         dict(p1=p1_name))
-        error_count, = self.cursor.fetchone()
+        timeouts, fatal_errorcount = self.cursor.fetchone()
 
-        self.cursor.execute("""
-        SELECT sum(c) FROM
-            (
-                SELECT count(*) AS c
-                FROM games
-                WHERE player1 = :p1 AND
-                      json_extract(final_state, '$.fatal_errors[0]') != '[]'
-
-                UNION ALL
-
-                SELECT count(*) AS c
-                FROM games
-                WHERE player2 = :p1 AND
-                      json_extract(final_state, '$.fatal_errors[1]') != '[]'
-            )
-        """,
-        dict(p1=p1_name))
-        fatal_errorcount, = self.cursor.fetchone()
-
-        return error_count, fatal_errorcount
+        return timeouts, fatal_errorcount
 
     def get_wins_losses(self, team=None):
         """ Get all wins and losses combined in a table of
