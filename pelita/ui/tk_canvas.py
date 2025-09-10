@@ -904,7 +904,8 @@ class TkApplication:
             for idx, label in enumerate(self.ui_bot_indexes):
                 label.configure(fg=bot_colors[idx] if turn == idx else "#bbb")
 
-
+        # update history status bar
+        self.set_history_mode_status(self.get_next_pointer() in self.history)
 
     def draw_selected(self, game_state):
         self.ui_game_canvas.delete("selected")
@@ -1169,21 +1170,14 @@ class TkApplication:
         if self._stop_after is not None:
             next_step = next_round_turn(self._game_state)
             if (next_step['round'] < self._stop_after):
-                # update status bar
-                self.set_history_mode_status(False)
 
                 _logger.debug('---> play_step')
                 self.controller_socket.send_json({"__action__": "play_step"})
             else:
-                # update status bar
-                self.set_history_mode_status(True)
                 self._stop_after = None
                 self.running = False
                 self._delay = self._stop_after_delay
         else:
-            # update status bar
-            self.set_history_mode_status(False)
-
             _logger.debug('---> play_step')
             self.controller_socket.send_json({"__action__": "play_step"})
 
@@ -1211,9 +1205,6 @@ class TkApplication:
         """
         Show the previous game step.
         """
-        # update status bar
-        self.set_history_mode_status(True)
-
         current = self.get_current_pointer()
 
         if current in (None, 0):
@@ -1251,15 +1242,9 @@ class TkApplication:
         if pointer not in self.history:
             # this gamestate is not existing yet
 
-            # update status bar
-            self.set_history_mode_status(False)
-
             # we need to get it from the message queue
             self.request_step()
         else:
-            # update status bar
-            self.set_history_mode_status(True)
-
             # set the currently displayed game state
             self._game_state = self.history[pointer]
 
