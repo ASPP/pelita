@@ -1010,7 +1010,6 @@ def test_minimal_remote_game():
 def test_non_existing_file():
     l = maze_generator.generate_maze()
     res = run_game(["blah", "nothing"], max_rounds=1, layout_dict=l)
-    print(res['fatal_errors'])
 
     # We might only catch only one of the errors
     assert len(res['fatal_errors'][0]) > 0 or len(res['fatal_errors'][1]) > 0
@@ -1185,7 +1184,7 @@ def test_apply_move_resets_bot_was_killed(game_state, bot_to_move, bot_was_kille
     bot_state = game.prepare_bot_state(game_state)
 
     # bot state should have proper bot_was_killed flag
-    assert bot_state['team']['bot_was_killed'] == bot_was_killed_flags[team_id::2]
+    assert bot_state['bot_was_killed'] == bot_was_killed_flags
 
     # apply a dummy move that should reset bot_was_killed for the current bot
     _new_test_state = game.apply_move(game_state, current_bot_position)

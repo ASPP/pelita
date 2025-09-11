@@ -1,0 +1,89 @@
+from typing import Literal, TypeAlias, TypedDict, Any
+from random import Random
+
+from .team import Team
+
+Shape: TypeAlias = tuple[int, int]
+Pos: TypeAlias = tuple[int, int]
+FoodAges: TypeAlias = dict[Pos, int]
+
+class Layout(TypedDict):
+    bots: list[Pos]
+    walls: set[Pos]
+    shape: Shape
+    food: list[Pos]
+    # food: tuple[set[Pos], set[Pos]]
+
+class GameState(TypedDict):
+    walls: set[Pos]
+    shape: Shape
+    food: list[set[Pos]]
+    food_age: list[FoodAges]
+    game_phase: Literal["INIT", "RUNNING", "FAILURE", "FINISHED"]
+    turn: None|int
+    round: None|int
+    gameover: bool
+    whowins: None|int
+    bots: list[Pos]
+    score: list[int]
+    timeouts: list[Any]
+    fatal_errors: list[list[Any]]
+    max_rounds: int
+    timeout_length: int
+    initial_timeout: int
+    noise_radius: int
+    sight_distance: int
+    max_food_age: float|int
+    shadow_distance: int
+    team_names: list[None|str]
+    team_infos: list[None|str]
+    team_time: list[float]
+    deaths: list[int]
+    kills: list[int]
+    bot_was_killed: list[bool]
+    noisy_positions: list[None|Pos]
+    requested_moves: list[None|Pos]
+    say: list[str]
+    teams: list[None|Team]
+    rng: Random
+    error_limit: int
+    viewers: list[Any]
+    controller: None|Any
+
+class TeamInitial(TypedDict):
+    walls: set[Pos]
+    shape: Shape
+    seed: int
+    max_rounds: int
+    team_names: list[str]
+    timeout_length: float
+
+class TeamState(TypedDict):
+    bots: list[Pos]
+    score: list[int]
+    kills: list[int]
+    deaths: list[int]
+    bot_was_killed: list[bool]
+    error_count: list[int]
+    food: list[list[Pos]]
+    shaded_food: list[list[Pos]]
+    team_time: list[float]
+    is_noisy: list[bool]
+    round: int|None
+    turn: int
+
+class TeamStateFinished(TypedDict):
+    bots: list[Pos]
+    score: list[int]
+    kills: list[int]
+    deaths: list[int]
+    bot_was_killed: list[bool]
+    error_count: list[bool]
+    food: list[list[Pos]]
+    team_time: list[float]
+    round: int|None
+    turn: int
+    whowins: int
+
+class FullTeamState(TeamInitial, TeamState):
+    pass
