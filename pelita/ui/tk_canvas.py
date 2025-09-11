@@ -421,6 +421,7 @@ class TkApplication:
         self.window.bind('<Left>', lambda event: self.button_show_previous())
         self.window.bind('<Right>', lambda event: self.button_show_next())
         self.window.createcommand('exit', self.quit)
+        self.window.createcommand('::tk::mac::Quit', self.quit)
         self.window.protocol("WM_DELETE_WINDOW", self.quit)
 
         if self.controller_socket:
