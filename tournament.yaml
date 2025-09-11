@@ -1,8 +1,10 @@
 ---
-location: Munich
-date: 2015
+location: Heraklion
+date: 2024
 seed: null
 bonusmatch: True
+speak: True
+speaker: /usr/bin/say -v Zarvox -f
 teams:
   - spec: pelita/player/StoppingPlayer
     members:
@@ -13,12 +15,3 @@ teams:
   - spec: pelita/player/RandomExplorerPlayer
     members:
       - "Random Explorer"
-  - spec: pelita/player/RandomPlayers
-    members:
-      - "Random Player"
-  - spec: pelita/player/SmartEatingPlayer
-    members:
-      - "Smart Eating Player"
-  - spec: pelita/player/SmartRandomPlayer
-    members:
-      - "Smarter Random Player"
