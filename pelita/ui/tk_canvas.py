@@ -35,7 +35,6 @@ from .tk_sprites import (
     Food,
     Wall
 )
-from .tk_utils import wm_delete_window_handler
 
 _logger = logging.getLogger(__name__)
 
@@ -1333,9 +1332,6 @@ class TkApplication:
         if self.controller_socket:
             _logger.debug('---> exit')
             self.controller_socket.send_json({"__action__": "exit"})
-        else:
-            # force closing the window (though this might not work)
-            wm_delete_window_handler()
 
     def quit(self):
         self.on_quit()
