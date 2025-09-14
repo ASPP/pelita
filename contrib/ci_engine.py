@@ -61,6 +61,8 @@ from tempfile import TemporaryDirectory
 from random import Random
 
 from rich.console import Console
+from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
+                           SpinnerColumn, Task, TextColumn, TimeElapsedColumn)
 from rich.table import Table
 
 from pelita.network import RemotePlayerFailure
@@ -247,89 +249,104 @@ class CI_Engine:
         >>> ci.start()
 
         """
-        loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
-        rng = Random()
 
-        game_counts = self.dbwrapper.get_game_counts()
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeElapsedColumn(),
+            # transient=True
+        ) as progress:
 
-        for pname, player in self.players.items():
-            if "error" in player and pname in game_counts:
-                del game_counts[pname]
+            loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
+            rng = Random()
 
-        def worker(q, r, lock=threading.Lock()):
-            for task in iter(q.get, None):  # blocking get until None is received
+            game_counts = self.dbwrapper.get_game_counts()
+
+            for pname, player in self.players.items():
+                if "error" in player and pname in game_counts:
+                    del game_counts[pname]
+
+            def worker(q, r, lock=threading.Lock()):
+                for task in iter(q.get, None):  # blocking get until None is received
+                    try:
+                        count, slf, p1, p2 = task
+
+                        with lock:
+                            progress_task = progress.add_task(f"Playing #{count}: {p1} against {p2}.")
+
+                        res = slf.run_game(p1, p2)
+
+                        with lock:
+                            progress.update(progress_task, completed=True, visible=False)
+
+                        r.put((count, (p1, p2), res))
+
+                    finally:
+                        q.task_done()
+
+            worker_count = thread_count
+            q = queue.Queue(maxsize=thread_count)
+            r = queue.Queue()
+            threads = [threading.Thread(target=worker, args=[q, r], daemon=False)
+                    for _ in range(worker_count)]
+            for t in threads:
+                t.start()
+
+            for count, _ in enumerate(loop):
+                # choose the player with the least number of played game,
+                # match with another random player
+                # mix the sides and let them play
+
+                players_sorted = sorted(list(game_counts.items()), key=operator.itemgetter(1))
+
+                a = players_sorted[0][0]
+                b = rng.choice(players_sorted[1:])[0]
+
+                players = [a, b]
+                rng.shuffle(players)
+
+                q.put((count, self, players[0], players[1]))
+
+                game_counts[a] += 1
+                game_counts[b] += 1
+
                 try:
-                    count, slf, p1, p2 = task
+                    count, players, res = r.get_nowait()
+                    final_state = res[3]
+                    if final_state:
+                        progress.console.print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                    else:
+                        progress.console.print(f"Not storing #{count}: {players[0]} against {players[1]}.")
+                    self.dbwrapper.add_gameresult(*res)
+                except queue.Empty:
+                    pass
+                except Exception:
+                    pass
 
-                    print(f"Playing #{count}: {p1} against {p2}.")
+                if EXIT.is_set():
+                    break
 
-                    res = slf.run_game(p1, p2)
-                    r.put((count, (p1, p2), res))
-                    #with lock:
-                finally:
-                    q.task_done()
+            q.join()  # block until all spawned tasks are done
 
-        worker_count = thread_count
-        q = queue.Queue(maxsize=thread_count)
-        r = queue.Queue()
-        threads = [threading.Thread(target=worker, args=[q, r], daemon=False)
-                for _ in range(worker_count)]
-        for t in threads:
-            t.start()
+            while True:
+                try:
+                    count, players, res = r.get_nowait()
+                    final_state = res[3]
+                    if final_state:
+                        progress.console.print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                    else:
+                        progress.console.print(f"Not storing #{count}: {players[0]} against {players[1]}.")
+                    self.dbwrapper.add_gameresult(*res)
+                except queue.Empty:
+                    break
 
-        for count, _ in enumerate(loop):
-            # choose the player with the least number of played game,
-            # match with another random player
-            # mix the sides and let them play
+            for _ in threads:  # signal workers to quit
+                q.put(None)
 
-            players_sorted = sorted(list(game_counts.items()), key=operator.itemgetter(1))
-
-            a = players_sorted[0][0]
-            b = rng.choice(players_sorted[1:])[0]
-
-            players = [a, b]
-            rng.shuffle(players)
-
-            q.put((count, self, players[0], players[1]))
-
-            game_counts[a] += 1
-            game_counts[b] += 1
-
-            try:
-                count, players, res = r.get_nowait()
-                final_state = res[3]
-                if final_state:
-                    print(f"Storing #{count}: {players[0]} against {players[1]}.")
-                else:
-                    print(f"Not storing #{count}: {players[0]} against {players[1]}.")
-                self.dbwrapper.add_gameresult(*res)
-            except queue.Empty:
-                pass
-            except Exception:
-                pass
-
-            if EXIT.is_set():
-                break
-
-        q.join()  # block until all spawned tasks are done
-
-        while True:
-            try:
-                count, players, res = r.get_nowait()
-                final_state = res[3]
-                if final_state:
-                    print(f"Storing #{count}: {players[0]} against {players[1]}.")
-                else:
-                    print(f"Not storing #{count}: {players[0]} against {players[1]}.")
-                self.dbwrapper.add_gameresult(*res)
-            except queue.Empty:
-                break
-
-        for _ in threads:  # signal workers to quit
-            q.put(None)
-
-        for t in threads:  # wait until workers exit
-            t.join()
+            for t in threads:  # wait until workers exit
+                t.join()
 
 
     def get_results(self, p1_name, p2_name=None):
