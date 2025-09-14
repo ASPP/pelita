@@ -658,14 +658,21 @@ class DB_Wrapper:
         """)
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS games
-        (player1 text, player2 text, result int, final_state text,
+        (
+        id INTEGER PRIMARY KEY,
+        player1 text, player2 text, result int, final_state text,
         player1_timeouts int, player2_timeouts int,
         player1_fatal_errors int, player2_fatal_errors int,
+        FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
+        FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
+        """)
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS game_output
+        (game_id int,
         stdout text, stderr text,
         player1_stdout text, player1_stderr text,
         player2_stdout text, player2_stderr text,
-        FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
-        FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
+        FOREIGN KEY(game_id) REFERENCES games(id) ON DELETE CASCADE)
         """)
         self.connection.commit()
 
@@ -781,10 +788,19 @@ class DB_Wrapper:
             return
         self.cursor.execute("""
         INSERT INTO games
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (player1, player2, result, final_state,
+            player1_timeouts, player2_timeouts,
+            player1_fatal_errors, player2_fatal_errors)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
         """, [p1_name, p2_name, result, json.dumps(final_state),
               final_state['num_errors'][0], final_state['num_errors'][1],
-              len(final_state['fatal_errors'][0]), len(final_state['fatal_errors'][1]),
+              len(final_state['fatal_errors'][0]), len(final_state['fatal_errors'][1])])
+        game_id, = self.cursor.fetchone()
+        self.cursor.execute("""
+        INSERT INTO game_output
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, [game_id,
               stdout, stderr,
               p1_stdout, p1_stderr, p2_stdout, p2_stderr])
         self.connection.commit()
