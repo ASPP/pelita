@@ -51,7 +51,6 @@ import json
 import logging
 import operator
 from pathlib import Path
-import queue
 import shlex
 import signal
 import sqlite3
@@ -61,8 +60,7 @@ from tempfile import TemporaryDirectory
 from random import Random
 
 from rich.console import Console
-from rich.progress import (BarColumn, MofNCompleteColumn, Progress,
-                           SpinnerColumn, Task, TextColumn, TimeElapsedColumn)
+from rich.progress import (Progress, SpinnerColumn, TextColumn, TimeElapsedColumn)
 from rich.table import Table
 
 from pelita.network import RemotePlayerFailure
@@ -98,6 +96,61 @@ async def hash_team(team_spec, semaphore):
         stdout, stderr = await proc.communicate()
 
     return stdout.decode().strip().split("\n")[-1].strip()
+
+
+def run_game(team_specs, config):
+    """Run a single game.
+
+    This method runs a single game and returns the result.
+
+    Parameters
+    ----------
+    p1, p2 : int
+        the indices of the players
+
+    """
+
+    with TemporaryDirectory() as tmpdir:
+        final_state, stdout, stderr = call_pelita(team_specs,
+                                                            rounds=config['rounds'],
+                                                            size=config['size'],
+                                                            viewer=config['viewer'],
+                                                            seed=config['seed'],
+                                                            store_output=tmpdir,
+                                                            timeout=10,
+                                                            initial_timeout=120,
+                                                            exit_flag=EXIT
+                                                            )
+
+        if not final_state:
+            result = None
+
+        if final_state['whowins'] == 2:
+            result = -1
+        else:
+            result = final_state['whowins']
+
+        try:
+            del final_state['walls']
+            del final_state['food']
+        except IndexError:
+            pass
+
+        _logger.info('Final state: %r', final_state)
+        _logger.debug('Stdout: %r', stdout)
+        if stderr:
+            _logger.warning('Stderr: %r', stderr)
+
+        p1_stdout = (Path(tmpdir) / 'blue.out').read_text()
+        p1_stderr = (Path(tmpdir) / 'blue.err').read_text()
+
+        p2_stdout = (Path(tmpdir) / 'red.out').read_text()
+        p2_stderr = (Path(tmpdir) / 'red.err').read_text()
+
+        res = (result, final_state, [stdout, stderr], [p1_stdout, p1_stderr], [p2_stdout, p2_stderr])
+        return res
+
+
 
 class CI_Engine:
     """Continuous Integration Engine."""
@@ -179,65 +232,10 @@ class CI_Engine:
              else:
                  print(pname, self.players[pname], self.dbwrapper.get_team_name(pname))
 
-
-    def run_game(self, p1, p2):
-        """Run a single game.
-
-        This method runs a single game ``p1`` vs ``p2`` and internally
-        stores the result.
-
-        Parameters
-        ----------
-        p1, p2 : int
-            the indices of the players
-
-        """
-        team_specs = [self.players[p1]['path'], self.players[p2]['path']]
-
-        with TemporaryDirectory() as tmpdir:
-
-            final_state, stdout, stderr = call_pelita(team_specs,
-                                                                rounds=self.rounds,
-                                                                size=self.size,
-                                                                viewer=self.viewer,
-                                                                seed=self.seed,
-                                                                store_output=tmpdir,
-                                                                timeout=10,
-                                                                initial_timeout=120,
-                                                                exit_flag=EXIT
-                                                                )
-
-            if not final_state:
-                res = (p1, p2, None, final_state, stdout, stderr)
-                return res
-
-            if final_state['whowins'] == 2:
-                result = -1
-            else:
-                result = final_state['whowins']
-
-            del final_state['walls']
-            del final_state['food']
-
-            _logger.info('Final state: %r', final_state)
-            _logger.debug('Stdout: %r', stdout)
-            if stderr:
-                _logger.warning('Stderr: %r', stderr)
-
-            p1_stdout = (Path(tmpdir) / 'blue.out').read_text()
-            p1_stderr = (Path(tmpdir) / 'blue.err').read_text()
-
-            p2_stdout = (Path(tmpdir) / 'red.out').read_text()
-            p2_stderr = (Path(tmpdir) / 'red.err').read_text()
-
-            res = (p1, p2, result, final_state, [stdout, stderr], [p1_stdout, p1_stderr], [p2_stdout, p2_stderr])
-            return res
-
-
-    def start(self, n, thread_count):
+    def start(self, n, concurrency):
         """Start the Engine.
 
-        This method will start and infinite loop, testing each agent
+        This method will start and run n matches, testing each agent
         randomly against another one. The result is printed after each
         game.
 
@@ -249,104 +247,88 @@ class CI_Engine:
         >>> ci.start()
 
         """
-
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
-            BarColumn(),
-            MofNCompleteColumn(),
-            TimeElapsedColumn(),
-            # transient=True
+            TimeElapsedColumn()
         ) as progress:
 
-            loop = itertools.repeat(None) if n == 0 else itertools.repeat(None, n)
-            rng = Random()
+            lock = threading.Lock()
 
-            game_counts = self.dbwrapper.get_game_counts()
+            def worker(count, p1, p2):
+                with lock:
+                    progress_task = progress.add_task(f"Playing #{count}: {p1} against {p2}.")
 
-            for pname, player in self.players.items():
-                if "error" in player and pname in game_counts:
-                    del game_counts[pname]
+                config = {
+                    'rounds': self.rounds,
+                    'size': self.size,
+                    'viewer': self.viewer,
+                    'seed': None, # TODO
+                }
 
-            def worker(q, r, lock=threading.Lock()):
-                for task in iter(q.get, None):  # blocking get until None is received
-                    try:
-                        count, slf, p1, p2 = task
+                team_specs = [self.players[p1]['path'], self.players[p2]['path']]
+                res = run_game(team_specs, config)
 
-                        with lock:
-                            progress_task = progress.add_task(f"Playing #{count}: {p1} against {p2}.")
+                with lock:
+                    progress.update(progress_task, completed=True, visible=False)
 
-                        res = slf.run_game(p1, p2)
+                return count, (p1, p2), res
 
-                        with lock:
-                            progress.update(progress_task, completed=True, visible=False)
+            def producer():
+                rng = Random()
 
-                        r.put((count, (p1, p2), res))
+                game_counts = self.dbwrapper.get_game_counts()
 
-                    finally:
-                        q.task_done()
+                for count in range(n):
+                    for pname, player in self.players.items():
+                        if "error" in player and pname in game_counts:
+                            del game_counts[pname]
 
-            worker_count = thread_count
-            q = queue.Queue(maxsize=thread_count)
-            r = queue.Queue()
-            threads = [threading.Thread(target=worker, args=[q, r], daemon=False)
-                    for _ in range(worker_count)]
-            for t in threads:
-                t.start()
+                    # choose the player with the least number of played games,
+                    # match with another random player
+                    # shuffle the sides and let them play
 
-            for count, _ in enumerate(loop):
-                # choose the player with the least number of played game,
-                # match with another random player
-                # mix the sides and let them play
+                    players_sorted = sorted(list(game_counts.items()), key=operator.itemgetter(1))
 
-                players_sorted = sorted(list(game_counts.items()), key=operator.itemgetter(1))
+                    a = players_sorted[0][0]
+                    b = rng.choice(players_sorted[1:])[0]
 
-                a = players_sorted[0][0]
-                b = rng.choice(players_sorted[1:])[0]
+                    players = [a, b]
+                    rng.shuffle(players)
 
-                players = [a, b]
-                rng.shuffle(players)
+                    _logger.debug("Adding match {count} ({players[0]} vs {players[1]}) to worker queue")
+                    task = (count, players[0], players[1])
 
-                q.put((count, self, players[0], players[1]))
+                    yield task
 
-                game_counts[a] += 1
-                game_counts[b] += 1
+                    game_counts[a] += 1
+                    game_counts[b] += 1
 
-                try:
-                    count, players, res = r.get_nowait()
-                    final_state = res[3]
+
+            with ThreadPoolExecutor(max_workers=concurrency) as executor:
+                if sys.version_info < (3, 14):
+                    _logger.warning(f"Generating all {n} match partners. Use Python 3.14+ to do this lazily.")
+                    buffersize = {}
+                else:
+                    buffersize = {'buffersize': concurrency}
+
+                for result in executor.map(lambda args: worker(*args), producer(), **buffersize):
+                    count, players, res = result
+
+                    p1_name, p2_name = players
+                    winner, final_state, out, p1_out, p2_out = res
+
                     if final_state:
-                        progress.console.print(f"Storing #{count}: {players[0]} against {players[1]}.")
+                        match final_state["whowins"]:
+                            case 0:
+                                progress.console.print(f"Storing #{count}: [u]{players[0]}[/u] against {players[1]}.")
+                            case 1:
+                                progress.console.print(f"Storing #{count}: {players[0]} against [u]{players[1]}[/u].")
+                            case _:
+                                progress.console.print(f"Storing #{count}: {players[0]} against {players[1]}.")
                     else:
                         progress.console.print(f"Not storing #{count}: {players[0]} against {players[1]}.")
-                    self.dbwrapper.add_gameresult(*res)
-                except queue.Empty:
-                    pass
-                except Exception:
-                    pass
-
-                if EXIT.is_set():
-                    break
-
-            q.join()  # block until all spawned tasks are done
-
-            while True:
-                try:
-                    count, players, res = r.get_nowait()
-                    final_state = res[3]
-                    if final_state:
-                        progress.console.print(f"Storing #{count}: {players[0]} against {players[1]}.")
-                    else:
-                        progress.console.print(f"Not storing #{count}: {players[0]} against {players[1]}.")
-                    self.dbwrapper.add_gameresult(*res)
-                except queue.Empty:
-                    break
-
-            for _ in threads:  # signal workers to quit
-                q.put(None)
-
-            for t in threads:  # wait until workers exit
-                t.join()
+                    self.dbwrapper.add_gameresult(p1_name, p2_name, winner, final_state, out, p1_out, p2_out)
 
 
     def get_results(self, p1_name, p2_name=None):
@@ -375,7 +357,6 @@ class CI_Engine:
         win, loss, draw : int
             the number of wins, losses and draws for this player or
             combination of players
-
 
         Examples
         --------
@@ -1139,7 +1120,6 @@ def hash_teams(args):
         ci_engine = CI_Engine(f)
         ci_engine.load_players(concurrency=args.thread_count)
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--log', help="Print debugging log information to LOGFILE (default 'stderr').",
@@ -1150,15 +1130,15 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(required=True)
 
     parser_run = subparsers.add_parser('run')
-    parser_run.add_argument('-n', help='run N times', type=int, default=0)
+    parser_run.add_argument('-n', help='run N times', type=int, default=1000)
     parser_run.add_argument('--thread-count', '-t', help='run in parallel', type=int, default=1)
     parser_run.add_argument('--no-hash', help='Do not hash the players prior to running', action='store_true', default=False)
     parser_run.set_defaults(func=run)
 
     parser_print_scores = subparsers.add_parser('print-scores')
     full_or_team = parser_print_scores.add_mutually_exclusive_group()
-    parser_print_scores.add_argument('--full', help='show full pair statistics', action='store_true', default=False)
-    parser_print_scores.add_argument('--team', help='show statistics for team', type=str, default=None)
+    full_or_team.add_argument('--full', help='show full pair statistics', action='store_true', default=False)
+    full_or_team.add_argument('--team', help='show statistics for team', type=str, default=None)
     parser_print_scores.set_defaults(func=print_scores)
 
     parser_hash = subparsers.add_parser('hash-teams')
