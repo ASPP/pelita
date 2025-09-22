@@ -462,6 +462,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         controller=viewer_state['controller']
     )
 
+    _logger.info("Creating game %s", game_state['game_uuid'])
+
 
     # Wait until the controller tells us that it is ready
     # We then can send the initial maze

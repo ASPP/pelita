@@ -1370,3 +1370,24 @@ def test_requested_moves(move_request, expected_prev, expected_req, expected_suc
     state = play_turn(state)
     assert state['requested_moves'][1:] == [None, None, None]
     assert state['requested_moves'][0] == {'previous_position': (1, 1), 'requested_position': expected_req, 'success': expected_success}
+
+def test_games_have_different_uuid():
+    state1 = setup_game([dummy_bot, dummy_bot], layout_dict=parse_layout(small_layout), max_rounds=2)
+    state2 = setup_game([dummy_bot, dummy_bot], layout_dict=parse_layout(small_layout), max_rounds=2)
+
+    # removing internal objects
+    del state1['teams']
+    del state2['teams']
+    del state1['viewers']
+    del state2['viewers']
+    del state1['rng']
+    del state2['rng']
+    del state1['noisy_positions']
+    del state2['noisy_positions']
+
+    assert state1['game_uuid'] != state2['game_uuid']
+    del state1['game_uuid']
+    del state2['game_uuid']
+
+    # remainder of the game state is equal
+    assert state1 == state2
