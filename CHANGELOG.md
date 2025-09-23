@@ -1,6 +1,6 @@
 # Pelita changelog
 
-  * v2.6.0-rc1 (23. Sep 2025)
+  * v2.6.0-rc2 (23. Sep 2025)
 
     - Increased bot shadow distance to 2
     - Changed behaviour of cascade kill
