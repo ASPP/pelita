@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import time
+import uuid
 from warnings import warn
 
 import zmq
@@ -343,6 +344,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
     # Initialize the game state.
 
     game_state = dict(
+        #: UUID
+        game_uuid=str(uuid.uuid4()),
+
         ### The layout attributes
         #: Walls. Set of (int, int)
         walls=set(layout_dict['walls']),
@@ -457,6 +461,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         #: Controller
         controller=viewer_state['controller']
     )
+
+    _logger.info("Creating game %s", game_state['game_uuid'])
 
 
     # Wait until the controller tells us that it is ready
