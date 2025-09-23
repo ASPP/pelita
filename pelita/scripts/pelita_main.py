@@ -72,7 +72,7 @@ def scan(team_spec):
                 #  if not players:
                     #console.print("[bold]Found players:")
                 console.print(f"  [blue]{len(players)})[/] {team_name} \\[[blue]{addr}[/]]", highlight=False)
-                players.append(f"remote:{addr}")
+                players.append(f"{addr}")
         except Empty:
             pass
         except KeyboardInterrupt:
