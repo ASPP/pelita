@@ -1,5 +1,19 @@
 # Pelita changelog
 
+  * v2.6.0-rc1 (23. Sep 2025)
+
+    - Increased bot shadow distance to 2
+    - Changed behaviour of cascade kill
+    - Added history viewer to Tk
+    - Improved stability of the network protocol
+    - Introduced game_phase attribute to game state
+    - Maze generation improvements
+    - Be more strict in what characters bot.say accepts
+    - Changed distribution of teams in the knock-out round
+    - Keep square aspect ratio in Tk UI
+    - Removed compatibility for Python 3.9
+    - Introduced game_uuid
+
   * v2.5.3 (28. May 2025)
 
     - Redesigned status area
