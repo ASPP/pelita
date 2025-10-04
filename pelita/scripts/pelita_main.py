@@ -274,7 +274,9 @@ viewer_opt.add_argument('--progress', action='store_const', const='progress',
                         dest='viewer', help=long_help('Use the progress viewer.'))
 viewer_opt.add_argument('--tk', action='store_const', const='tk',
                         dest='viewer', help='Use the tk viewer (default).')
-parser.set_defaults(viewer='tk')
+viewer_opt.add_argument('--qt', action='store_const', const='qt',
+                        dest='viewer', help='Use the qt viewer (default).')
+parser.set_defaults(viewer='qt')
 
 advanced_settings = parser.add_argument_group('Advanced settings')
 advanced_settings.add_argument('--reply-to', type=str, metavar='URL', dest='reply_to',
@@ -344,7 +346,7 @@ def main():
 
     if args.viewer == 'null':
         viewers = []
-    elif args.viewer == 'tk':
+    elif args.viewer in ('tk', 'qt'):
         geometry = args.geometry
         delay = int(1000./args.fps)
         stop_at = args.stop_at
@@ -357,7 +359,7 @@ def main():
             "stop_at": stop_at,
             "stop_after_kill": stop_after_kill
         }
-        viewers = [('tk', viewer_options)]
+        viewers = [(args.viewer, viewer_options)]
     else:
         viewers = [(args.viewer, None)]
 

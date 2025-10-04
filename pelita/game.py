@@ -67,6 +67,35 @@ NFOOD = {
          (64, 32): (20, 60),
         }
 
+class QtViewer:
+    def __init__(self, *, address, controller, geometry=None, delay=None, stop_after=None):
+        self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay, stop_after=stop_after)
+
+    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after):
+        viewer_args = [ str(subscribe_sock) ]
+        if controller:
+            viewer_args += ["--controller-address", str(controller)]
+        if geometry:
+            viewer_args += ["--geometry", "{0}x{1}".format(*geometry)]
+        if delay:
+            viewer_args += ["--delay", str(delay)]
+        if stop_after is not None:
+            viewer_args += ["--stop-after", str(stop_after)]
+
+        qtviewer = 'pelita.scripts.pelita_qtviewer'
+        external_call = [sys.executable,
+                        '-m',
+                        qtviewer] + viewer_args
+        _logger.debug("Executing: %r", external_call)
+        # os.setsid will keep the viewer from closing when the main process exits
+        # a better solution might be to decouple the viewer from the main process
+        if _mswindows:
+            p = subprocess.Popen(external_call, creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+        else:
+            p = subprocess.Popen(external_call, preexec_fn=os.setsid)
+        return p
+
+
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None,
                 stop_after=None, stop_after_kill=False, fullscreen=False):
@@ -284,6 +313,16 @@ def setup_viewers(viewers, print_result=True):
                             geometry=viewer_opts.get('geometry'),
                             delay=viewer_opts.get('delay'),
                             fullscreen=viewer_opts.get('fullscreen'))
+        elif viewer == 'qt':
+            zmq_context = zmq.Context()
+            zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1', zmq_context=zmq_context)
+            viewer_state['viewers'].append(zmq_publisher)
+            viewer_state['controller'] = Controller(zmq_context=zmq_context)
+
+            _proc = QtViewer(address=zmq_publisher.socket_addr, controller=viewer_state['controller'].socket_addr,
+                            stop_after=viewer_opts.get('stop_at'),
+                            geometry=viewer_opts.get('geometry'),
+                            delay=viewer_opts.get('delay'))
 
         else:
             raise ValueError(f"Unknown viewer {viewer}.")
