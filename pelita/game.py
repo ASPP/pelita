@@ -445,6 +445,15 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         #: Messages the bots say. Keeps only the recent one at the respective bot’s index.
         say=[""] * 4,
 
+        #: List of 4 lists to store the cell overlays for each bot
+        # Items of each list are dictionaries in the form:
+        # { 'pos' : (x, y), 'color' : "#AABBCC', ... }
+        # where (x, y) are coordinates on the maze and color is HTML-encoded
+        # At the moment only property 'color' is used by the TK-viewer,
+        # but more can be added without modifying the network protocol or
+        # this list
+        overlays=[[], [], [], []],
+
         ### Internal
         #: Internal team representation
         teams=[None] * 2,
@@ -864,6 +873,14 @@ def play_turn(game_state, raise_bot_exceptions=False):
         game_state['say'][game_state['turn']] = position_dict['say']
     else:
         game_state['say'][game_state['turn']] = ""
+
+    # reset the overlays so that they are painted new at every turn
+    game_state['overlays'] = [[], [], [], []]
+
+    if position_dict.get('overlay'):
+        game_state['overlays'][game_state['turn']] = position_dict['overlay']
+    else:
+        game_state['overlays'][game_state['turn']] = []
 
     # If the returned move looks okay, we add it to the list of requested moves
     old_position = game_state['bots'][turn]
