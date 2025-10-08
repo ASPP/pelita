@@ -483,7 +483,7 @@ class TkApplication:
             self.draw_end_of_game(None)
 
     def draw_universe(self, game_state, redraw):
-        self.draw_overlay(game_state.get('overlays', []))
+        self.draw_overlays(game_state.get('overlays', []))
         self.draw_grid(redraw=redraw)
         self.draw_selected(game_state)
         self.draw_line_of_sight(game_state)
@@ -563,25 +563,25 @@ class TkApplication:
         y_pos = self.mesh_graph.mesh_to_screen_y(0, -0.7)
         self.ui_game_canvas.create_text(x_pos, y_pos, text="y", **label_style)
 
-    def draw_overlay(self, overlays):
-        """ Draws a light grid on the background.
+    def draw_overlays(self, overlays):
+        """ Draws overlays on top of cells at given coordinates.
         """
-        self.ui_game_canvas.delete("overlay")
+        self.ui_game_canvas.delete("overlays")
         if not self._grid_enabled:
             return
 
-        def draw_box(pos, fill_col):
+        def draw_color_box(pos, fill_col):
             ul = self.mesh_graph.mesh_to_screen(pos, (-1, -1))
             lr = self.mesh_graph.mesh_to_screen(pos, (1, 1))
+            self.ui_game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tags=("overlays",))
 
-            self.ui_game_canvas.create_rectangle(*ul, *lr, width=0, fill=fill_col, tags=("overlay",))
+        for bot_overlays in overlays:
+            for prop in bot_overlays:
+                # paint background if color is specified in the bot overlay
+                if 'color' in prop:
+                    draw_color_box(prop['pos'], prop['color'])
 
-        for overlay in overlays:
-            if fill_col := overlay.get("fill"):
-                for pos in overlay.get("pos", []):
-                    draw_box(pos, fill_col)
-
-        self.ui_game_canvas.tag_lower("overlay")
+        self.ui_game_canvas.tag_lower("overlays")
         self.ui_game_canvas.tag_raise("wall")
 
     def draw_line_of_sight(self, game_state):
