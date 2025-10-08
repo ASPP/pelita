@@ -122,6 +122,36 @@ def sanitize_say(string):
     return ''.join(sane)
 
 
+def convert_overlay_to_json(overlay):
+    """Convert the overlay dictionary to a list of dictionaries for JSON compatibility
+
+    Parameters
+    ----------
+    overlay : dict
+        A dictionary { pos : props } where pos are coordinates in the maze, like
+        for example ( 10, 12) and props is a dictionary of properties, for example:
+
+           {
+            'color' : '#AABBCC',
+            'text'  : 'special text',
+            ...
+           }
+
+    Returns
+    -------
+    A list of dictionaries in the form
+        [ { 'pos' : pos0, 'color' : '#AABBCC', 'text' : 'special text'},
+          { 'pos' : pos1, 'color' : '#BBCCDD', 'text' : 'other text'},
+          ...
+        ]
+
+    Note
+    ----
+    The conversion is necessary because JSON does not support dictionaries
+    with tuples/lists as keys.
+    """
+    return [dict(pos=pos, **props) for pos, props in overlay.items()]
+
 class Team:
     """
     Wraps a move function and forwards it the `set_initial`
@@ -255,6 +285,7 @@ class Team:
         move = self.apply_move_fn(self._team_move, team[me._bot_turn], self._state)
         if "error" not in move:
             move["say"] = me._say
+            move["overlay"] = convert_overlay_to_json(me._overlay)
         return move
 
     @staticmethod
@@ -649,6 +680,7 @@ class Bot:
                           bot_turn=None):
         self._bots = None
         self._say = None
+        self._overlay = {}
 
         #: The previous positions of this bot including the current one.
         self.track = []
@@ -727,6 +759,59 @@ class Bot:
         """ Print some text in the graphical interface. """
         # sanitize text so that funny users can't break the GUI
         self._say = sanitize_say(str(text))
+
+    def paint_background(self, pos, color='#96FF96'):
+        """ Color background of cell at position pos in the maze with the specified color
+
+        Parameters
+        ----------
+        pos : 2-tuple
+
+            where pos = (x, y) are the coordinates of the cell in the maze that you want
+            to set the background of, and "color" is a string representing an
+            HTML-encoded color for that cell.
+
+            For example:
+            >>> bot.paint_background((10, 10))
+
+            To paint the cell at (10, 10) with the default light yellow background, or:
+
+            >>> bot.paint_background((10, 10), color="#FFFFA8")
+
+            To paint it instead with a light green background
+
+        Note
+        ----
+        Painting the background only works with viewers that support it, like the built-in
+        Tk-viewer in debug mode.
+        """
+
+        width, height = self.shape
+        # first verify that position is list/tuple of length two
+        try:
+            x, y = pos
+            x = int(x)
+            y = int(y)
+        except (TypeError, ValueError):
+            msg = f'Position "{pos}" is not a valid coordinate (x, y).'
+            raise ValueError(msg)
+
+        # check: coordinates fit in the maze
+        if x < 0 or x >= width or y < 0 or y >= height:
+            # just ignore this coordinate
+            return
+
+        # check: color is a string that can be interpreted as a 6 digit hexadecimal number
+        if (not color.startswith('#')) or len(color) != 7:
+            msg = f'Background color "{color}"  is not a valid color.'
+            raise ValueError(msg)
+        try:
+            int(color[1:], base=16)
+        except (TypeError, ValueError):
+            msg = f'Background color "{color}"  is not a valid color.'
+            raise ValueError(msg)
+
+        self._overlay.setdefault((x, y), {}).update({'color' : color})
 
     # def get_direction(self, position):
         # """ Return the direction needed to get to the given position.
