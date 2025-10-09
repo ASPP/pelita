@@ -123,7 +123,8 @@ def test_client_protocol(zmq_context):
         '__uuid__': _uuid,
         '__return__': {
             "move": [1, 1],
-            "say": None
+            "say": None,
+            "overlay" : [],
         }
     }
 

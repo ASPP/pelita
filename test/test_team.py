@@ -6,7 +6,7 @@ from pelita.game import SHADOW_DISTANCE, play_turn, run_game, setup_game
 from pelita.gamestate_filters import manhattan_dist
 from pelita.layout import initial_positions, parse_layout
 from pelita.maze_generator import generate_maze
-
+from pelita.exceptions import PelitaBotError
 
 def stopping(bot, state):
     return bot.position
@@ -767,3 +767,149 @@ def test_bot_say(say, expected):
     # check that we finished without problem
     assert state['round'] == 1
     assert state['turn'] == 3
+
+
+def test_valid_paint_background():
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+    overlay = [
+               ((0,0) , "#AABBCC"),
+               ((1,1) , "#BBCCDD"),
+               ((100, 200) , "#DDCCAA"), # silently ignore coords out of the maze
+               ]
+
+    parsed = parse_layout(test_layout)
+
+    def overlay_team(bot, state):
+        for pos, color in overlay:
+            bot.paint_background(pos, color=color)
+        return bot.position
+
+    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+
+    overlay_in_maze = [{'pos':(0,0), 'color':"#AABBCC"}, {'pos':(1,1), 'color':"#BBCCDD"}]
+    for idx in range(4):
+        state = play_turn(state)
+        gs_overlay = state['overlays'][idx]
+        assert gs_overlay == overlay_in_maze
+
+
+@pytest.mark.parametrize('pos, color, match', [
+    ((0,1,2), '#AABBCC', 'Position.+(0, 1, 2).+not a valid'), # position has too many values
+    ('#AABBCC', (0, 1), 'Position.+#AABBCC.+not a valid'), # swapped arguments
+    ((1, 2), 'white', 'Background color "white".+'), # color is not HTML encoded
+    ((1, 2),'#AABBCCDDEE', 'Background color.+AABBCCDDEE.+'), # color uses alpha channel
+    ((1, 2),'#GGGGGG', 'Background color.+GGGGGG.+'), # color out of range
+    ])
+def test_paint_background_exceptions(pos, color, match):
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+    parsed = parse_layout(test_layout)
+
+    def overlay_team(bot, state):
+        bot.paint_background(pos, color)
+        return bot.position
+
+    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+    with pytest.raises(PelitaBotError, match=match):
+        state = play_turn(state, raise_bot_exceptions=True)
+
+
+def test_paint_background_doesnt_overwrite():
+    # check that we do override color for a coordinate if already set and
+    # that we don't touch other properties that may be defined on that coordinate
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+    parsed = parse_layout(test_layout)
+
+    pos = (0, 1)
+    color = '#FFFFFF'
+    def overlay_team(bot, state):
+        bot.paint_background(pos, '#AABBCC')
+        bot._overlay[pos].update({'text' : 'something'})
+        bot.paint_background(pos, color)
+        return bot.position
+
+    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+
+    for idx in range(4):
+        state = play_turn(state)
+        gs_overlay = state['overlays'][idx]
+        assert gs_overlay == [{'pos':(0,1), 'color':'#FFFFFF', 'text':'something'}]
+
+
+def test_paint_background_different_bots():
+    test_layout = """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+    parsed = parse_layout(test_layout)
+
+    # blue team
+    pos0 = (0, 0)
+    color0 = '#FFFFF0'
+    pos2 = (0, 2)
+    color2 = '#FFFFF2'
+    def overlay_team_blue(bot, state):
+        if bot.turn == 0:
+            bot.paint_background(pos0, color0)
+        else:
+            bot.paint_background(pos2, color2)
+        return bot.position
+
+    # red team
+    pos1 = (0, 1)
+    color1 = '#FFFFF1'
+    pos3 = (0, 3)
+    color3 = '#FFFFF3'
+    def overlay_team_red(bot, state):
+        if bot.turn == 0:
+            bot.paint_background(pos1, color1)
+        else:
+            bot.paint_background(pos3, color3)
+        return bot.position
+
+    state = setup_game([overlay_team_blue, overlay_team_red], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+
+    pos_color = [(pos0, color0), (pos1, color1), (pos2, color2), (pos3, color3)]
+    for idx in range(4):
+        pos, color = pos_color[idx]
+        state = play_turn(state)
+        gs_overlay = state['overlays'][idx]
+        rest_left = state['overlays'][:idx]
+        rest_right = state['overlays'][idx+1:]
+        assert gs_overlay == [{'pos' : pos, 'color': color}]
+        # verify that the overlays get overriden at every turn
+        for overlay in rest_left+rest_right:
+            assert overlay == []
+
