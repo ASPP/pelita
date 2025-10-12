@@ -69,11 +69,11 @@ NFOOD = {
 
 class TkViewer:
     def __init__(self, *, address, controller, geometry=None, delay=None,
-                stop_after=None, stop_after_kill=False, fullscreen=False):
+                stop_after=None, stop_after_kill=False, fullscreen=False, debug=False):
         self.proc = self._run_external_viewer(address, controller, geometry=geometry, delay=delay,
-                                              stop_after=stop_after, stop_after_kill=stop_after_kill, fullscreen=fullscreen)
+                                              stop_after=stop_after, stop_after_kill=stop_after_kill, fullscreen=fullscreen, debug=debug)
 
-    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after, stop_after_kill, fullscreen):
+    def _run_external_viewer(self, subscribe_sock, controller, geometry, delay, stop_after, stop_after_kill, fullscreen, debug):
         # Something on OS X prevents Tk from running in a forked process.
         # Therefore we cannot use multiprocessing here. subprocess works, though.
         viewer_args = [ str(subscribe_sock) ]
@@ -85,6 +85,8 @@ class TkViewer:
             viewer_args += ["--fullscreen"]
         if delay:
             viewer_args += ["--delay", str(delay)]
+        if debug:
+            viewer_args += ["--debug"]
         if stop_after is not None:
             viewer_args += ["--stop-after", str(stop_after)]
         if stop_after_kill:
@@ -283,7 +285,8 @@ def setup_viewers(viewers, print_result=True):
                             stop_after_kill=viewer_opts.get('stop_after_kill'),
                             geometry=viewer_opts.get('geometry'),
                             delay=viewer_opts.get('delay'),
-                            fullscreen=viewer_opts.get('fullscreen'))
+                            fullscreen=viewer_opts.get('fullscreen'),
+                            debug=viewer_opts.get('debug'))
 
         else:
             raise ValueError(f"Unknown viewer {viewer}.")

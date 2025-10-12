@@ -262,6 +262,8 @@ viewer_settings.add_argument('--geometry', type=w_h_string, metavar='NxM',
                     help='Set initial size of the game window.')
 viewer_settings.add_argument('--fullscreen', const=True, action='store_const',
                     help='Make the game window run fullscreen')
+viewer_settings.add_argument('--debug', const=True, action='store_const',
+                    help='Start viewer in debug mode')
 viewer_settings.add_argument('--fps', type=float, default=40,
                     help='Set (approximate) number of frames per second in a graphical viewer.')
 
@@ -354,6 +356,7 @@ def main():
             "fullscreen" : args.fullscreen,
             "geometry": geometry,
             "delay": delay,
+            "debug": args.debug,
             "stop_at": stop_at,
             "stop_after_kill": stop_after_kill
         }

@@ -256,7 +256,8 @@ class Trafo:
 
 class TkApplication:
     def __init__(self, window, controller_address=None,
-                 geometry=None, delay=1, stop_after=None, stop_after_kill=False, fullscreen=False):
+                 geometry=None, delay=1, stop_after=None, stop_after_kill=False,
+                 fullscreen=False, debug=False):
         self.window = window
         self.window.configure(background="white")
 
@@ -280,7 +281,7 @@ class TkApplication:
         self._default_font = tkinter.font.nametofont("TkDefaultFont")
         self._default_font_size = self._default_font.cget('size')
 
-        self._grid_enabled = False
+        self._grid_enabled = debug
 
         self.selected = None
 
