@@ -36,6 +36,8 @@ parser.add_argument('--geometry', type=geometry_string,
                     help='geometry')
 parser.add_argument('--fullscreen', const=True, action='store_const',
                      help='fullscreen')
+parser.add_argument('--debug', const=True, action='store_const',
+                     help='debug mode')
 parser.add_argument('--delay', type=int,
                     help='delay')
 parser.add_argument('--stop-after', type=int, metavar="N",
@@ -64,6 +66,7 @@ def main():
         'geometry': args.geometry,
         'fullscreen' : args.fullscreen,
         'delay': args.delay,
+        'debug': args.debug,
         'standalone_mode': args.standalone_mode,
         'stop_after': args.stop_after,
         'stop_after_kill': args.stop_after_kill

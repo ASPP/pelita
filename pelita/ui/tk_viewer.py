@@ -73,12 +73,13 @@ class TkViewer:
     """
     def __init__(self, address, controller_address=None, standalone_mode=False,
                        geometry=None, delay=1, stop_after=None, stop_after_kill=False,
-                       fullscreen=False):
+                       fullscreen=False, debug=False):
         self.address = address
         self.controller_address = controller_address
         self.delay = delay
         self.geometry = geometry if geometry else (900, 565)
         self.fullscreen = fullscreen
+        self.debug = debug
         self.stop_after = stop_after
         self.stop_after_kill = stop_after_kill
         self.standalone_mode = standalone_mode
@@ -122,7 +123,8 @@ class TkViewer:
                                  delay=self.delay,
                                  stop_after=self.stop_after,
                                  stop_after_kill=self.stop_after_kill,
-                                 fullscreen=self.fullscreen)
+                                 fullscreen=self.fullscreen,
+                                 debug=self.debug)
         # schedule next read
         self.root.after_idle(self.read_queue)
         try:

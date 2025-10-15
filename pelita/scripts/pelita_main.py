@@ -262,6 +262,8 @@ viewer_settings.add_argument('--geometry', type=w_h_string, metavar='NxM',
                     help='Set initial size of the game window.')
 viewer_settings.add_argument('--fullscreen', const=True, action='store_const',
                     help='Make the game window run fullscreen')
+viewer_settings.add_argument('--debug', const=True, action='store_const',
+                    help='Start viewer in debug mode')
 viewer_settings.add_argument('--fps', type=float, default=40,
                     help='Set (approximate) number of frames per second in a graphical viewer.')
 
@@ -347,13 +349,19 @@ def main():
     elif args.viewer == 'tk':
         geometry = args.geometry
         delay = int(1000./args.fps)
+        debug = args.debug
         stop_at = args.stop_at
         stop_after_kill = args.stop_after_kill
+        # if debug is set and stop_at is not set, we set stop_at at 0, so the game by default
+        # does not start when --debug is set, unless the user explicitly requested a stop positon
+        if stop_at is None and debug:
+            stop_at = 0
 
         viewer_options = {
             "fullscreen" : args.fullscreen,
             "geometry": geometry,
             "delay": delay,
+            "debug": debug,
             "stop_at": stop_at,
             "stop_after_kill": stop_after_kill
         }
