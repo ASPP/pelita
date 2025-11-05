@@ -190,9 +190,7 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
         return False
 
     finally:
-        if reply is None:
-            return
-        if msg_id is not None:
+        if reply is not None and msg_id is not None:
             # we use our own json_default_handler
             # to automatically convert numpy ints to json
             json_message = json.dumps(reply, default=json_default_handler)
