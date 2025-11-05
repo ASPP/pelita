@@ -16,7 +16,7 @@ Pelita |version|
 
       .. container:: col-md-6
 
-         .. image:: images/small-game@2x.png
+         .. image:: images/pelita-anim.gif
             :scale: 50%
             :alt: Screenshot.
             :class: img-responsive
