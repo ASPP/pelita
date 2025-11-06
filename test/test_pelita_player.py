@@ -1,4 +1,5 @@
 import py_compile
+import random
 import sys
 import tempfile
 from pathlib import Path
@@ -98,63 +99,50 @@ class TestLoadFactory:
             with pytest.raises(SyntaxError):
                 load_team_from_module(spec)
 
-class TestLoadTeam:
-    def test_simple_module_import_forbidden_names(self):
-        names = ["", " ", "-", "∂", "0" * 26]
-        for idx, name in enumerate(names):
-            # modules_before = list(sys.modules.keys())
-            with tempfile.TemporaryDirectory() as d:
-                module = Path(d) / ("teamx_%i" % idx)
-                module.mkdir()
-                initfile = module / "__init__.py"
-                with initfile.open(mode='w') as f:
-                    try:
-                        f.write(SIMPLE_MODULE % (name,))
-                    except UnicodeEncodeError:
-                        if _mswindows:
-                            # Ignore UnicodeEncodeErrors on Windows for this test
-                            # It is too complicate to debug this
-                            continue
-                        else:
-                            raise
 
-                spec = str(module)
-                with pytest.raises(ValueError):
-                    load_team(spec)
+@pytest.mark.parametrize('name, expected', [
+    ("a", True),
+    ("a a", True),
+    ("0" * 25, True),
+    ("", "???"),
+    (" ", "???"),
+    ("-", "???"),
+    ("∂", "???"),
+    ("0" * 26, "0" * 25),
+    (" " + "0" * 26, "0" * 25),
+])
+def test_player_import_name(name, expected):
+    with tempfile.TemporaryDirectory() as d:
+        # we must have a unused file name
+        team_file = Path(d) / f"team-{random.randint(0, 1000000)}.py"
+        with team_file.open(mode='w') as f:
+            try:
+                f.write(SIMPLE_MODULE % (name,))
+            except UnicodeEncodeError:
+                if _mswindows:
+                    # Ignore UnicodeEncodeErrors on Windows for this test
+                    # It is too complicate to debug this
+                    return
+                else:
+                    raise
 
-    def test_simple_module_import_allowed_names(self):
-        names = ["a", "a a", "0" * 25]
-        for idx, name in enumerate(names):
-            # modules_before = list(sys.modules.keys())
-            with tempfile.TemporaryDirectory() as d:
-                module = Path(d) / ("teamy_%i" % idx)
-                module.mkdir()
-                initfile = module / "__init__.py"
-                with initfile.open(mode='w') as f:
-                    f.write(SIMPLE_MODULE % (name,))
+        spec = str(team_file)
+        if expected is True:
+            assert load_team(spec).team_name == name
+        else:
+            assert load_team(spec).team_name == expected
 
-                spec = str(module)
-                load_team(spec)
 
-    # These test cases need to be handled in one function
-    # ie. not in a parametrized test, as the will need
-    # to be run inside the same Python session
-    load_team_cases = [
-        ("pelita/player/StoppingPlayer", None),
-#        ("StoppingPlayer,StoppingPlayer", None),
-        ("NonExistingPlayer", ImportError),
-#        ("StoppingPlayer,StoppingPlayer,FoodEatingPlayer", ValueError),
-        #('doc/source/groupN', AttributeError), # TODO: Should be rewritten for a proper team
-        #('doc/source/groupN/__init__.py', ImportError), # TODO: Should be rewritten for a proper team
-        #('doc/source/groupN', ValueError), # Has already been imported
-    ]
+@pytest.mark.parametrize('team_spec, expected', [
+    ("pelita/player/StoppingPlayer", None),
+    ("NonExistingPlayer", ImportError),
+    #('doc/source/groupN', AttributeError), # TODO: Should be rewritten for a proper team
+    #('doc/source/groupN/__init__.py', ImportError), # TODO: Should be rewritten for a proper team
+])
+def test_load_team(team_spec, expected):
 
-    def test_load_team(self):
-        for path, result in self.load_team_cases:
-            print(path, result)
-            if result is not None:
-                with pytest.raises(result):
-                    load_team(path)
-            else:
-                load_team(path)
-
+    if expected is not None:
+        with pytest.raises(expected):
+            load_team(team_spec)
+    else:
+        load_team(team_spec)

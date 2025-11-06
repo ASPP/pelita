@@ -96,27 +96,6 @@ def test_remote_timeout(dummy_layout_dict):
     assert state['timeouts'][1][(2, 1)]['type'] == 'timeout'
 
 
-@pytest.mark.parametrize("failing_team", [0, 1])
-def test_bad_team_name(failing_team, dummy_layout_dict):
-
-    failing_player = FIXTURE_DIR / 'player_bad_team_name.py'
-    good_player = "0"
-
-    if failing_team == 0:
-        teams = [str(failing_player), str(good_player)]
-    elif failing_team == 1:
-        teams = [str(good_player), str(failing_player)]
-
-    state = pelita.game.run_game(teams,
-                                 max_rounds=8,
-                                 layout_dict=dummy_layout_dict,
-                                 timeout_length=0.4)
-
-    assert state['whowins'] == -1
-    assert state['fatal_errors'][failing_team][0]['type'] == "RemotePlayerFailure"
-    assert "longer than 25" in state['fatal_errors'][failing_team][0]['description']
-
-
 def test_remote_dumps_are_written(dummy_layout_dict):
 
     blue = FIXTURE_DIR / 'remote_dumps_are_written_blue.py'
