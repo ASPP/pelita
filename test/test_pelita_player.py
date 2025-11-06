@@ -1,5 +1,4 @@
 import py_compile
-import random
 import sys
 import tempfile
 from pathlib import Path
@@ -99,6 +98,27 @@ class TestLoadFactory:
             with pytest.raises(SyntaxError):
                 load_team_from_module(spec)
 
+@pytest.fixture
+def cleanup_test_modules(request):
+
+    # Use a marker like
+    #     @pytest.mark.cleanup_test_modules(["test-team-a", "test-team-b"])
+    # to override the module names that are to be cleaned up
+
+    marker = request.node.get_closest_marker("cleanup_test_modules")
+    if marker is None:
+        modules = ['test_module']
+    else:
+        modules = marker.args[0]
+
+    for module in modules:
+        if module in sys.modules:
+            raise RuntimeError(f"Test module {module} is already in sys.modules.")
+
+    yield
+
+    for module in modules:
+        del sys.modules[module]
 
 @pytest.mark.parametrize('name, expected', [
     ("a", True),
@@ -111,10 +131,10 @@ class TestLoadFactory:
     ("0" * 26, "0" * 25),
     (" " + "0" * 26, "0" * 25),
 ])
-def test_player_import_name(name, expected):
+def test_player_import_name(name, expected, cleanup_test_modules):
     with tempfile.TemporaryDirectory() as d:
         # we must have a unused file name
-        team_file = Path(d) / f"team-{random.randint(0, 1000000)}.py"
+        team_file = Path(d) / "test_module.py"
         with team_file.open(mode='w') as f:
             try:
                 f.write(SIMPLE_MODULE % (name,))
