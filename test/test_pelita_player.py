@@ -27,76 +27,13 @@ def move(bot, state):
     return bot.position
 """
 
-# TODO: The modules should be unloaded after use
-# If we import modules with the same name again, the results will be very unexpected
+# We do not want to clutter sys.modules too much and also avoid import errors when
+# a module of the same name has been imported before.
+# With cleanup_test_modules we ensure that imported names are cleared again after a test
 
-class TestLoadFactory:
-    def test_simple_module_import(self):
-        # modules_before = list(sys.modules.keys())
-        with tempfile.TemporaryDirectory() as d:
-            module = Path(d) / "teamx"
-            module.mkdir()
-            initfile = module / "__init__.py"
-            with initfile.open(mode='w') as f:
-                f.write(SIMPLE_MODULE)
-
-            spec = str(module)
-            load_team_from_module(spec)
-
-    def test_simple_file_import(self):
-        # modules_before = list(sys.modules.keys())
-        with tempfile.TemporaryDirectory() as d:
-            module = Path(d) / "teamy"
-            module.mkdir()
-            initfile = module / "teamyy.py"
-            with initfile.open(mode='w') as f:
-                f.write(SIMPLE_MODULE)
-
-            spec = str(initfile)
-            load_team_from_module(spec)
-
-    def test_failing_import(self):
-        # modules_before = list(sys.modules.keys())
-        with tempfile.TemporaryDirectory() as d:
-            module = Path(d) / "teamz"
-            module.mkdir()
-            initfile = module / "__init__.py"
-            with initfile.open(mode='w') as f:
-                f.write(SIMPLE_FAILING_MODULE)
-
-            spec = str(module)
-            with pytest.raises(AttributeError):
-                load_team_from_module(spec)
-
-    def test_import_of_pyc(self):
-        with tempfile.TemporaryDirectory() as d:
-            module = Path(d) / "teampyc"
-            module.mkdir()
-            initfile = module / "teampycpyc.py"
-            with initfile.open(mode='w') as f:
-                f.write(SIMPLE_MODULE)
-            pycfile = initfile.parent / "teampycpyc.pyc"
-            py_compile.compile(str(initfile), cfile=str(pycfile))
-            initfile.unlink()
-
-            spec = str(pycfile)
-            load_team_from_module(spec)
-
-    def test_failing_import_importerror(self):
-        with tempfile.TemporaryDirectory() as d:
-            module = Path(d) / "teamzab"
-            module.mkdir()
-            initfile = module / "__init__.py"
-            with initfile.open(mode='w') as f:
-                f.write(MODULE_IMPORT_ERROR)
-            broken_module = module / "broken.py"
-            with broken_module.open(mode='w') as f:
-                f.write('this is a syntax error\n')
-
-            spec = str(module)
-
-            with pytest.raises(SyntaxError):
-                load_team_from_module(spec)
+class AutoCleanModules:
+    def __init__(self, modules):
+        self.modules = modules
 
 @pytest.fixture
 def cleanup_test_modules(request):
@@ -115,10 +52,86 @@ def cleanup_test_modules(request):
         if module in sys.modules:
             raise RuntimeError(f"Test module {module} is already in sys.modules.")
 
-    yield
+    auto_clean_modules = AutoCleanModules(modules)
 
-    for module in modules:
+    yield auto_clean_modules
+
+    for module in auto_clean_modules.modules:
         del sys.modules[module]
+
+
+@pytest.mark.cleanup_test_modules(["teamx"])
+def test_simple_module_import(cleanup_test_modules):
+    with tempfile.TemporaryDirectory() as d:
+        module = Path(d) / "teamx"
+        module.mkdir()
+        initfile = module / "__init__.py"
+        with initfile.open(mode='w') as f:
+            f.write(SIMPLE_MODULE)
+
+        spec = str(module)
+        load_team_from_module(spec)
+
+@pytest.mark.cleanup_test_modules(["teamyy"])
+def test_simple_file_import(cleanup_test_modules):
+    with tempfile.TemporaryDirectory() as d:
+        module = Path(d) / "teamy"
+        module.mkdir()
+        initfile = module / "teamyy.py"
+        with initfile.open(mode='w') as f:
+            f.write(SIMPLE_MODULE)
+
+        spec = str(initfile)
+        load_team_from_module(spec)
+
+@pytest.mark.cleanup_test_modules(["teamz"])
+def test_failing_import(cleanup_test_modules):
+    with tempfile.TemporaryDirectory() as d:
+        module = Path(d) / "teamz"
+        module.mkdir()
+        initfile = module / "__init__.py"
+        with initfile.open(mode='w') as f:
+            f.write(SIMPLE_FAILING_MODULE)
+
+        spec = str(module)
+        with pytest.raises(AttributeError):
+            load_team_from_module(spec)
+
+@pytest.mark.cleanup_test_modules(["teampycpyc"])
+def test_import_of_pyc(cleanup_test_modules):
+    with tempfile.TemporaryDirectory() as d:
+        module = Path(d) / "teampyc"
+        module.mkdir()
+        initfile = module / "teampycpyc.py"
+        with initfile.open(mode='w') as f:
+            f.write(SIMPLE_MODULE)
+        pycfile = initfile.parent / "teampycpyc.pyc"
+        py_compile.compile(str(initfile), cfile=str(pycfile))
+        initfile.unlink()
+
+        spec = str(pycfile)
+        load_team_from_module(spec)
+
+# No cleanup needed. Module is not imported
+def test_failing_import_importerror():
+    assert "teamzab" not in sys.modules
+    with tempfile.TemporaryDirectory() as d:
+        module = Path(d) / "teamzab"
+        module.mkdir()
+        initfile = module / "__init__.py"
+        with initfile.open(mode='w') as f:
+            f.write(MODULE_IMPORT_ERROR)
+        broken_module = module / "broken.py"
+        with broken_module.open(mode='w') as f:
+            f.write('this is a syntax error\n')
+
+        spec = str(module)
+
+        with pytest.raises(SyntaxError):
+            load_team_from_module(spec)
+
+    assert "teamzab" not in sys.modules
+
 
 @pytest.mark.parametrize('name, expected', [
     ("a", True),
@@ -142,6 +155,9 @@ def test_player_import_name(name, expected, cleanup_test_modules):
                 if _mswindows:
                     # Ignore UnicodeEncodeErrors on Windows for this test
                     # It is too complicate to debug this
+
+                    # No module has been imported; ensure that nothing is cleaned up
+                    cleanup_test_modules.modules = []
                     return
                 else:
                     raise
