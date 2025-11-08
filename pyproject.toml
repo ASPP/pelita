@@ -59,6 +59,9 @@ test = "pytest"
 [tool.pytest.ini_options]
 # addopts = --verbose
 python_files = ["test/test_*.py", "contrib/test_*.py"]
+markers = [
+    "cleanup_test_modules: Ensure the given modules are cleaned up after a test",
+]
 
 [tool.coverage.run]
 relative_files = true
