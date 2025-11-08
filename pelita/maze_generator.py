@@ -121,91 +121,117 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
 def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     rng = default_rng(rng)
 
-    (xmin, ymin), (xmax, ymax) = partition
+    # store partitions in an expanding list
+    # alongside the number of gaps in wall and its orientation
+    partitions = [partition + (ngaps, vertical)]
 
-    # the size of the maze partition we work on
-    width = xmax - xmin + 1
-    height = ymax - ymin + 1
+    # partition index
+    p = 0
 
-    # if the partition is too small, stop
-    if height < 3 and width < 3:
-        return walls
+    while True:
+        # get the next partition of any is available
+        try:
+            partition = partitions[p]
+        except IndexError:
+            break
 
-    # insert a wall only if there is some space in the around it in the
-    # orthogonal direction, i.e.:
-    # if the wall is vertical, then the relevant length is the width
-    # if the wall is horizontal, then the relevant length is the height
-    partition_length = width if vertical else height
-    if partition_length < rng.randint(3, 5):
-        return walls
+        (xmin, ymin), (xmax, ymax), ngaps, vertical = partition
 
-    # the raw/column to put the horizontal/vertical wall on
-    # the position is calculated starting from the left/top of the maze partition
-    # and then a random offset is added -> the resulting raw/column must not
-    # exceed the available length
-    pos = xmin if vertical else ymin
-    pos += rng.randint(1, partition_length - 2)
+        # the size of the maze partition we work on
+        width = xmax - xmin + 1
+        height = ymax - ymin + 1
 
-    # the maximum length of the wall is the space we have in the same direction
-    # of the wall in the partition, i.e.
-    # if the wall is vertical, the maximum length is the height
-    # if the wall is horizontal, the maximum length is the width
-    max_length = height if vertical else width
+        # if the partition is too small, move on with the next one
+        if height < 3 and width < 3:
+            p += 1
+            continue
 
-    # We can start with a full wall, but we want to make sure that we do not
-    # block the entrances to this partition. The entrances are
-    # - the tile before the beginning of this wall [entrance] and
-    # - the tile after the end of this wall [exit]
-    # if entrance or exit are _not_ walls, then the wall must leave the neighboring
-    # tiles also empty, i.e. the wall must be shortened accordingly
-    if vertical:
-        entrance_before = (pos, ymin - 1)
-        entrance_after = (pos, ymin + max_length)
-        begin = 0 if entrance_before in walls else 1
-        end = max_length if entrance_after in walls else max_length-1
-        wall = {(pos, ymin+y) for y in range(begin, end)}
-    else:
-        entrance_before = (xmin - 1, pos)
-        entrance_after = (xmin + max_length, pos)
-        begin = 0 if entrance_before in walls else 1
-        end = max_length if entrance_after in walls else max_length-1
-        wall = {(xmin+x, pos) for x in range(begin, end)}
+        # insert a wall only if there is some space in the around it in the
+        # orthogonal direction, i.e.:
+        # if the wall is vertical, then the relevant length is the width
+        # if the wall is horizontal, then the relevant length is the height,
+        # otherwise move on with the next one
+        partition_length = width if vertical else height
+        if partition_length < rng.randint(3, 5):
+            p += 1
+            continue
 
-    # place the requested number of gaps in the otherwise full wall
-    # these gaps are indices in the direction of the wall, i.e.
-    # x if horizontal and y if vertical
-    # TODO: when we drop compatibility with numpy, this can be more easily done
-    # by just sampling ngaps out of the full wall set, i.e.
-    # gaps = rng.sample(wall, k=ngaps)
-    # for gap in gaps:
-    #     wall.remove(gap)
-    ngaps = max(1, ngaps)
-    wall_pos = list(range(max_length))
-    rng.shuffle(wall_pos)
+        # the row/column to put the horizontal/vertical wall on
+        # the position is calculated starting from the left/top of the maze partition
+        # and then a random offset is added -> the resulting raw/column must not
+        # exceed the available length
+        pos = xmin if vertical else ymin
+        pos += rng.randint(1, partition_length - 2)
 
-    for gap in wall_pos[:ngaps]:
+        # the maximum length of the wall is the space we have in the same direction
+        # of the wall in the partition, i.e.
+        # if the wall is vertical, the maximum length is the height
+        # if the wall is horizontal, the maximum length is the width
+        max_length = height if vertical else width
+
+        # We can start with a full wall, but we want to make sure that we do not
+        # block the entrances to this partition. The entrances are
+        # - the tile before the beginning of this wall [entrance] and
+        # - the tile after the end of this wall [exit]
+        # if entrance or exit are _not_ walls, then the wall must leave the neighboring
+        # tiles also empty, i.e. the wall must be shortened accordingly
         if vertical:
-            wall.discard((pos, ymin+gap))
+            entrance_before = (pos, ymin - 1)
+            entrance_after = (pos, ymin + max_length)
+            begin = 0 if entrance_before in walls else 1
+            end = max_length if entrance_after in walls else max_length - 1
+            wall = {(pos, ymin + y) for y in range(begin, end)}
         else:
-            wall.discard((xmin+gap, pos))
+            entrance_before = (xmin - 1, pos)
+            entrance_after = (xmin + max_length, pos)
+            begin = 0 if entrance_before in walls else 1
+            end = max_length if entrance_after in walls else max_length - 1
+            wall = {(xmin + x, pos) for x in range(begin, end)}
 
-    # collect this wall into the global wall set
-    walls |= wall
+        # place the requested number of gaps in the otherwise full wall
+        # these gaps are indices in the direction of the wall, i.e.
+        # x if horizontal and y if vertical
+        # TODO: when we drop compatibility with numpy, this can be more easily done
+        # by just sampling ngaps out of the full wall set, i.e.
+        # gaps = rng.sample(wall, k=ngaps)
+        # for gap in gaps:
+        #     wall.remove(gap)
+        ngaps = max(1, ngaps)
+        wall_pos = list(range(max_length))
+        rng.shuffle(wall_pos)
 
-    # define the two new partitions of the maze generated by this wall
-    # these are the parts of the maze to the left/right of a vertical wall
-    # or the top/bottom of a horizontal wall
-    if vertical:
-        partitions = [((xmin,  ymin), (pos-1, ymax)),
-                      ((pos+1, ymin), (xmax,  ymax))]
-    else:
-        partitions = [((xmin,  ymin), (xmax, pos-1)),
-                      ((xmin, pos+1), (xmax,  ymax))]
+        for gap in wall_pos[:ngaps]:
+            if vertical:
+                wall.discard((pos, ymin + gap))
+            else:
+                wall.discard((xmin + gap, pos))
 
-    for partition in partitions:
-        walls |= add_wall_and_split(
-            partition, walls, max(1, ngaps // 2), not vertical, rng=rng
-        )
+        # collect this wall into the global wall set
+        walls |= wall
+
+        # define the two new partitions of the maze generated by this wall
+        # these are the parts of the maze to the left/right of a vertical wall
+        # or the top/bottom of a horizontal wall
+        ngaps = max(1, ngaps // 2)
+
+        if vertical:
+            new = [
+                ((xmin, ymin), (pos - 1, ymax), ngaps, not vertical),
+                ((pos + 1, ymin), (xmax, ymax), ngaps, not vertical),
+            ]
+        else:
+            new = [
+                ((xmin, ymin), (xmax, pos - 1), ngaps, not vertical),
+                ((xmin, pos + 1), (xmax, ymax), ngaps, not vertical),
+            ]
+
+        # queue the new partitions next;
+        # ensures maze stability
+        partitions.insert(p + 1, new[1])
+        partitions.insert(p + 1, new[0])
+
+        # increase the partition index
+        p += 1
 
     return walls
 
