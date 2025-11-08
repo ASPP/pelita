@@ -128,6 +128,18 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     # partition index
     p = 0
 
+    # The infinite loop is always exiting, since the position of the walls
+    # `pos` is in `[xmin + 1, xmax - (xmin + 1)]` or
+    # in `[ymin + 1, ymax - (ymin + 1)]`, respectively, and thus always
+    # yielding partitions smaller than the current partition.
+    # The checks for `height < 3`, `width < 3` and
+    # `partition_length < rng.randint(3, 5)` ensure no further addition of
+    # partitions, and `p += 1` in those checks and after partitioning ensure
+    # that we always advance in the list of partitions.
+    #
+    # So, partitions always shrink, no new partitions are added once they
+    # shrank below a threshold, and the loop increases the list index in 
+    # every case.
     while True:
         # get the next partition of any is available
         try:
