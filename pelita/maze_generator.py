@@ -125,29 +125,21 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     # alongside the number of gaps in wall and its orientation
     partitions = [partition + (ngaps, vertical)]
 
-    # partition index
-    p = 0
-
-    # The infinite loop is always exiting, since the position of the walls
+    # The loop is always exiting, since the position of the walls
     # `pos` is in `[xmin + 1, xmax - (xmin + 1)]` or
     # in `[ymin + 1, ymax - (ymin + 1)]`, respectively, and thus always
     # yielding partitions smaller than the current partition.
     # The checks for `height < 3`, `width < 3` and
     # `partition_length < rng.randint(3, 5)` ensure no further addition of
-    # partitions, and `p += 1` in those checks and after partitioning ensure
-    # that we always advance in the list of partitions.
+    # partitions, and `partitions.pop()` ensures that the list of partitions
+    # is always drained.
     #
     # So, partitions always shrink, no new partitions are added once they
-    # shrank below a threshold, and the loop increases the list index in 
-    # every case.
-    while True:
+    # shrank below a threshold, and the loop draines the list in
+    # every iteration.
+    while len(partitions) > 0:
         # get the next partition of any is available
-        try:
-            partition = partitions[p]
-        except IndexError:
-            break
-
-        (xmin, ymin), (xmax, ymax), ngaps, vertical = partition
+        (xmin, ymin), (xmax, ymax), ngaps, vertical = partitions.pop()
 
         # the size of the maze partition we work on
         width = xmax - xmin + 1
@@ -155,7 +147,6 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
 
         # if the partition is too small, move on with the next one
         if height < 3 and width < 3:
-            p += 1
             continue
 
         # insert a wall only if there is some space in the around it in the
@@ -165,7 +156,6 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # otherwise move on with the next one
         partition_length = width if vertical else height
         if partition_length < rng.randint(3, 5):
-            p += 1
             continue
 
         # the row/column to put the horizontal/vertical wall on
@@ -228,22 +218,22 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
 
         if vertical:
             new = [
+                # left
                 ((xmin, ymin), (pos - 1, ymax), ngaps, not vertical),
+                # right
                 ((pos + 1, ymin), (xmax, ymax), ngaps, not vertical),
             ]
         else:
             new = [
+                # top
                 ((xmin, ymin), (xmax, pos - 1), ngaps, not vertical),
+                # bottom
                 ((xmin, pos + 1), (xmax, ymax), ngaps, not vertical),
             ]
 
-        # queue the new partitions next;
+        # queue the new partitions next, appending the left/top one last;
         # ensures maze stability
-        partitions.insert(p + 1, new[1])
-        partitions.insert(p + 1, new[0])
-
-        # increase the partition index
-        p += 1
+        partitions.extend(new[::-1])
 
     return walls
 
