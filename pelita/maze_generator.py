@@ -121,6 +121,9 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
 def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     rng = default_rng(rng)
 
+    # copy to avoid side effects
+    walls = walls.copy()
+
     # store partitions in an expanding list
     # alongside the number of gaps in wall and its orientation
     partitions = [partition + (ngaps, vertical)]
