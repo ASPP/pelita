@@ -149,7 +149,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         height = ymax - ymin + 1
 
         # if the partition is too small, move on with the next one
-        if height < 3 and width < 3:
+        if height < 5 and width < 5:
             continue
 
         # insert a wall only if there is some space in the around it in the
@@ -158,7 +158,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # if the wall is horizontal, then the relevant length is the height,
         # otherwise move on with the next one
         partition_length = width if vertical else height
-        if partition_length < rng.randint(3, 5):
+        if partition_length < rng.randint(5, 7):
             continue
 
         # the row/column to put the horizontal/vertical wall on
@@ -166,7 +166,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # and then a random offset is added -> the resulting raw/column must not
         # exceed the available length
         pos = xmin if vertical else ymin
-        pos += rng.randint(1, partition_length - 2)
+        pos += rng.randint(2, partition_length - 3)
 
         # the maximum length of the wall is the space we have in the same direction
         # of the wall in the partition, i.e.
@@ -181,16 +181,16 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # if entrance or exit are _not_ walls, then the wall must leave the neighboring
         # tiles also empty, i.e. the wall must be shortened accordingly
         if vertical:
-            entrance_before = (pos, ymin - 1)
-            entrance_after = (pos, ymin + max_length)
-            begin = 0 if entrance_before in walls else 1
-            end = max_length if entrance_after in walls else max_length - 1
+            entrance_before = (pos, ymin)
+            entrance_after = (pos, ymax)
+            begin = 1 if entrance_before in walls else 2
+            end = max_length - 1 if entrance_after in walls else max_length - 2
             wall = {(pos, ymin + y) for y in range(begin, end)}
         else:
-            entrance_before = (xmin - 1, pos)
-            entrance_after = (xmin + max_length, pos)
-            begin = 0 if entrance_before in walls else 1
-            end = max_length if entrance_after in walls else max_length - 1
+            entrance_before = (xmin, pos)
+            entrance_after = (xmax, pos)
+            begin = 1 if entrance_before in walls else 2
+            end = max_length - 1 if entrance_after in walls else max_length - 2
             wall = {(xmin + x, pos) for x in range(begin, end)}
 
         # place the requested number of gaps in the otherwise full wall
@@ -202,7 +202,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # for gap in gaps:
         #     wall.remove(gap)
         ngaps = max(1, ngaps)
-        wall_pos = list(range(max_length))
+        wall_pos = list(range(1, max_length - 1))
         rng.shuffle(wall_pos)
 
         for gap in wall_pos[:ngaps]:
@@ -222,16 +222,16 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         if vertical:
             new = [
                 # left
-                ((xmin, ymin), (pos - 1, ymax), ngaps, not vertical),
+                ((xmin, ymin), (pos, ymax), ngaps, not vertical),
                 # right
-                ((pos + 1, ymin), (xmax, ymax), ngaps, not vertical),
+                ((pos, ymin), (xmax, ymax), ngaps, not vertical),
             ]
         else:
             new = [
                 # top
-                ((xmin, ymin), (xmax, pos - 1), ngaps, not vertical),
+                ((xmin, ymin), (xmax, pos), ngaps, not vertical),
                 # bottom
-                ((xmin, pos + 1), (xmax, ymax), ngaps, not vertical),
+                ((xmin, pos), (xmax, ymax), ngaps, not vertical),
             ]
 
         # queue the new partitions next, appending the left/top one last;
@@ -276,7 +276,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
         wall.remove((x_wall, height - 2 - gap))
 
     walls |= wall
-    partition = ((1, 1), (x_wall - 1, height - 2))
+    partition = ((0, 0), (x_wall, height - 1))
 
     walls = add_wall_and_split(
         partition,
