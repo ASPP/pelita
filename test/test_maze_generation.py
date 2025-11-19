@@ -14,7 +14,7 @@ def layout_str_to_graph(l_str):
     shape = l_dict['shape']
     return graph, shape
 
-maze_103525239 = """
+maze_103525239_even = """
 ################################
 #.   .....#....##    .      . y#
 # .# #########      # .    #  x#
@@ -33,11 +33,34 @@ maze_103525239 = """
 ################################
 """
 
-def test_generate_maze_stability():
+maze_103525239_odd = """
+################################
+#.   .  #..  . ##       .   . y#
+#    #  ######    ### #####  #x#
+# .  ## # .# #   .     .  #.  .#
+#.   # .#....#.## # .   . #    #
+#    #. ### ##    # .     ## ###
+#    #..   .   ########## #    #
+#    # .#.#  #.##.#  #.#. #    #
+#    # ##########   .   ..#    #
+### ##     . #    ## ### .#    #
+#    # .   . # ##.#....#. #   .#
+#.  .#  .     .   # #. # ##  . #
+#a#  ##### ###    ######  #    #
+#b .   .       ## .  ..#  .   .#
+################################
+"""
+
+def test_generate_maze_stability_even():
     # we only test that we keep in returning the same maze when the random
     # seed is fixed, in case something changes during future porting/refactoring
     new_layout = mg.generate_maze(rng=SEED)
-    old_layout = pl.parse_layout(maze_103525239)
+    old_layout = pl.parse_layout(maze_103525239_even)
+    assert old_layout == new_layout
+
+def test_generate_maze_stability_odd():
+    new_layout = mg.generate_maze(height=15, rng=SEED)
+    old_layout = pl.parse_layout(maze_103525239_odd)
     assert old_layout == new_layout
 
 def test_find_trapped_tiles():
@@ -267,7 +290,7 @@ def test_generate_maze_food(iteration):
     local_seed = SEED + iteration
     rng = Random(local_seed)
 
-    width = 10
+    width = 12
     height = 5
     total_food = 7
     trapped_food = 0
@@ -277,8 +300,8 @@ def test_generate_maze_food(iteration):
     assert width//2 not in x_food
     assert width//2 - 1 not in x_food
     with pytest.raises(ValueError):
-        # there are not enough free tiles for 8 pellets
-        total_food = 8
+        # there are not enough free tiles for 20 pellets
+        total_food = 20
         ld = mg.generate_maze(trapped_food, total_food, width, height, rng=rng)
 
 def test_maze_generation_roundtrip():

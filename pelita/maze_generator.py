@@ -272,11 +272,11 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     rng.shuffle(candidates)
 
     for gap in candidates[:ngaps_center//2]:
-        wall.remove((x_wall, gap+1))
-        wall.remove((x_wall, ymax*2 - gap))
+        wall.remove((x_wall, gap + 1))
+        wall.remove((x_wall, height - 2 - gap))
 
     walls |= wall
-    partition = ((1, 1), (x_wall - 1, ymax * 2))
+    partition = ((1, 1), (x_wall - 1, height - 2))
 
     walls = add_wall_and_split(
         partition,
