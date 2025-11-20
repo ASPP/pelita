@@ -8,6 +8,25 @@ from pelita.layout import initial_positions, parse_layout
 from pelita.maze_generator import generate_maze
 from pelita.exceptions import PelitaBotError
 
+@pytest.fixture
+def dummy_layout():
+    return """
+        ##################
+        #.#... .##.     y#
+        # # #  .  .### #x#
+        # ####.   .      #
+        #      .   .#### #
+        #a# ###.  .  # # #
+        #b     .##. ...#.#
+        ##################
+    """
+
+@pytest.fixture
+def dummy_layout_dict(dummy_layout):
+    # Use this when a simple layout is needed but the details don’t matter
+    return parse_layout(dummy_layout)
+
+
 def stopping(bot, state):
     return bot.position
 
@@ -633,19 +652,7 @@ def test_team_time():
     assert state['team_time'][1] >= 2.0
 
 
-def test_bot_str_repr():
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
-
-    parsed = parse_layout(test_layout)
+def test_bot_str_repr(dummy_layout_dict):
 
     def asserting_team(bot, state):
         bot_str = str(bot).split('\n')
@@ -660,27 +667,14 @@ def test_bot_str_repr():
 
         return bot.position
 
-    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
+    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=dummy_layout_dict,
                      raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
 
 
-def test_bot_html_repr():
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
-
-    parsed = parse_layout(test_layout)
-
+def test_bot_html_repr(dummy_layout_dict):
     def asserting_team(bot, state):
         # Not a full-fledged test at this time. We mainly want to catch API changes for now.
 
@@ -689,26 +683,14 @@ def test_bot_html_repr():
 
         return bot.position
 
-    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
+    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=dummy_layout_dict,
                      raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
     assert state['fatal_errors'] == [[], []]
 
 
-def test_bot_repr():
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
-
-    parsed = parse_layout(test_layout)
+def test_bot_repr(dummy_layout_dict):
 
     def asserting_team(bot, state):
         bot_repr = repr(bot)
@@ -721,7 +703,7 @@ def test_bot_repr():
 
         return bot.position
 
-    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed,
+    state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=dummy_layout_dict,
                      raise_bot_exceptions=True)
     # assertions might have been caught in run_game
     # check that all is good
@@ -739,25 +721,12 @@ def test_bot_repr():
     ("123456789 123456789 123456789 1", "123456789 123456789 123456789 "), # too long
     ((0,0), "(0, 0)"), # not a string
     ])
-def test_bot_say(say, expected):
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
-
-    parsed = parse_layout(test_layout)
-
+def test_bot_say(say, expected, dummy_layout_dict):
     def speaking_team(bot, state):
         bot.say(say)
         return bot.position
 
-    state = setup_game([speaking_team, speaking_team], max_rounds=1, layout_dict=parsed, raise_bot_exceptions=True)
+    state = setup_game([speaking_team, speaking_team], max_rounds=1, layout_dict=dummy_layout_dict, raise_bot_exceptions=True)
     idx = 0
     while not state["gameover"]:
         state = play_turn(state)
@@ -769,31 +738,19 @@ def test_bot_say(say, expected):
     assert state['turn'] == 3
 
 
-def test_valid_paint_background():
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
+def test_valid_paint_background(dummy_layout_dict):
     overlay = [
                ((0,0) , "#AABBCC"),
                ((1,1) , "#BBCCDD"),
                ((100, 200) , "#DDCCAA"), # silently ignore coords out of the maze
                ]
 
-    parsed = parse_layout(test_layout)
-
     def overlay_team(bot, state):
         for pos, color in overlay:
             bot.paint_background(pos, color=color)
         return bot.position
 
-    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=dummy_layout_dict, raise_bot_exceptions=True)
 
     overlay_in_maze = [{'pos':(0,0), 'color':"#AABBCC"}, {'pos':(1,1), 'color':"#BBCCDD"}]
     for idx in range(4):
@@ -809,42 +766,19 @@ def test_valid_paint_background():
     ((1, 2),'#AABBCCDDEE', 'Background color.+AABBCCDDEE.+'), # color uses alpha channel
     ((1, 2),'#GGGGGG', 'Background color.+GGGGGG.+'), # color out of range
     ])
-def test_paint_background_exceptions(pos, color, match):
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
-    parsed = parse_layout(test_layout)
-
+def test_paint_background_exceptions(pos, color, match, dummy_layout_dict):
     def overlay_team(bot, state):
         bot.paint_background(pos, color)
         return bot.position
 
-    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=dummy_layout_dict, raise_bot_exceptions=True)
     with pytest.raises(PelitaBotError, match=match):
         state = play_turn(state, raise_bot_exceptions=True)
 
 
-def test_paint_background_doesnt_overwrite():
+def test_paint_background_doesnt_overwrite(dummy_layout_dict):
     # check that we do override color for a coordinate if already set and
     # that we don't touch other properties that may be defined on that coordinate
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
-    parsed = parse_layout(test_layout)
 
     pos = (0, 1)
     color = '#FFFFFF'
@@ -854,7 +788,7 @@ def test_paint_background_doesnt_overwrite():
         bot.paint_background(pos, color)
         return bot.position
 
-    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+    state = setup_game([overlay_team, overlay_team], max_rounds=2, layout_dict=dummy_layout_dict, raise_bot_exceptions=True)
 
     for idx in range(4):
         state = play_turn(state)
@@ -862,18 +796,7 @@ def test_paint_background_doesnt_overwrite():
         assert gs_overlay == [{'pos':(0,1), 'color':'#FFFFFF', 'text':'something'}]
 
 
-def test_paint_background_different_bots():
-    test_layout = """
-        ##################
-        #.#... .##.     y#
-        # # #  .  .### #x#
-        # ####.   .      #
-        #      .   .#### #
-        #a# ###.  .  # # #
-        #b     .##. ...#.#
-        ##################
-    """
-    parsed = parse_layout(test_layout)
+def test_paint_background_different_bots(dummy_layout_dict):
 
     # blue team
     pos0 = (0, 0)
@@ -899,7 +822,7 @@ def test_paint_background_different_bots():
             bot.paint_background(pos3, color3)
         return bot.position
 
-    state = setup_game([overlay_team_blue, overlay_team_red], max_rounds=2, layout_dict=parsed, raise_bot_exceptions=True)
+    state = setup_game([overlay_team_blue, overlay_team_red], max_rounds=2, layout_dict=dummy_layout_dict, raise_bot_exceptions=True)
 
     pos_color = [(pos0, color0), (pos1, color1), (pos2, color2), (pos3, color3)]
     for idx in range(4):
