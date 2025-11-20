@@ -34,44 +34,42 @@ def randomBot(bot, state):
     legal = bot.legal_positions[:]
     return bot.random.choice(legal)
 
-class TestStoppingTeam:
-    @staticmethod
-    def round_counting():
-        storage_copy = {}
-        def inner(bot, state):
-            print(state)
-            state[bot.turn] = state.get(bot.turn, 0) + 1
-            storage_copy['rounds'] = state[bot.turn]
-            print(state)
-            return bot.position
-        inner._storage = storage_copy
-        return inner
+def mk_round_counting_team():
+    storage_copy = {}
+    def team(bot, state):
+        print(state)
+        state[bot.turn] = state.get(bot.turn, 0) + 1
+        storage_copy['rounds'] = state[bot.turn]
+        print(state)
+        return bot.position
+    team._storage = storage_copy
+    return team
 
-    def test_stopping(self):
-        test_layout = (
-        """ ############
-            #a#.by .# x#
-            ############ """)
+def test_round_counting():
+    test_layout = (
+    """ ############
+        #a#.by .# x#
+        ############ """)
 
-        round_counting = self.round_counting()
-        team = [
-            stopping,
-            round_counting
-        ]
-        state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout), raise_bot_exceptions=True)
-        assert state['bots'][0] == (1, 1)
-        assert state['bots'][1] == (10, 1)
-        assert round_counting._storage['rounds'] == 1
+    round_counting_team = mk_round_counting_team()
+    team = [
+        stopping,
+        round_counting_team
+    ]
+    state = run_game(team, max_rounds=1, layout_dict=parse_layout(test_layout), raise_bot_exceptions=True)
+    assert state['bots'][0] == (1, 1)
+    assert state['bots'][1] == (10, 1)
+    assert round_counting_team._storage['rounds'] == 1
 
-        round_counting = self.round_counting()
-        team = [
-            stopping,
-            round_counting
-        ]
-        state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout), raise_bot_exceptions=True)
-        assert state['bots'][0] == (1, 1)
-        assert state['bots'][1] == (10, 1)
-        assert round_counting._storage['rounds'] == 3
+    round_counting_team = mk_round_counting_team()
+    team = [
+        stopping,
+        round_counting_team
+    ]
+    state = run_game(team, max_rounds=3, layout_dict=parse_layout(test_layout), raise_bot_exceptions=True)
+    assert state['bots'][0] == (1, 1)
+    assert state['bots'][1] == (10, 1)
+    assert round_counting_team._storage['rounds'] == 3
 
 def test_track_and_kill_count():
     # for each team, we track whether they have been eaten at least once
