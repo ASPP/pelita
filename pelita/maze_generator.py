@@ -118,6 +118,20 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
     return tf_pos | ff_pos | leftover_food_pos
 
 
+def sample(x, k, rng):
+    # temporary wrapper for sample to be conformant with
+    # the random.sample API (minus the `count` parameter)
+
+    # copy population
+    result = x.copy()
+
+    # shuffle all items
+    rng.shuffle(result)
+
+    # return the first `k` results
+    return result[:k]
+
+
 def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     rng = default_rng(rng)
 
@@ -203,9 +217,9 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         #     wall.remove(gap)
         ngaps = max(1, ngaps)
         wall_pos = list(range(1, max_length - 1))
-        rng.shuffle(wall_pos)
+        wall_pos = sample(wall_pos, ngaps, rng)
 
-        for gap in wall_pos[:ngaps]:
+        for gap in wall_pos:
             if vertical:
                 wall.discard((pos, ymin + gap))
             else:
@@ -269,9 +283,9 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # create_maze we can rewrite this. See generate_walls for an example
     ymax = (height - 2) // 2
     candidates = list(range(ymax))
-    rng.shuffle(candidates)
+    candidates = sample(candidates, ngaps_center//2, rng)
 
-    for gap in candidates[:ngaps_center//2]:
+    for gap in candidates:
         wall.remove((x_wall, gap + 1))
         wall.remove((x_wall, height - 2 - gap))
 
