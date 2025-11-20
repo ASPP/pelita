@@ -219,11 +219,14 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         wall_pos = list(range(1, max_length - 1))
         wall_pos = sample(wall_pos, ngaps, rng)
 
-        for gap in wall_pos:
-            if vertical:
-                wall.discard((pos, ymin + gap))
-            else:
-                wall.discard((xmin + gap, pos))
+        # combine wall coordinates to wall gaps
+        if vertical:
+            sampled = {(pos, ymin + y) for y in wall_pos}
+        else:
+            sampled = {(xmin + x, pos) for x in wall_pos}
+
+        # remove sampled gaps from the dividing wall
+        wall -= sampled
 
         # collect this wall into the global wall set
         walls |= wall
