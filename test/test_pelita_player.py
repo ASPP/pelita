@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from pelita.scripts.pelita_player import load_team, load_team_from_module
+from pelita.scripts.pelita_player import load_team, load_team_from_module, sanitize_team_name
 
 _mswindows = (sys.platform == "win32")
 
@@ -167,6 +167,24 @@ def test_player_import_name(name, expected, cleanup_test_modules):
             assert load_team(spec).team_name == name
         else:
             assert load_team(spec).team_name == expected
+
+
+@pytest.mark.parametrize('name, expected', [
+    ("a", True),
+    ("a a", True),
+    ("0" * 25, True),
+    ("", "???"),
+    (" ", "???"),
+    ("-", "???"),
+    ("∂", "???"),
+    ("0" * 26, "0" * 25),
+    (" " + "0" * 26, "0" * 25),
+])
+def test_sanitize_team_name(name, expected):
+    if expected is True:
+        assert sanitize_team_name(name) == name
+    else:
+        assert sanitize_team_name(name) == expected
 
 
 @pytest.mark.parametrize('team_spec, expected', [
