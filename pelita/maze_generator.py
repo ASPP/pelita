@@ -279,33 +279,42 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
             {(0, y) for y in range(height)} | \
             {(width-1, y) for y in range(height)}
 
-    # Generate a wall with gaps at the border between the two homezones
+    #
+    # BORDER SAMPLING
+    #
+    # generate a wall with gaps at the border between the two homezones
     # in the left side of the maze
 
-    # TODO: when we decide to break backward compatibility with the numpy version
-    # of create maze, this part can be delegated directly to generate_walls and
-    # then we need to rewrite mirror to mirror a set of coordinates around the center
-    # by discarding the lower part of the border
-
-    # Let us start with a full wall at the left side of the border
+    # start with a full wall at the left side of the border
     x_wall = width//2 - 1
     wall = {(x_wall, y) for y in range(1, height - 1)}
 
     # possible locations for gaps
     # these gaps need to be symmetric around the center
-    # TODO: when we decide to break compatibility with the numpy version of
-    # create_maze we can rewrite this. See generate_walls for an example
+    #
+    # TODO:
+    # when we drop compatibility with numpy mazes, this might be rewritten to
+    # sample wall segments to keep with k = len(wall) - ngaps
     ymax = (height - 2) // 2
     candidates = list(range(ymax))
     candidates = sample(candidates, ngaps_center//2, rng)
 
+    # remove gaps from top and mirrored from bottom
     for gap in candidates:
         wall.remove((x_wall, gap + 1))
         wall.remove((x_wall, height - 2 - gap))
 
+    # collect the border into the global wall set
     walls |= wall
+
+    #
+    # BINARY SPACE PARTITIONING
+    #
+
+    # define the left homezone as the first partition to split
     partition = ((0, 0), (x_wall, height - 1))
 
+    # run the binary space partitioning
     walls = add_wall_and_split(
         partition,
         walls,
@@ -314,7 +323,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
         rng=rng,
     )
 
-    # make space for the pacmen:
+    # make space for the pacmen
     for bot in bots_pos:
         if bot in walls:
             walls.remove(bot)
