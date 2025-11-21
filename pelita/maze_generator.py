@@ -39,6 +39,9 @@ import networkx as nx
 from .base_utils import default_rng
 from .team import walls_to_graph
 
+MIN_WIDTH = 5
+MIN_HEIGHT = 5
+PADDING = 2
 
 def mirror(nodes, width, height):
     nodes = set(nodes)
@@ -118,132 +121,150 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
     return tf_pos | ff_pos | leftover_food_pos
 
 
+def sample(x, k, rng):
+    # temporary replacement wrapper for `rng.shuffle` conformant with
+    # the `random.sample` API (minus the `count` parameter)
+
+    # copy population
+    result = x.copy()
+
+    # shuffle all items
+    rng.shuffle(result)
+
+    # return the first `k` results
+    return result[:k]
+
+
+def order_preserved(a, b):
+    # preserve the order of arguments
+    return a, b
+
+
+def order_inverted(a, b):
+    # invert the order of arguments
+    return b, a
+
+
 def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     rng = default_rng(rng)
 
-    # store partitions in an expanding list
-    # alongside the number of gaps in wall and its orientation
+    # ensure a connected maze by a minimum of 1 sampled gap
+    ngaps = max(1, ngaps)
+
+    # copy framing walls to avoid side effects
+    walls = walls.copy()
+
+    # store partitions in an expanding list alongside the number of gaps and
+    # the orientation of the wall
     partitions = [partition + (ngaps, vertical)]
 
-    # partition index
-    p = 0
+    # loop over all occuring partitions in the list;
+    # the loop always exits because partitions always shrink by definition,
+    # no new partitions are added once they shrank below a threshold and
+    # the list of partitions is always drained on every iteration
+    while len(partitions) > 0:
+        #
+        # DEFINITIONS
+        #
+        # a partition with its variables in `u`-`v`-space is described as:
+        #
+        # ┌─► u
+        # ▼
+        # v         umin       pos        umax
+        #
+        #            |          |          |
+        #   vmin  ── O──────────O──────────┐
+        #            │ pmin     │ wmin     │
+        #            │          │          │
+        #            │          │          │
+        #            │          │          │
+        #            │          │          │
+        #   vmax  ── └──────────O──────────O
+        #                         wmax       pmax
 
-    # The infinite loop is always exiting, since the position of the walls
-    # `pos` is in `[xmin + 1, xmax - (xmin + 1)]` or
-    # in `[ymin + 1, ymax - (ymin + 1)]`, respectively, and thus always
-    # yielding partitions smaller than the current partition.
-    # The checks for `height < 3`, `width < 3` and
-    # `partition_length < rng.randint(3, 5)` ensure no further addition of
-    # partitions, and `p += 1` in those checks and after partitioning ensure
-    # that we always advance in the list of partitions.
-    #
-    # So, partitions always shrink, no new partitions are added once they
-    # shrank below a threshold, and the loop increases the list index in 
-    # every case.
-    while True:
-        # get the next partition of any is available
-        try:
-            partition = partitions[p]
-        except IndexError:
-            break
+        # get the next partition
+        pmin, pmax, ngaps, vertical = partitions.pop()
+        xmin, ymin = pmin
+        xmax, ymax = pmax
 
-        (xmin, ymin), (xmax, ymax), ngaps, vertical = partition
+        # if vertical, preserve the coordinates, else transpose them
+        order = order_preserved if vertical else order_inverted
 
-        # the size of the maze partition we work on
-        width = xmax - xmin + 1
-        height = ymax - ymin + 1
+        # map `x`-`y`-coordinates into `u`-`v`-space where the inner wall is
+        # always vertical
+        (umin, umax), (vmin, vmax) = order((xmin, xmax), (ymin, ymax))
+
+        # the size of the maze partition we work on in `u`-`v`-space
+        ulen = umax - umin + 1
+        vlen = vmax - vmin + 1
 
         # if the partition is too small, move on with the next one
-        if height < 3 and width < 3:
-            p += 1
+        if ulen < MIN_WIDTH and vlen < MIN_HEIGHT:
             continue
 
-        # insert a wall only if there is some space in the around it in the
-        # orthogonal direction, i.e.:
-        # if the wall is vertical, then the relevant length is the width
-        # if the wall is horizontal, then the relevant length is the height,
-        # otherwise move on with the next one
-        partition_length = width if vertical else height
-        if partition_length < rng.randint(3, 5):
-            p += 1
+        # insert a wall only if there is some space around it in the
+        # orthogonal `u`-direction, otherwise move on with the next partition
+        if ulen < rng.randint(MIN_WIDTH, MIN_WIDTH + 2):
             continue
 
-        # the row/column to put the horizontal/vertical wall on
-        # the position is calculated starting from the left/top of the maze partition
-        # and then a random offset is added -> the resulting raw/column must not
-        # exceed the available length
-        pos = xmin if vertical else ymin
-        pos += rng.randint(1, partition_length - 2)
+        #
+        # WALL SAMPLING
+        #
 
-        # the maximum length of the wall is the space we have in the same direction
-        # of the wall in the partition, i.e.
-        # if the wall is vertical, the maximum length is the height
-        # if the wall is horizontal, the maximum length is the width
-        max_length = height if vertical else width
+        # choose a coordinate within the partition length in `u`-direction
+        pos = rng.randint(umin + PADDING, umax - PADDING)
 
-        # We can start with a full wall, but we want to make sure that we do not
-        # block the entrances to this partition. The entrances are
-        # - the tile before the beginning of this wall [entrance] and
-        # - the tile after the end of this wall [exit]
-        # if entrance or exit are _not_ walls, then the wall must leave the neighboring
-        # tiles also empty, i.e. the wall must be shortened accordingly
-        if vertical:
-            entrance_before = (pos, ymin - 1)
-            entrance_after = (pos, ymin + max_length)
-            begin = 0 if entrance_before in walls else 1
-            end = max_length if entrance_after in walls else max_length - 1
-            wall = {(pos, ymin + y) for y in range(begin, end)}
-        else:
-            entrance_before = (xmin - 1, pos)
-            entrance_after = (xmin + max_length, pos)
-            begin = 0 if entrance_before in walls else 1
-            end = max_length if entrance_after in walls else max_length - 1
-            wall = {(xmin + x, pos) for x in range(begin, end)}
+        # define start and end of the inner wall in `x`-`y`-space
+        wmin = order(pos, vmin)
+        wmax = order(pos, vmax)
 
-        # place the requested number of gaps in the otherwise full wall
-        # these gaps are indices in the direction of the wall, i.e.
-        # x if horizontal and y if vertical
-        # TODO: when we drop compatibility with numpy, this can be more easily done
-        # by just sampling ngaps out of the full wall set, i.e.
-        # gaps = rng.sample(wall, k=ngaps)
-        # for gap in gaps:
-        #     wall.remove(gap)
-        ngaps = max(1, ngaps)
-        wall_pos = list(range(max_length))
-        rng.shuffle(wall_pos)
+        # set start and end for the wall slice dependent on present entrances
+        above = 1 if wmin in walls else 2
+        below = 1 if wmax in walls else 2
 
-        for gap in wall_pos[:ngaps]:
-            if vertical:
-                wall.discard((pos, ymin + gap))
-            else:
-                wall.discard((xmin + gap, pos))
+        # sliced continuous wall in `x`-`y`-space
+        wall = {order(pos, v) for v in range(vmin + above, vmax - below + 1)}
+
+        # sample gap coordinates along the wall, i.e in `v`-direction
+        #
+        # TODO: 
+        # when we drop compatibility with numpy mazes, the range of sampled
+        # gaps can be adjusted to remove them directly from the full wall
+        # OR we sample the wall segments to keep with k = len(wall) - ngaps
+        gaps = list(range(vmin + 1, vmax))
+        gaps = sample(gaps, ngaps, rng)
+
+        # combine gap coordinates to wall gaps in `x`-`y`-space
+        sampled = {order(pos, v) for v in gaps}
+
+        # remove sampled gaps from the wall
+        wall -= sampled
 
         # collect this wall into the global wall set
         walls |= wall
 
-        # define the two new partitions of the maze generated by this wall
-        # these are the parts of the maze to the left/right of a vertical wall
-        # or the top/bottom of a horizontal wall
+        #
+        # SPLITTING
+        #
+
+        # we split the partition in 2, so we divide the number of gaps by 2;
+        # ensure a connected maze with a minimum of 1 sampled gap
         ngaps = max(1, ngaps // 2)
 
-        if vertical:
-            new = [
-                ((xmin, ymin), (pos - 1, ymax), ngaps, not vertical),
-                ((pos + 1, ymin), (xmax, ymax), ngaps, not vertical),
-            ]
-        else:
-            new = [
-                ((xmin, ymin), (xmax, pos - 1), ngaps, not vertical),
-                ((xmin, pos + 1), (xmax, ymax), ngaps, not vertical),
-            ]
+        # define new partitions inscribed in the current one, split by the wall;
+        # this definition is true for vertical and horizontal walls
+        new = (
+            # top/left
+            (pmin, wmax, ngaps, not vertical),
+            # bottom/right
+            (wmin, pmax, ngaps, not vertical),
+        )
 
-        # queue the new partitions next;
-        # ensures maze stability
-        partitions.insert(p + 1, new[1])
-        partitions.insert(p + 1, new[0])
-
-        # increase the partition index
-        p += 1
+        # queue the new partitions next
+        #
+        # TODO:
+        # when we drop compatibility with numpy mazes, remove inversion
+        partitions.extend(new[::-1])
 
     return walls
 
@@ -258,33 +279,42 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
             {(0, y) for y in range(height)} | \
             {(width-1, y) for y in range(height)}
 
-    # Generate a wall with gaps at the border between the two homezones
+    #
+    # BORDER SAMPLING
+    #
+    # generate a wall with gaps at the border between the two homezones
     # in the left side of the maze
 
-    # TODO: when we decide to break backward compatibility with the numpy version
-    # of create maze, this part can be delegated directly to generate_walls and
-    # then we need to rewrite mirror to mirror a set of coordinates around the center
-    # by discarding the lower part of the border
-
-    # Let us start with a full wall at the left side of the border
+    # start with a full wall at the left side of the border
     x_wall = width//2 - 1
     wall = {(x_wall, y) for y in range(1, height - 1)}
 
     # possible locations for gaps
     # these gaps need to be symmetric around the center
-    # TODO: when we decide to break compatibility with the numpy version of
-    # create_maze we can rewrite this. See generate_walls for an example
+    #
+    # TODO:
+    # when we drop compatibility with numpy mazes, this might be rewritten to
+    # sample wall segments to keep with k = len(wall) - ngaps
     ymax = (height - 2) // 2
     candidates = list(range(ymax))
-    rng.shuffle(candidates)
+    candidates = sample(candidates, ngaps_center//2, rng)
 
-    for gap in candidates[:ngaps_center//2]:
-        wall.remove((x_wall, gap+1))
-        wall.remove((x_wall, ymax*2 - gap))
+    # remove gaps from top and mirrored from bottom
+    for gap in candidates:
+        wall.remove((x_wall, gap + 1))
+        wall.remove((x_wall, height - 2 - gap))
 
+    # collect the border into the global wall set
     walls |= wall
-    partition = ((1, 1), (x_wall - 1, ymax * 2))
 
+    #
+    # BINARY SPACE PARTITIONING
+    #
+
+    # define the left homezone as the first partition to split
+    partition = ((0, 0), (x_wall, height - 1))
+
+    # run the binary space partitioning
     walls = add_wall_and_split(
         partition,
         walls,
@@ -293,10 +323,8 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
         rng=rng,
     )
 
-    # make space for the pacmen:
-    for bot in bots_pos:
-        if bot in walls:
-            walls.remove(bot)
+    # make space for the pacmen
+    walls -= bots_pos
 
     return walls
 
