@@ -156,7 +156,9 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     # every iteration.
     while len(partitions) > 0:
         # get the next partition of any is available
-        (xmin, ymin), (xmax, ymax), ngaps, vertical = partitions.pop()
+        pmin, pmax, ngaps, vertical = partitions.pop()
+        xmin, ymin = pmin
+        xmax, ymax = pmax
 
         # the size of the maze partition we work on
         width = xmax - xmin + 1
@@ -179,14 +181,9 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # the position is calculated starting from the left/top of the maze partition
         # and then a random offset is added -> the resulting raw/column must not
         # exceed the available length
-        pos = xmin if vertical else ymin
-        pos += rng.randint(2, partition_length - 3)
-
-        # the maximum length of the wall is the space we have in the same direction
-        # of the wall in the partition, i.e.
-        # if the wall is vertical, the maximum length is the height
-        # if the wall is horizontal, the maximum length is the width
-        max_length = height if vertical else width
+        padding = 2
+        pos_min, pos_max = (xmin, xmax) if vertical else (ymin, ymax)
+        pos = rng.randint(pos_min + padding, pos_max - padding)
 
         # We can start with a full wall, but we want to make sure that we do not
         # block the entrances to this partition. The entrances are
@@ -195,17 +192,19 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # if entrance or exit are _not_ walls, then the wall must leave the neighboring
         # tiles also empty, i.e. the wall must be shortened accordingly
         if vertical:
-            entrance_before = (pos, ymin)
-            entrance_after = (pos, ymax)
-            begin = 1 if entrance_before in walls else 2
-            end = max_length - 1 if entrance_after in walls else max_length - 2
-            wall = {(pos, ymin + y) for y in range(begin, end)}
+            wmin = (pos, ymin)
+            wmax = (pos, ymax)
         else:
-            entrance_before = (xmin, pos)
-            entrance_after = (xmax, pos)
-            begin = 1 if entrance_before in walls else 2
-            end = max_length - 1 if entrance_after in walls else max_length - 2
-            wall = {(xmin + x, pos) for x in range(begin, end)}
+            wmin = (xmin, pos)
+            wmax = (xmax, pos)
+
+        begin = 1 if wmin in walls else 2
+        end = 1 if wmax in walls else 2
+
+        if vertical:
+            wall = {(pos, y) for y in range(ymin + begin, ymax - end + 1)}
+        else:
+            wall = {(x, pos) for x in range(xmin + begin, xmax - end + 1)}
 
         # place the requested number of gaps in the otherwise full wall
         # these gaps are indices in the direction of the wall, i.e.
@@ -216,14 +215,15 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # for gap in gaps:
         #     wall.remove(gap)
         ngaps = max(1, ngaps)
-        wall_pos = list(range(1, max_length - 1))
-        wall_pos = sample(wall_pos, ngaps, rng)
+        cmin, cmax = (ymin, ymax) if vertical else (xmin, xmax)
+        gaps = list(range(cmin + 1, cmax))
+        gaps = sample(gaps, ngaps, rng)
 
         # combine wall coordinates to wall gaps
         if vertical:
-            sampled = {(pos, ymin + y) for y in wall_pos}
+            sampled = {(pos, y) for y in gaps}
         else:
-            sampled = {(xmin + x, pos) for x in wall_pos}
+            sampled = {(x, pos) for x in gaps}
 
         # remove sampled gaps from the dividing wall
         wall -= sampled
@@ -236,20 +236,12 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # or the top/bottom of a horizontal wall
         ngaps = max(1, ngaps // 2)
 
-        if vertical:
-            new = [
-                # left
-                ((xmin, ymin), (pos, ymax), ngaps, not vertical),
-                # right
-                ((pos, ymin), (xmax, ymax), ngaps, not vertical),
-            ]
-        else:
-            new = [
-                # top
-                ((xmin, ymin), (xmax, pos), ngaps, not vertical),
-                # bottom
-                ((xmin, pos), (xmax, ymax), ngaps, not vertical),
-            ]
+        new = (
+            # top/left
+            (pmin, wmax, ngaps, not vertical),
+            # bottom/right
+            (wmin, pmax, ngaps, not vertical),
+        )
 
         # queue the new partitions next, appending the left/top one last;
         # ensures maze stability
