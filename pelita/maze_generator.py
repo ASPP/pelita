@@ -324,9 +324,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     )
 
     # make space for the pacmen
-    for bot in bots_pos:
-        if bot in walls:
-            walls.remove(bot)
+    walls -= bots_pos
 
     return walls
 
