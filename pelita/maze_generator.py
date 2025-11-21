@@ -39,6 +39,9 @@ import networkx as nx
 from .base_utils import default_rng
 from .team import walls_to_graph
 
+MIN_WIDTH = 5
+MIN_HEIGHT = 5
+PADDING = 2
 
 def mirror(nodes, width, height):
     nodes = set(nodes)
@@ -132,8 +135,20 @@ def sample(x, k, rng):
     return result[:k]
 
 
+def order_preserved(a, b):
+    # preserve the order of arguments
+    return a, b
+
+def order_inverted(a, b):
+    # invert the order of arguments
+    return b, a
+
+
 def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
     rng = default_rng(rng)
+
+    # ensure to have at least on gap to sample
+    ngaps = max(1, ngaps)
 
     # copy to avoid side effects
     walls = walls.copy()
@@ -160,12 +175,18 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         xmin, ymin = pmin
         xmax, ymax = pmax
 
+        # if vertical, preserve the coordinates, else transpose them
+        order = order_preserved if vertical else order_inverted
+
+        # operate in u-v-space
+        (umin, umax), (vmin, vmax) = order((xmin, xmax), (ymin, ymax))
+
         # the size of the maze partition we work on
-        width = xmax - xmin + 1
-        height = ymax - ymin + 1
+        ulen = umax - umin + 1
+        vlen = vmax - vmin + 1
 
         # if the partition is too small, move on with the next one
-        if height < 5 and width < 5:
+        if ulen < MIN_WIDTH and vlen < MIN_HEIGHT:
             continue
 
         # insert a wall only if there is some space in the around it in the
@@ -173,17 +194,14 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # if the wall is vertical, then the relevant length is the width
         # if the wall is horizontal, then the relevant length is the height,
         # otherwise move on with the next one
-        partition_length = width if vertical else height
-        if partition_length < rng.randint(5, 7):
+        if ulen < rng.randint(MIN_WIDTH, MIN_WIDTH + 2):
             continue
 
         # the row/column to put the horizontal/vertical wall on
         # the position is calculated starting from the left/top of the maze partition
         # and then a random offset is added -> the resulting raw/column must not
         # exceed the available length
-        padding = 2
-        pos_min, pos_max = (xmin, xmax) if vertical else (ymin, ymax)
-        pos = rng.randint(pos_min + padding, pos_max - padding)
+        pos = rng.randint(umin + PADDING, umax - PADDING)
 
         # We can start with a full wall, but we want to make sure that we do not
         # block the entrances to this partition. The entrances are
@@ -191,20 +209,13 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # - the tile after the end of this wall [exit]
         # if entrance or exit are _not_ walls, then the wall must leave the neighboring
         # tiles also empty, i.e. the wall must be shortened accordingly
-        if vertical:
-            wmin = (pos, ymin)
-            wmax = (pos, ymax)
-        else:
-            wmin = (xmin, pos)
-            wmax = (xmax, pos)
+        wmin = order(pos, vmin)
+        wmax = order(pos, vmax)
 
-        begin = 1 if wmin in walls else 2
-        end = 1 if wmax in walls else 2
+        above = 1 if wmin in walls else 2
+        below = 1 if wmax in walls else 2
 
-        if vertical:
-            wall = {(pos, y) for y in range(ymin + begin, ymax - end + 1)}
-        else:
-            wall = {(x, pos) for x in range(xmin + begin, xmax - end + 1)}
+        wall = {order(pos, v) for v in range(vmin + above, vmax - below + 1)}
 
         # place the requested number of gaps in the otherwise full wall
         # these gaps are indices in the direction of the wall, i.e.
@@ -214,16 +225,11 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         # gaps = rng.sample(wall, k=ngaps)
         # for gap in gaps:
         #     wall.remove(gap)
-        ngaps = max(1, ngaps)
-        cmin, cmax = (ymin, ymax) if vertical else (xmin, xmax)
-        gaps = list(range(cmin + 1, cmax))
+        gaps = list(range(vmin + 1, vmax))
         gaps = sample(gaps, ngaps, rng)
 
         # combine wall coordinates to wall gaps
-        if vertical:
-            sampled = {(pos, y) for y in gaps}
-        else:
-            sampled = {(x, pos) for x in gaps}
+        sampled = {order(pos, v) for v in gaps}
 
         # remove sampled gaps from the dividing wall
         wall -= sampled
