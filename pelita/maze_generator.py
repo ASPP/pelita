@@ -135,13 +135,13 @@ def sample(x, k, rng):
     return result[:k]
 
 
-def order_preserved(a, b):
-    # preserve the order of arguments
+def identity(a, b):
+    # identity transformation
     return a, b
 
 
-def order_inverted(a, b):
-    # invert the order of arguments
+def transposition(a, b):
+    # transposing transformation
     return b, a
 
 
@@ -188,11 +188,11 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         xmax, ymax = pmax
 
         # if vertical, preserve the coordinates, else transpose them
-        order = order_preserved if vertical else order_inverted
+        transform = identity if vertical else transposition
 
         # map `x`-`y`-coordinates into `u`-`v`-space where the inner wall is
         # always vertical
-        (umin, umax), (vmin, vmax) = order((xmin, xmax), (ymin, ymax))
+        (umin, umax), (vmin, vmax) = transform((xmin, xmax), (ymin, ymax))
 
         # the size of the maze partition we work on in `u`-`v`-space
         ulen = umax - umin + 1
@@ -215,15 +215,15 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         pos = rng.randint(umin + PADDING, umax - PADDING)
 
         # define start and end of the inner wall in `x`-`y`-space
-        wmin = order(pos, vmin)
-        wmax = order(pos, vmax)
+        wmin = transform(pos, vmin)
+        wmax = transform(pos, vmax)
 
         # set start and end for the wall slice dependent on present entrances
         above = 1 if wmin in walls else 2
         below = 1 if wmax in walls else 2
 
         # sliced continuous wall in `x`-`y`-space
-        wall = {order(pos, v) for v in range(vmin + above, vmax - below + 1)}
+        wall = {transform(pos, v) for v in range(vmin + above, vmax - below + 1)}
 
         # sample gap coordinates along the wall, i.e in `v`-direction
         #
@@ -235,7 +235,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         gaps = sample(gaps, ngaps, rng)
 
         # combine gap coordinates to wall gaps in `x`-`y`-space
-        sampled = {order(pos, v) for v in gaps}
+        sampled = {transform(pos, v) for v in gaps}
 
         # remove sampled gaps from the wall
         wall -= sampled
