@@ -95,6 +95,33 @@ def test_find_trapped_tiles():
                (9,6), (9,7), (10, 4), (10,5), (10,6), (10, 7) }
     assert two_chambers_tiles == tiles_1 | tiles_2
 
+def test_find_chambers_in_half_maze():
+    # food pellets (dots) mark the chamber tiles
+    maze = """################
+              #...           #
+              ####   #       #
+              #              #
+              #     #        #
+              #     ##       #
+              #     .#       #
+              ################"""
+
+    expected_chamber_tiles = {
+        # top left
+        (1, 1), (2, 1), (3, 1),
+        # bottom right
+        (6, 6),
+    }
+
+    # the chamber tiles are detected as expected
+    graph, shape = layout_str_to_graph(maze)
+    chamber_tiles, _ = mg.find_trapped_tiles(graph, shape[0], include_chambers=False)
+    assert chamber_tiles == expected_chamber_tiles
+
+    # for completeness: specifically these tiles are not in a chamber
+    assert (7, 1) not in chamber_tiles
+    assert (7, 4) not in chamber_tiles
+
 def test_distribute_food():
     maze_chamber = """############
                       #   #      #
