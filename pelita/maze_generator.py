@@ -166,7 +166,8 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         #
         # DEFINITIONS
         #
-        # a partition with its variables in `u`-`v`-space is described as:
+
+        # A partition with its variables in `u`-`v`-space is described as:
         #
         # ┌─► u
         # ▼
@@ -181,6 +182,21 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
         #            │          │          │
         #   vmax  ── └──────────O──────────O
         #                         wmax       pmax
+        #
+        #
+        # Note: the inner wall is always vertical.
+        #
+        #
+        # Partition framing points are defined as:
+        #
+        # pmin = (umin, vmin)
+        # pmax = (umax, vmax)
+        #
+        #
+        # Wall start and end points are defined as:
+        #
+        # wmin = (pos, vmin)
+        # wmax = (pos, vmax)
 
         # get the next partition
         pmin, pmax, ngaps, vertical = partitions.pop()
