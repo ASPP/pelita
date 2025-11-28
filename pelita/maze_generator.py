@@ -296,7 +296,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
         # top
         {(x, 0) for x in range(width // 2)}
         # bottom
-        | {(x, height-1) for x in range(width // 2)}
+        | {(x, height - 1) for x in range(width // 2)}
         # left
         | {(0, y) for y in range(height)}
     )
@@ -308,10 +308,10 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # in the left side of the maze
 
     # start with a full wall at the left side of the border
-    x_wall = width//2 - 1
-    wall = {(x_wall, y) for y in range(1, height - 1)}
+    pos = width // 2 - 1
+    border = {(pos, y) for y in range(1, height - 1)}
 
-    # possible locations for gaps
+    # possible locations for gaps;
     # these gaps need to be symmetric around the center
     #
     # TODO:
@@ -326,9 +326,9 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     edges = set()
 
     # remove gaps from top and mirrored from bottom
-    for gap in candidates:
-        upper = (x_wall, gap + 1)
-        lower = (x_wall, height - 2 - gap)
+    for y in candidates:
+        upper = (pos, y + 1)
+        lower = (pos, height - 2 - y)
 
         # add both gaps
         gaps.add(upper)
@@ -338,17 +338,17 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
         edges.add((upper, lower))
 
     # remove gaps from border
-    wall -= gaps
+    border -= gaps
 
     # collect the border into the global wall set
-    walls |= wall
+    walls |= border
 
     #
     # BINARY SPACE PARTITIONING
     #
 
     # define the left homezone as the first partition to split
-    partition = ((0, 0), (x_wall, height - 1))
+    partition = ((0, 0), (pos, height - 1))
 
     # run the binary space partitioning
     walls = add_wall_and_split(
