@@ -124,7 +124,7 @@ def test_find_chambers_in_half_maze():
     graph.remove_nodes_from(node for node in list(graph.nodes) if node[0] >= width // 2)
     sgaps = sorted(gaps)
     graph.add_edges_from(zip(sgaps[:len(gaps)//2], sgaps[::-1][:len(gaps)//2]))
-    chamber_tiles, _ = mg.find_trapped_tiles(graph, gaps, include_chambers=False)
+    chamber_tiles = mg.find_trapped_tiles(graph, gaps)
     assert chamber_tiles == expected_chamber_tiles
 
     # for completeness: specifically these tiles are not in a chamber
@@ -142,7 +142,7 @@ def test_distribute_food():
 
     graph, gaps = layout_str_to_graph(maze_chamber)
     all_tiles = set(graph.nodes)
-    chamber_tiles, _ = mg.find_trapped_tiles(graph, gaps, include_chambers=False)
+    chamber_tiles = mg.find_trapped_tiles(graph, gaps)
 
     # expected exceptions
     with pytest.raises(ValueError):

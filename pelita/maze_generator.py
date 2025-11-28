@@ -84,10 +84,10 @@ def find_trapped_tiles(graph, gaps, include_chambers=False):
     if include_chambers:
         subgraphs = graph.subgraph(chamber_tiles)
         chambers = list(nx.connected_components(subgraphs))
-    else:
-        chambers = []
 
-    return chamber_tiles, chambers
+        return chamber_tiles, chambers
+
+    return chamber_tiles
 
 
 def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None):
@@ -422,7 +422,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
     # with a dead-end or a section of tiles fully enclosed by walls except for a single
     # tile entrance
-    chamber_tiles, _ = find_trapped_tiles(graph, gaps, include_chambers=False)
+    chamber_tiles = find_trapped_tiles(graph, gaps)
 
     # distribute food on the half maze with excluded border gaps and
     # pacmen positions
