@@ -39,9 +39,16 @@ import networkx as nx
 from .base_utils import default_rng
 from .team import walls_to_graph
 
+
+# minimum partition width
 MIN_WIDTH = 5
+
+# minimum partition height
 MIN_HEIGHT = 5
+
+# partition padding for wall position sampling
 PADDING = 2
+
 
 def mirror(nodes, width, height):
     nodes = set(nodes)
