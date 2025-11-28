@@ -148,7 +148,7 @@ def transposition(a, b):
     return b, a
 
 
-def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
+def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
     rng = default_rng(rng)
 
     # ensure a connected maze by a minimum of 1 sampled gap
@@ -159,7 +159,7 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
 
     # store partitions in an expanding list alongside the number of gaps and
     # the orientation of the wall
-    partitions = [partition + (ngaps, vertical)]
+    partitions = [(pmin, pmax, ngaps, vertical)]
 
     # loop over all occuring partitions in the list;
     # the loop always exits because partitions always shrink by definition,
@@ -348,11 +348,13 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     #
 
     # define the left homezone as the first partition to split
-    partition = ((0, 0), (pos, height - 1))
+    pmin = (0, 0)
+    pmax = (pos, height - 1)
 
     # run the binary space partitioning
-    walls = add_wall_and_split(
-        partition,
+    walls = add_inner_walls(
+        pmin,
+        pmax,
         walls,
         ngaps_center // 2,
         vertical=False,
