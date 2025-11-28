@@ -164,3 +164,54 @@ def test_walls_to_graph():
     g = walls_to_graph(parsed['walls'], shape=(w, h))
     # Number of nodes is maze size - walls
     assert len(g.nodes) == int(w) * int(h) - n_walls
+
+
+def test_walls_to_graph_open():
+    # tested layout:
+    #
+    #   0 1 2
+    # 0 #-#-#
+    # 1 #
+    # 2 #
+    # 3 #-#-#
+    #
+    # no dangling nodes on the right (open) side are expected
+
+    width = 3
+    height = 4
+
+    walls = {
+        # top
+        (0, 0), (1, 0), (2, 0),
+        # bottom
+        (0, 3), (1, 3), (2, 3),
+        # left
+        (0, 1), (0, 2),
+    }
+
+    expected_nodes = {
+        (1, 1), (2, 1),
+        (1, 2), (2, 2),
+    }
+
+    # `walls_to_graph` adds edges from left to right and top to bottom
+    expected_edges = {
+        ((1, 1), (2, 1)),
+        ((1, 1), (1, 2)),
+        ((1, 2), (2, 2)),
+        ((2, 1), (2, 2)),
+    }
+
+    # we rely on `walls_to_graph` getting the dimensions right
+    graph = walls_to_graph(walls)
+
+    # nodes and edges are as expected
+    assert set(graph.nodes) == expected_nodes
+    assert set(graph.edges) == expected_edges
+
+    # set the graph dimensions explicitely
+    graph = walls_to_graph(walls, shape=(width, height))
+
+    # we still get the same result
+    assert set(graph.nodes) == expected_nodes
+    assert set(graph.edges) == expected_edges

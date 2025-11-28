@@ -82,10 +82,9 @@ def walls_to_graph(walls, shape=None):
                 # all fields
                 for delta_x, delta_y in [(1, 0), (0, 1)]:
                     neighbor = (x + delta_x, y + delta_y)
-                    # we don't need to check for getting neighbors out of the maze
-                    # because our mazes are all surrounded by walls, i.e. our
-                    # deltas will not put us out of the maze
-                    if neighbor not in walls:
+                    # check if the new node is free and within the bounds as
+                    # the walls might not be closed
+                    if neighbor not in walls and neighbor[0] < width and neighbor[1] < height:
                         # this is a genuine neighbor, add an edge in the graph
                         graph.add_edge((x, y), neighbor)
     return graph
