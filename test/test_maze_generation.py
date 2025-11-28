@@ -10,9 +10,11 @@ SEED = 103525239
 
 def layout_str_to_graph(l_str):
     l_dict = pl.parse_layout(l_str, strict=False)
-    graph = pt.walls_to_graph(l_dict['walls'], shape=l_dict['shape'])
-    shape = l_dict['shape']
-    return graph, shape
+    shape = l_dict["shape"]
+    graph = pt.walls_to_graph(l_dict['walls'], shape=shape)
+    border = {(shape[0] // 2 - 1, y) for y in range(shape[1])}
+    gaps = border - set(l_dict["walls"])
+    return graph, gaps
 
 maze_103525239_even = """
 ################################
@@ -73,8 +75,8 @@ def test_find_trapped_tiles():
                      #          #
                      ############"""
 
-    graph, shape = layout_str_to_graph(one_chamber)
-    one_chamber_tiles, chambers = mg.find_trapped_tiles(graph, shape[0], include_chambers=True)
+    graph, gaps = layout_str_to_graph(one_chamber)
+    one_chamber_tiles, chambers = mg.find_trapped_tiles(graph, gaps, include_chambers=True)
     assert len(chambers) == 1
     tiles_1 = {(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 1), (3, 2)}
     assert one_chamber_tiles == tiles_1
@@ -88,14 +90,15 @@ def test_find_trapped_tiles():
                       #      #   #
                       #      #   #
                       ############"""
-    graph, shape = layout_str_to_graph(two_chambers)
-    two_chambers_tiles, chambers = mg.find_trapped_tiles(graph, shape[0], include_chambers=True)
+    graph, gaps = layout_str_to_graph(two_chambers)
+    two_chambers_tiles, chambers = mg.find_trapped_tiles(graph, gaps, include_chambers=True)
     assert len(chambers) == 2
     tiles_2 = {(8,3), (8,4), (8,5), (8,6), (8,7), (9,4), (9,5),
                (9,6), (9,7), (10, 4), (10,5), (10,6), (10, 7) }
     assert two_chambers_tiles == tiles_1 | tiles_2
 
 def test_find_chambers_in_half_maze():
+    # view of the half maze as it would be seen by `find_trapped_tiles`;
     # food pellets (dots) mark the chamber tiles
     maze = """################
               #...           #
@@ -106,6 +109,9 @@ def test_find_chambers_in_half_maze():
               #     .#       #
               ################"""
 
+    # the width of the mirrored maze
+    width = 16
+
     expected_chamber_tiles = {
         # top left
         (1, 1), (2, 1), (3, 1),
@@ -114,8 +120,11 @@ def test_find_chambers_in_half_maze():
     }
 
     # the chamber tiles are detected as expected
-    graph, shape = layout_str_to_graph(maze)
-    chamber_tiles, _ = mg.find_trapped_tiles(graph, shape[0], include_chambers=False)
+    graph, gaps = layout_str_to_graph(maze)
+    graph.remove_nodes_from(node for node in list(graph.nodes) if node[0] >= width // 2)
+    sgaps = sorted(gaps)
+    graph.add_edges_from(zip(sgaps[:len(gaps)//2], sgaps[::-1][:len(gaps)//2]))
+    chamber_tiles, _ = mg.find_trapped_tiles(graph, gaps, include_chambers=False)
     assert chamber_tiles == expected_chamber_tiles
 
     # for completeness: specifically these tiles are not in a chamber
@@ -131,9 +140,9 @@ def test_distribute_food():
                       #          #
                       ############"""
 
-    graph, shape = layout_str_to_graph(maze_chamber)
+    graph, gaps = layout_str_to_graph(maze_chamber)
     all_tiles = set(graph.nodes)
-    chamber_tiles, _ = mg.find_trapped_tiles(graph, shape[0], include_chambers=False)
+    chamber_tiles, _ = mg.find_trapped_tiles(graph, gaps, include_chambers=False)
 
     # expected exceptions
     with pytest.raises(ValueError):

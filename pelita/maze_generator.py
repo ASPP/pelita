@@ -58,21 +58,17 @@ def sample_nodes(nodes, k, rng=None):
         return nodes
 
 
-def find_trapped_tiles(graph, width, include_chambers=False):
+def find_trapped_tiles(graph, gaps, include_chambers=False):
     main_chamber = set()
     chamber_tiles = set()
 
     for chamber in nx.biconnected_components(graph):
-        max_x = max(chamber, key=lambda n: n[0])[0]
-        min_x = min(chamber, key=lambda n: n[0])[0]
-        if min_x < width // 2 <= max_x:
-            # only the main chamber covers both sides
-            # our own mazes should only have one central chamber
-            # but other configurations could have more than one
+        if (chamber & gaps):
+            # main chambers intersect with border gaps
             main_chamber.update(chamber)
-            continue
         else:
-            chamber_tiles.update(set(chamber))
+            # side chambers don't as the border is centrosymmetric
+            chamber_tiles.update(chamber)
 
     # remove shared articulation points with the main chamber
     chamber_tiles -= main_chamber
@@ -240,7 +236,6 @@ def add_wall_and_split(partition, walls, ngaps, vertical, rng=None):
 
         # sliced continuous wall in `x`-`y`-space
         wall = {transform(pos, v) for v in range(vmin + above, vmax - below + 1)}
-
         # sample gap coordinates along the wall, i.e in `v`-direction
         #
         # TODO: 
@@ -289,11 +284,15 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # use binary space partitioning
     rng = default_rng(rng)
 
-    # outer walls are top, bottom, left and right edge
-    walls = {(x, 0) for x in range(width)} | \
-            {(x, height-1) for x in range(width)} | \
-            {(0, y) for y in range(height)} | \
-            {(width-1, y) for y in range(height)}
+    # outer walls except the border
+    walls = (
+        # top
+        {(x, 0) for x in range(width // 2)}
+        # bottom
+        | {(x, height-1) for x in range(width // 2)}
+        # left
+        | {(0, y) for y in range(height)}
+    )
 
     #
     # BORDER SAMPLING
@@ -315,10 +314,24 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     candidates = list(range(ymax))
     candidates = sample(candidates, ngaps_center//2, rng)
 
+    # save gaps and edges for chamber finding
+    gaps = set()
+    edges = set()
+
     # remove gaps from top and mirrored from bottom
     for gap in candidates:
-        wall.remove((x_wall, gap + 1))
-        wall.remove((x_wall, height - 2 - gap))
+        upper = (x_wall, gap + 1)
+        lower = (x_wall, height - 2 - gap)
+
+        # add both gaps
+        gaps.add(upper)
+        gaps.add(lower)
+
+        # edges between those gaps which would be connected after mirroring
+        edges.add((upper, lower))
+
+    # remove gaps from border
+    wall -= gaps
 
     # collect the border into the global wall set
     walls |= wall
@@ -342,7 +355,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # make space for the pacmen
     walls -= bots_pos
 
-    return walls
+    return walls, gaps, edges
 
 
 def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None):
@@ -360,23 +373,37 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # generate a full maze, but only the left half is filled with random walls
     # this allows us to cut the execution time in two, because the following
     # graph operations are quite expensive
-    pacmen_pos = set([(1, height - 3), (1, height - 2)])
-    walls = generate_half_maze(width, height, height//2, pacmen_pos, rng=rng)
 
-    ### TODO: hide the chamber_finding in another function, create the graph with
-    # a wall on the right border + 1, so that find chambers works reliably and
-    # we can get rid of the  {.... if tile[0] < border} in the following
-    # also, improve find_trapped_tiles so that it does not use x and width, but just
-    # requires two sets of nodes representing the left and the right of the border
-    # and then the main chambers is that one that has a non-empty intersection
-    # with both.
+    # define pacmen positions
+    pacmen_pos = {(1, height - 3), (1, height - 2)}
 
-    # transform to graph to find dead ends and chambers for food distribution
-    # IMPORTANT: we have to include one column of the right border in the graph
-    # generation, or our algorithm to find chambers would get confused
-    # Note: this only works because in the right side of the maze we have no walls
-    # except for the surrounding ones.
-    graph = walls_to_graph(walls, shape=(width//2+1, height))
+    # generate a half maze with half of the border being gaps
+    walls, gaps, edges = generate_half_maze(width, height, height // 2, pacmen_pos, rng=rng)
+
+    # create a graph representing connections between free tiles
+    graph = walls_to_graph(walls, shape=(width // 2, height))
+
+    # emulate the right maze side by wiring up pairs of left border gaps which
+    # would be connected after mirroring:
+    #
+    #   ############
+    #   #           ───┐
+    #   #          #   │
+    #   #           ──┐│
+    #   #          #  ││
+    #   #           ─┐││
+    #   #           ─┘││
+    #   #          #  ││
+    #   #           ──┘│
+    #   #          #   │
+    #   #           ───┘
+    #   ############
+    #
+    # motivation: mitigate border gaps being detected as individual chambers,
+    # which would make it impossible to detect the main chamber
+    # assumption: border gaps are sampled centrosymmetric with always a
+    # wall segment in the middle on odd heights
+    graph.add_edges_from(edges)
 
     # the algorithm should actually guarantee this, but just to make sure, let's
     # fail if the graph is not fully connected
@@ -386,19 +413,12 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
     # with a dead-end or a section of tiles fully enclosed by walls except for a single
     # tile entrance
-    chamber_tiles, _ = find_trapped_tiles(graph, width, include_chambers=False)
+    chamber_tiles, _ = find_trapped_tiles(graph, gaps, include_chambers=False)
 
-    # we want to distribute the food only on the left half of the maze
-    # make sure that the tiles available for food distribution do not include
-    # those right on the border of the homezone
-    # also, no food on the initial positions of the pacmen
-    # IMPORTANT: the relevant chamber tiles are only those in the left side of
-    # the maze. By detecting chambers on only half of the maze, we may still have
-    # spurious chambers on the right side
-    border = width//2 - 1
-    chamber_tiles = {tile for tile in chamber_tiles if tile[0] < border} - pacmen_pos
-    all_tiles = {(x, y) for x in range(border) for y in range(height)}
-    free_tiles = all_tiles - walls - pacmen_pos
+    # distribute food on the half maze with excluded border gaps and
+    # pacmen positions
+    chamber_tiles -= pacmen_pos
+    free_tiles = set(graph.nodes) - gaps - pacmen_pos
     left_food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
 
     # get the full maze with all walls and food by mirroring the left half
