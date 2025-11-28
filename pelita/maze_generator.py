@@ -51,9 +51,7 @@ PADDING = 2
 
 
 def mirror(nodes, width, height):
-    nodes = set(nodes)
-    other = set((width - 1 - x, height - 1 - y) for x, y in nodes)
-    return nodes | other
+    return set((width - 1 - x, height - 1 - y) for x, y in nodes)
 
 
 def sample_nodes(nodes, k, rng=None):
@@ -428,11 +426,11 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # pacmen positions
     chamber_tiles -= pacmen_pos
     free_tiles = set(graph.nodes) - gaps - pacmen_pos
-    left_food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
+    food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
 
     # get the full maze with all walls and food by mirroring the left half
-    food = mirror(left_food, width, height)
-    walls = mirror(walls, width, height)
+    food |= mirror(food, width, height)
+    walls |= mirror(walls, width, height)
     layout = { "walls" : tuple(sorted(walls)),
                "food"  : sorted(food),
                "bots"  : [ (1, height - 3), (width - 2, 2),
