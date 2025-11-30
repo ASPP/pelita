@@ -425,7 +425,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # distribute food on the half maze with excluded border gaps and
     # pacmen positions
     chamber_tiles -= pacmen_pos
-    free_tiles = set(graph.nodes) - gaps - pacmen_pos
+    free_tiles = graph.nodes - gaps - pacmen_pos
     food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
 
     # get the full maze with all walls and food by mirroring the left half
