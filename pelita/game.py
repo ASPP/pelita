@@ -768,6 +768,8 @@ def prepare_bot_state(game_state: GameState, team_idx=None) -> TeamState | TeamI
             return team_state_final
 
         case "FAILURE":
+            # FIXME
+            # TODO
             return
             raise PelitaIllegalGameState(game_state)
 
@@ -832,7 +834,7 @@ def prepare_viewer_state(game_state):
     return viewer_state
 
 
-def play_turn(game_state: GameState, raise_bot_exceptions=False):
+def play_turn(game_state: GameState, raise_bot_exceptions=False) -> GameState:
     """ Plays the next turn of the game.
 
     This function increases the round and turn counters, requests a move

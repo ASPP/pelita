@@ -1,6 +1,5 @@
 from typing import Literal, TypeAlias, TypedDict, Any
 from random import Random
-from uuid import UUID
 
 from .team import Team
 
@@ -16,7 +15,7 @@ class Layout(TypedDict):
     # food: tuple[set[Pos], set[Pos]]
 
 class GameState(TypedDict):
-    game_uuid: UUID
+    game_uuid: str
     walls: set[Pos]
     shape: Shape
     food: list[set[Pos]]
