@@ -26,9 +26,9 @@ def test_remove_player(db_wrapper):
     db_wrapper.add_player('p1', 'h1')
     db_wrapper.add_player('p2', 'h2')
     db_wrapper.add_player('p3', 'h3')
-    db_wrapper.add_gameresult('p1', 'p2', 0, '{}', '', '')
-    db_wrapper.add_gameresult('p2', 'p1', 0, '{}', '', '')
-    db_wrapper.add_gameresult('p2', 'p3', 0, '{}', '', '')
+    db_wrapper.add_gameresult('p1', 'p2', 0, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
+    db_wrapper.add_gameresult('p2', 'p1', 0, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
+    db_wrapper.add_gameresult('p2', 'p3', 0, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
     # player2 has three games
     assert len(db_wrapper.get_results('p2')) == 3
     db_wrapper.remove_player('p1')
@@ -63,13 +63,13 @@ def test_get_results(db_wrapper):
     db_wrapper.add_player('p2', 'h2')
     # empty list if no results are available
     assert db_wrapper.get_results('p1') == []
-    db_wrapper.add_gameresult('p1', 'p2', 0, '{}', '', '')
+    db_wrapper.add_gameresult('p1', 'p2', 0, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
     result = db_wrapper.get_results('p1')[0]
     # check for correct values
     assert result[0] == 'p1'
     assert result[1] == 'p2'
     assert result[2] == 0
-    db_wrapper.add_gameresult('p2', 'p1', 0, '{}', '', '')
+    db_wrapper.add_gameresult('p2', 'p1', 0, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
     # check for correct number of results
     results = db_wrapper.get_results('p1')
     assert len(results) == 2
@@ -97,22 +97,22 @@ def test_wins_losses(db_wrapper):
     db_wrapper.add_player('p1', 'h1')
     db_wrapper.add_player('p2', 'h2')
     db_wrapper.add_player('p3', 'h3')
-    db_wrapper.add_gameresult('p1', 'p2', 0, "{}", "", "")
+    db_wrapper.add_gameresult('p1', 'p2', 0, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
     assert db_wrapper.get_wins_losses() == [
         ('p1', 'p2', 1, 0, 0),
         ('p2', 'p1', 0, 1, 0)
     ]
-    db_wrapper.add_gameresult('p1', 'p2', -1, "{}", "", "")
+    db_wrapper.add_gameresult('p1', 'p2', -1, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
     assert db_wrapper.get_wins_losses() == [
         ('p1', 'p2', 1, 0, 1),
         ('p2', 'p1', 0, 1, 1)
     ]
-    db_wrapper.add_gameresult('p2', 'p1', 1, "{}", "", "")
+    db_wrapper.add_gameresult('p2', 'p1', 1, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
     assert db_wrapper.get_wins_losses() == [
         ('p1', 'p2', 2, 0, 1),
         ('p2', 'p1', 0, 2, 1)
     ]
-    db_wrapper.add_gameresult('p3', 'p1', 1, "{}", "", "")
+    db_wrapper.add_gameresult('p3', 'p1', 1, {'timeouts': [{}, {}], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', ''])
     assert db_wrapper.get_wins_losses() == [
         ('p1', 'p2', 2, 0, 1),
         ('p1', 'p3', 1, 0, 0),

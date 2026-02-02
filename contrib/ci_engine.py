@@ -792,7 +792,7 @@ class DB_Wrapper:
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id
         """, [p1_name, p2_name, result, json.dumps(final_state),
-              final_state['num_errors'][0], final_state['num_errors'][1],
+              len(final_state['timeouts'][0]), len(final_state['timeouts'][1]),
               len(final_state['fatal_errors'][0]), len(final_state['fatal_errors'][1])])
         game_id, = self.cursor.fetchone()
         self.cursor.execute("""
