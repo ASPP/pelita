@@ -805,7 +805,7 @@ def prepare_viewer_state(game_state):
     # game_state["timeouts"] has a tuple as a dict key
     # that cannot be serialized in json.
     # To fix this problem, we only send the current error
-    # and add another attribute "num_errors"
+    # and add another attribute "num_timeouts"
     # to the final dict.
 
     # the key for the current round, turn
@@ -817,7 +817,7 @@ def prepare_viewer_state(game_state):
     ]
 
     # add the number of errors
-    viewer_state["num_errors"] = [
+    viewer_state["num_timeouts"] = [
         len(team_errors)
         for team_errors in game_state["timeouts"]
     ]

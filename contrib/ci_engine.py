@@ -209,10 +209,14 @@ class CI_Engine:
                 res = (p1, p2, None, final_state, stdout, stderr)
                 return res
 
-            if final_state['whowins'] == 2:
-                result = -1
+            if final_state['game_phase'] != 'FINISHED':
+                _logger.info("Game finished in phase %s", final_state['game_phase'])
+                result = -2
             else:
-                result = final_state['whowins']
+                if final_state['whowins'] == 2:
+                    result = -1
+                else:
+                    result = final_state['whowins']
 
             del final_state['walls']
             del final_state['food']
@@ -661,8 +665,8 @@ class DB_Wrapper:
         (
         id INTEGER PRIMARY KEY,
         player1 text, player2 text, result int, final_state text,
-        player1_timeouts int, player2_timeouts int,
-        player1_fatal_errors int, player2_fatal_errors int,
+        player1_num_timeouts int, player2_num_timeouts int,
+        player1_had_fatal_error bool, player2_had_fatal_error bool,
         FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
         FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
         """)
@@ -775,6 +779,7 @@ class DB_Wrapper:
             0 if player 1 won
             1 of player 2 won
             -1 if draw
+            -2 if anything other than game_phase FINISHED
         std_out, std_err : str
             STDOUT and STDERR of the game
 
@@ -786,16 +791,24 @@ class DB_Wrapper:
 
         if not final_state:
             return
+
+        final_state_str = json.dumps(final_state)
+        player1_num_timeouts, player2_num_timeouts = final_state['num_timeouts']
+
+        player1_had_fatal_error = len(final_state['fatal_errors'][0]) != 0
+        player2_had_fatal_error = len(final_state['fatal_errors'][1]) != 0
+
         self.cursor.execute("""
         INSERT INTO games
             (player1, player2, result, final_state,
-            player1_timeouts, player2_timeouts,
-            player1_fatal_errors, player2_fatal_errors)
+            player1_num_timeouts, player2_num_timeouts,
+            player1_had_fatal_error, player2_had_fatal_error)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id
-        """, [p1_name, p2_name, result, json.dumps(final_state),
-              final_state['num_errors'][0], final_state['num_errors'][1],
-              len(final_state['fatal_errors'][0]), len(final_state['fatal_errors'][1])])
+        """, [p1_name, p2_name, result, final_state_str,
+              player1_num_timeouts, player2_num_timeouts,
+              player1_had_fatal_error, player2_had_fatal_error])
+
         game_id, = self.cursor.fetchone()
         self.cursor.execute("""
         INSERT INTO game_output
@@ -929,16 +942,16 @@ class DB_Wrapper:
         SELECT sum(timeouts), sum(fatal_errors) FROM
             (
                 SELECT
-                    sum(player1_timeouts) AS timeouts,
-                    sum(player1_fatal_errors) AS fatal_errors
+                    sum(player1_num_timeouts) AS timeouts,
+                    sum(player1_had_fatal_error) AS fatal_errors
                 FROM games
                 WHERE player1 = :p1
 
                 UNION ALL
 
                 SELECT
-                    sum(player2_timeouts) AS timeouts,
-                    sum(player2_fatal_errors) AS fatal_errors
+                    sum(player2_num_timeouts) AS timeouts,
+                    sum(player2_had_fatal_error) AS fatal_errors
                 FROM games
                 WHERE player2 = :p1
             )
