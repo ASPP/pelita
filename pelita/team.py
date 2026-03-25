@@ -16,7 +16,7 @@ import zmq
 
 from . import layout
 from .base_utils import default_zmq_context
-from .layout import BOT_I2N, layout_as_str, wall_dimensions
+from .layout import BOT_I2N, layout_as_str, wall_dimensions, get_legal_positions
 from .network import PELITA_PORT, RemotePlayerConnection, RemotePlayerRecvTimeout, RemotePlayerSendError
 
 _logger = logging.getLogger(__name__)
@@ -80,11 +80,9 @@ def walls_to_graph(walls, shape=None):
                 # this is a free position, get its neighbors
                 # Only positive neighbours are needed as we are iterating
                 # all fields
-                for delta_x, delta_y in [(1, 0), (0, 1)]:
-                    neighbor = (x + delta_x, y + delta_y)
-                    # we don't need to check for getting neighbors out of the maze
-                    # because our mazes are all surrounded by walls, i.e. our
-                    # deltas will not put us out of the maze
+                for neighbor in get_legal_positions(walls, (width, height), (x, y)):
+                    if neighbor == (0, 0):
+                        continue
                     if neighbor not in walls:
                         # this is a genuine neighbor, add an edge in the graph
                         graph.add_edge((x, y), neighbor)
@@ -716,7 +714,12 @@ class Bot:
         # including the current position.
         self.legal_positions = []
 
-        for direction in [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1)]:
+        if position[0] % 2 == 0:
+            directions = [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1), (-1, -1), (+1, -1)]
+        else:
+            directions = [(0, 0), (-1, 0), (1, 0), (0, 1), (0, -1), (+1, +1), (-1, +1)]
+
+        for direction in directions:
             new_pos = (position[0] + direction[0],
                        position[1] + direction[1])
             if new_pos not in self.walls:
