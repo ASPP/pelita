@@ -215,8 +215,6 @@ parser.add_argument('--replay', help=long_help('Replay a dumped game'),
                     metavar='REPLAYFILE', dest='replayfile', const='pelita.dump', nargs='?')
 parser.add_argument('--store-output', help=long_help('Write all player’s stdout/stderr to the given folder (must exist)'),
                     metavar='FOLDER')
-parser.add_argument('--check-team', action="store_true",
-                    help=long_help('Check that the team is valid (on first sight) and print its name.'))
 parser.add_argument('--append-blue', type=str, metavar='INFO', default=None,
                     help=long_help('Append info about the blue team (such as group id).'))
 parser.add_argument('--append-red', type=str, metavar='INFO', default=None,
@@ -328,21 +326,6 @@ def main():
 
     if args.rounds < 1:
         raise ValueError(f"Must play at least one round (rounds={args.rounds}).")
-
-    if args.check_team:
-        if not args.team_specs:
-            raise ValueError("No teams specified.")
-        for team_spec in args.team_specs:
-            try:
-                team_name = check_team(team_spec, timeout=args.initial_timeout_length)
-                print("NAME:", team_name)
-            except pelita.network.RemotePlayerFailure as e:
-                if e.error_type == 'ModuleNotFoundError':
-                    #print(f"{e.message}")
-                    pass
-                else:
-                    raise
-        sys.exit(0)
 
     if args.viewer == 'null':
         viewers = []
