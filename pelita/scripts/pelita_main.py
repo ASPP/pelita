@@ -14,8 +14,6 @@ from rich.prompt import Prompt
 
 import pelita
 from pelita.network import PELITA_PORT
-# TODO: The check_team option
-from pelita.tournament import check_team
 
 from .script_utils import start_logging
 
@@ -325,7 +323,7 @@ def main():
         start_logging(args.log)
 
     if args.rounds < 1:
-        raise ValueError(f"Must play at least one round (rounds={args.rounds}).")
+        parser.error(f"Must play at least one round (rounds={args.rounds}).")
 
     if args.viewer == 'null':
         viewers = []
@@ -386,9 +384,9 @@ def main():
     if len(team_specs) == 0:
         team_specs = ('0', '1')
     if len(team_specs) == 1:
-        raise RuntimeError("Not enough teams given. Must be {}".format(num_teams))
+        parser.error("Not enough teams given. Must be {}".format(num_teams))
     if len(team_specs) > num_teams:
-        raise RuntimeError("Too many teams given. Must be < {}.".format(num_teams))
+        parser.error("Too many teams given. Must be < {}.".format(num_teams))
 
     for idx, team_spec in enumerate(team_specs):
         if team_spec == "SCAN":
@@ -423,7 +421,7 @@ def main():
             layout_string = layout_path.read_text()
             layout_dict = pelita.layout.parse_layout(layout_string)
         else:
-            raise FileNotFoundError(f'Layout file "{layout_path}" does not exist.')
+            parser.error(f'Layout file "{layout_path}" does not exist.')
     else:
         width, height = args.size
 
@@ -432,7 +430,7 @@ def main():
         elif (width, height) in pelita.game.NFOOD:
             trapped_food, total_food = pelita.game.NFOOD[(width, height)]
         else:
-            raise ValueError('--food option must be specified if a custom maze size is set')
+            parser.error('--food option must be specified if a custom maze size is set')
 
         layout_dict = pelita.maze_generator.generate_maze(trapped_food=trapped_food,
                                                           total_food=total_food,
