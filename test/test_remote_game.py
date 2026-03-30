@@ -37,6 +37,20 @@ def remote_teams():
         with run_and_terminate_process(remote_food_eater):
             yield teams
 
+@pytest.fixture
+def dummy_layout():
+    return """
+        ##########
+        #  b  y  #
+        #a  ..  x#
+        ##########
+    """
+
+@pytest.fixture
+def dummy_layout_dict(dummy_layout):
+    # Use this when a simple layout is needed but the details don’t matter
+    return pelita.layout.parse_layout(dummy_layout)
+
 
 def test_remote_call_pelita(remote_teams):
     res, stdout, stderr = call_pelita(remote_teams, rounds=10, size='small', viewer='null', seed='2')
@@ -47,39 +61,27 @@ def test_remote_call_pelita(remote_teams):
     assert res['timeouts'] == [None, None]
 
 
-def test_remote_run_game(remote_teams):
+def test_remote_run_game(remote_teams, dummy_layout_dict):
     # TODO: A failure here freezes pytest
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
-    state = pelita.game.run_game(remote_teams, max_rounds=30, layout_dict=pelita.layout.parse_layout(layout))
+
+    state = pelita.game.run_game(remote_teams, max_rounds=30, layout_dict=dummy_layout_dict)
     assert state['whowins'] == 1
     assert state['fatal_errors'] == [[], []]
     assert state['timeouts'] == [{}, {}]
 
 
-def test_remote_timeout():
+def test_remote_timeout(dummy_layout_dict):
     # We have a slow player that also generates a bad move
     # in its second turn.
     # We need to detect both.
     # To avoid timing issues, the blue player will also need to be a bit slower
-
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
 
     blue = FIXTURE_DIR / 'remote_timeout_blue.py'
     red = FIXTURE_DIR / 'remote_timeout_red.py'
 
     state = pelita.game.run_game([str(blue), str(red)],
                                  max_rounds=8,
-                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 layout_dict=dummy_layout_dict,
                                  timeout_length=0.4)
 
     assert state['whowins'] == 0
@@ -95,13 +97,7 @@ def test_remote_timeout():
 
 
 @pytest.mark.parametrize("failing_team", [0, 1])
-def test_bad_team_name(failing_team):
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
+def test_bad_team_name(failing_team, dummy_layout_dict):
 
     failing_player = FIXTURE_DIR / 'player_bad_team_name.py'
     good_player = "0"
@@ -113,7 +109,7 @@ def test_bad_team_name(failing_team):
 
     state = pelita.game.run_game(teams,
                                  max_rounds=8,
-                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 layout_dict=dummy_layout_dict,
                                  timeout_length=0.4)
 
     assert state['whowins'] == -1
@@ -121,14 +117,7 @@ def test_bad_team_name(failing_team):
     assert "longer than 25" in state['fatal_errors'][failing_team][0]['description']
 
 
-def test_remote_dumps_are_written():
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
-
+def test_remote_dumps_are_written(dummy_layout_dict):
 
     blue = FIXTURE_DIR / 'remote_dumps_are_written_blue.py'
     red = FIXTURE_DIR / 'remote_dumps_are_written_red.py'
@@ -138,7 +127,7 @@ def test_remote_dumps_are_written():
 
     state = pelita.game.run_game([str(blue), str(red)],
                                  max_rounds=2,
-                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 layout_dict=dummy_layout_dict,
                                  store_output=out_folder.name)
 
     assert state['whowins'] == 2
@@ -157,13 +146,7 @@ def test_remote_dumps_are_written():
 
 
 @pytest.mark.parametrize("failing_team", [0, 1])
-def test_remote_dumps_with_failure(failing_team):
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
+def test_remote_dumps_with_failure(failing_team, dummy_layout_dict):
 
     failing_player = FIXTURE_DIR / 'remote_dumps_with_failure_bad.py'
     good_player = FIXTURE_DIR / 'remote_dumps_with_failure_good.py'
@@ -178,7 +161,7 @@ def test_remote_dumps_with_failure(failing_team):
 
     state = pelita.game.run_game(teams,
                                  max_rounds=2,
-                                 layout_dict=pelita.layout.parse_layout(layout),
+                                 layout_dict=dummy_layout_dict,
                                  store_output=out_folder.name)
 
     assert state['whowins'] == 1 - failing_team
@@ -244,13 +227,7 @@ def test_remote_dumps_with_failure(failing_team):
     ['player_no_name', True, 'AttributeError'],
     ['player_syntax_error', True, 'SyntaxError'],
 ])
-def test_remote_move_failures(player_name, is_setup_error, error_type):
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
+def test_remote_move_failures(player_name, is_setup_error, error_type, dummy_layout_dict):
 
     failing_player = FIXTURE_DIR / player_name
     good_player = FIXTURE_DIR / 'remote_dumps_with_failure_good.py'
@@ -258,7 +235,7 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
     if is_setup_error:
         state = pelita.game.run_game([str(failing_player), str(good_player)],
                                       max_rounds=2,
-                                      layout_dict=pelita.layout.parse_layout(layout))
+                                      layout_dict=dummy_layout_dict)
 
         assert state['whowins'] == -1
         assert state['game_phase'] == 'FAILURE'
@@ -274,7 +251,7 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
     else:
         state = pelita.game.run_game([str(failing_player), str(good_player)],
                                       max_rounds=2,
-                                      layout_dict=pelita.layout.parse_layout(layout))
+                                      layout_dict=dummy_layout_dict)
 
         assert state['whowins'] == 1
         assert state['game_phase'] == 'FINISHED'
@@ -286,13 +263,7 @@ def test_remote_move_failures(player_name, is_setup_error, error_type):
         assert state['timeouts'] == [{}, {}]
 
 
-def test_cleanup_timeout():
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
+def test_cleanup_timeout(dummy_layout_dict):
 
     failing_player = FIXTURE_DIR / 'player_long_cleanup.py'
     good_player = FIXTURE_DIR / 'remote_dumps_with_failure_good.py'
@@ -301,7 +272,7 @@ def test_cleanup_timeout():
 
     state = pelita.game.run_game([str(failing_player), str(good_player)],
                                     max_rounds=2,
-                                    layout_dict=pelita.layout.parse_layout(layout),
+                                    layout_dict=dummy_layout_dict,
                                     raise_bot_exceptions=True)
 
     duration = time.monotonic() - start
@@ -315,20 +286,14 @@ def test_cleanup_timeout():
     assert 1 < duration < 10
 
 
-def test_remote_initial_timeout_zero():
-    layout = """
-        ##########
-        #  b  y  #
-        #a  ..  x#
-        ##########
-        """
+def test_remote_initial_timeout_zero(dummy_layout_dict):
 
     teams = ["0", "0"]
 
     state = pelita.game.run_game(teams,
                                     max_rounds=2,
                                     initial_timeout_length=6,
-                                    layout_dict=pelita.layout.parse_layout(layout),
+                                    layout_dict=dummy_layout_dict,
                                     raise_bot_exceptions=True)
 
     assert state['game_phase'] == 'FINISHED'
@@ -338,7 +303,7 @@ def test_remote_initial_timeout_zero():
     state = pelita.game.run_game(teams,
                                     max_rounds=2,
                                     initial_timeout_length=0,
-                                    layout_dict=pelita.layout.parse_layout(layout),
+                                    layout_dict=dummy_layout_dict,
                                     raise_bot_exceptions=True)
 
     assert state['game_phase'] == 'FAILURE'
