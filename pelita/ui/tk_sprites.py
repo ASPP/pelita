@@ -9,14 +9,18 @@ BLUE = '#5E9ED9'
 
 LIGHT_BLUE = '#B9D9F6'
 STRONG_BLUE = '#1E6BB1'
+LIGHTER_BLUE = '#e3f0fb'
 LIGHT_RED = '#FFB0B0'
 STRONG_RED = '#A91919'
+LIGHTER_RED = '#ffdfdf'
+
 
 YELLOW = '#FFE38B'
 GREY = '#505050'
 LIGHT_GREY = '#CDC7C2'
 SELECTED = '#C8C8C8'
 BROWN = '#301A16'
+ROSA = '#ffdddd'
 
 SHADOW_RED = '#B37373'
 SHADOW_BLUE = '#6D92B3'
@@ -27,9 +31,16 @@ def rotate(arc, rotation):
     """Helper for rotation normalisation."""
     return (arc + rotation) % 360
 
+def hex_to_pos(hex_pos):
+    down = 0 if hex_pos[0] % 2 == 0 else 0.5
+    return (hex_pos[0], hex_pos[1] + down)
+
 def pos_to_complex(pos):
     x, y = pos
     return x - y * 1j
+
+def hex_pos_to_complex(hex_pos):
+    return pos_to_complex(hex_to_pos(hex_pos))
 
 class TkSprite:
     def __init__(self, mesh, *, position=None, _tag=None, font=None):
@@ -62,7 +73,9 @@ class TkSprite:
 
         # automatic rotation
         if new_pos != old_pos:
-            self._direction = math.degrees(cmath.phase(pos_to_complex(new_pos) - pos_to_complex(old_pos)))
+
+            self._direction = math.degrees(cmath.phase(hex_pos_to_complex(new_pos) - hex_pos_to_complex(old_pos)))
+            # print(new_pos, '->', hex_to_pos(new_pos), old_pos, '->', hex_to_pos(old_pos), self._direction)
 
     def screen(self, shift=(0, 0)):
         x, y = self.position
@@ -119,6 +132,7 @@ class BotSprite(TkSprite):
         super().delete(canvas)
 
     def move_to(self, new_pos, canvas, game_state, force=None, say="", show_id=False):
+        force = True
         old_direction = self.direction
         old_position = self.position
 
@@ -165,27 +179,32 @@ class BotSprite(TkSprite):
             direction = 0 if is_blue else 180
 
         # ensure that our eyes are never on the bottom
-        if direction == 0:
+        if -50 <= direction <= 50:
             flip = True
         else:
             flip = False
 
         # bot body
-        canvas.create_arc(self.bounding_box(), start=rotate(20, direction), extent=320, style="pieslice",
+        canvas.create_arc(self.bounding_box(scale_factor=0.7), start=rotate(20, direction), extent=320, style="pieslice",
                           width=0, outline=self.outline_col, fill=self.col, tags=self.tag)
 
         # bot eye
         # first locate eye in the center
-        eye_size = 0.15
-        eye_box = (-eye_size - eye_size * 1j, eye_size + eye_size * 1j)
-        # shift it to the middle of the bot just over the mouth
-        eye_box = [item + 0.4 + 0.6j for item in eye_box]
-        # take also care of flipping
+        eye_size = 0.12
+        eye_location = 0.3 + 0.45j
+        # rotate
+        eye_location = cmath.exp(1j * math.radians(-direction)) * eye_location
+
         if flip:
-            eye_box = [item.conjugate() for item in eye_box]
+            # print(flip)
+            eye_location = eye_location * cmath.exp(1j * math.radians(-120))
         # rotate based on direction
-        eye_box = [cmath.exp(1j * math.radians(-direction)) * item for item in eye_box]
-        eye_box = [self.screen((item.real, item.imag)) for item in eye_box]
+        eye_x, eye_y = eye_location.real, eye_location.imag
+
+        eye_box = [self.screen((eye_x + shift[0], eye_y + shift[1])) for shift in
+            [[-eye_size, -eye_size], [eye_size, eye_size]]
+        ]
+
         canvas.create_oval(eye_box, fill=self.eye_col, width=0, tags=self.tag)
 
     def draw(self, canvas, game_state):
@@ -203,7 +222,7 @@ class BotSprite(TkSprite):
                 self.draw_destroyer(canvas)
 
     def draw_destroyer(self, canvas):
-        box_ll, box_tr = self.bounding_box()
+        box_ll, box_tr = self.bounding_box(scale_factor=0.7)
 
         # ghost head
         canvas.create_arc((box_ll, box_tr), start=0, extent=180, style="pieslice" if not self.shadow else "arc",
@@ -237,16 +256,48 @@ class BotSprite(TkSprite):
             canvas.create_polygon(points, width=1, outline=self.outline_col, fill=self.col, tags=self.tag)
 
         # ghost eyes
-        eye_size = 0.15
+        eye_size = 0.12
         eye_box = (-eye_size -eye_size*1j, eye_size + eye_size*1j)
         # right eye
-        eye_box_r = [item+ 0.4 - 0.5j for item in eye_box]
+        eye_box_r = [item+ 0.25 - 0.4j for item in eye_box]
         eye_box_r = [self.screen((item.real, item.imag)) for item in eye_box_r]
         canvas.create_oval(eye_box_r, fill=self.eye_col, width=0, tags=self.tag)
         # left eye
-        eye_box_l = [item- 0.4 - 0.5j for item in eye_box]
+        eye_box_l = [item- 0.25 - 0.4j for item in eye_box]
         eye_box_l = [self.screen((item.real, item.imag)) for item in eye_box_l]
         canvas.create_oval(eye_box_l, fill=self.eye_col, width=0, tags=self.tag)
+
+
+class Empty(TkSprite):
+    def __init__(self, mesh, wall_neighbors=None, **kwargs):
+        if wall_neighbors is None:
+            self.wall_neighbors = []
+        else:
+            self.wall_neighbors = wall_neighbors
+
+        super(Empty, self).__init__(mesh, **kwargs)
+
+    def draw(self, canvas, game_state=None):
+        scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.6
+
+        h = math.sqrt(3) / 2
+        coords = [
+            [- 1 / 2, - h],
+            [+ 1 / 2, - h],
+            [+ 1, 0],
+            [+ 1 / 2, + h],
+            [- 1 / 2, + h],
+            [- 1, 0],
+            [- 1 / 2, - h],
+        ]
+        screen_coords = [
+            self.screen((x, y)) for x, y in coords
+        ]
+
+        col = LIGHTER_BLUE if self._position[0] < self.mesh.mesh_width // 2 else LIGHTER_RED
+
+        canvas.create_polygon(*screen_coords, fill=col, outline='',
+                               width=0, tags=(self.tag, "wall"))
 
 class Wall(TkSprite):
     def __init__(self, mesh, wall_neighbors=None, **kwargs):
@@ -260,6 +311,23 @@ class Wall(TkSprite):
 
     def draw(self, canvas, game_state=None):
         scale = (self.mesh.half_scale_x + self.mesh.half_scale_y) * 0.6
+
+        h = math.sqrt(3) / 2
+        coords = [
+            [- 1 / 2, - h],
+            [+ 1 / 2, - h],
+            [+ 1, 0],
+            [+ 1 / 2, + h],
+            [- 1 / 2, + h],
+            [- 1, 0],
+            [- 1 / 2, - h],
+        ]
+        screen_coords = [
+            self.screen((x, y)) for x, y in coords
+        ]
+        canvas.create_polygon(*screen_coords, fill=BROWN,
+                               width=0, tags=(self.tag, "wall"))
+        return
         if not ((0, 1) in self.wall_neighbors or
                 (1, 0) in self.wall_neighbors or
                 (0, -1) in self.wall_neighbors or

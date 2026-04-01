@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from pelita.team import walls_to_graph
 
 import argparse
 import json
@@ -8,6 +9,7 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
+import networkx as nx
 import zmq
 from rich.console import Console
 from rich.prompt import Prompt
@@ -451,10 +453,22 @@ def main():
         else:
             raise ValueError('--food option must be specified if a custom maze size is set')
 
-        layout_dict = pelita.maze_generator.generate_maze(trapped_food=trapped_food,
+        for i in range(10):
+            try:
+                layout_dict = pelita.maze_generator.generate_maze(trapped_food=trapped_food,
                                                           total_food=total_food,
                                                           width=width,
                                                           height=height, rng=rng)
+                graph = walls_to_graph(layout_dict['walls'], layout_dict['shape'])
+                if not nx.is_connected(graph):
+                    raise ValueError("Generated maze is not fully connected, try a different random seed")
+                break
+
+            except ValueError:
+                print("Error in maze generation. Trying again.")
+
+        else:
+            raise ValueError("Generated maze is not fully connected after 10 tries.")
 
     if args.layoutfile:
         # We only want to print this, when no seed has been given.

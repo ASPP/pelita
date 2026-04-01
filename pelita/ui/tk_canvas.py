@@ -33,7 +33,7 @@ from .tk_sprites import (
     Arrow,
     BotSprite,
     Food,
-    Wall
+    Wall, Empty
 )
 
 _logger = logging.getLogger(__name__)
@@ -205,7 +205,7 @@ class MeshGraph:
         coords_x, coords_y = coords
 
         real_x = self.mesh_to_screen_x(mesh_x, coords_x)
-        real_y = self.mesh_to_screen_y(mesh_y, coords_y)
+        real_y = self.mesh_to_screen_y(mesh_y, coords_y, col=mesh_x)
         return (real_x, real_y)
 
     def mesh_to_screen_x(self, mesh_x, model_x):
@@ -215,11 +215,12 @@ class MeshGraph:
         real_x = self.rect_width * (mesh_x + trafo_x) + self.padding + self.extra_x
         return real_x
 
-    def mesh_to_screen_y(self, mesh_y, model_y):
+    def mesh_to_screen_y(self, mesh_y, model_y, *, col):
         # coords are between -1 and +1: shift on [0, 1]
         trafo_y = (model_y + 1.0) / 2.0
+        down = 0 if col % 2 == 0 else 0.5
 
-        real_y = self.rect_height * (mesh_y + trafo_y) + self.padding + self.extra_y + self.top_margin
+        real_y = self.rect_height * (mesh_y + trafo_y + down) + self.padding + self.extra_y + self.top_margin
         return real_y
 
     def screen_to_mesh_coord(self, screen_x, screen_y):
@@ -514,18 +515,17 @@ class TkApplication:
         # we don’t use scaling for the grid width currently
         grid_width = 0.01
 
-        def draw_line(x0, y0, x1, y1):
+        def draw_hex(x0, y0, x1, y1):
             x0_ = self.mesh_graph.mesh_to_screen_x(x0, 0)
             y0_ = self.mesh_graph.mesh_to_screen_y(y0, 0)
             x1_ = self.mesh_graph.mesh_to_screen_x(x1, 0)
             y1_ = self.mesh_graph.mesh_to_screen_y(y1, 0)
             self.ui_game_canvas.create_line(x0_, y0_, x1_, y1_, width=grid_width, fill="#884488", tags="grid")
 
-        for x in range(self.mesh_graph.mesh_width + 1):
-            draw_line(x - 0.5, -0.5, x - 0.5, self.mesh_graph.mesh_height - 0.5)
 
-        for y in range(self.mesh_graph.mesh_height + 1):
-            draw_line(-0.5, y - 0.5, self.mesh_graph.mesh_width - 0.5, y - 0.5)
+        for x in range(self.mesh_graph.mesh_width):
+            for y in range(self.mesh_graph.mesh_height):
+                draw_hex(x, y)
 
         label_size = 7
         label_style = {
@@ -536,33 +536,34 @@ class TkApplication:
             "anchor": tkinter.CENTER
         }
 
-        for x in range(self.mesh_graph.mesh_width):
-            label = f"{x}"
 
-            x_pos = self.mesh_graph.mesh_to_screen_x(x, 0)
-            # the margin is not autoscaling, so we do the shift on the real grid
-            y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
-            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
-            y_pos = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height, -1) + label_size
-            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
+        # for x in range(self.mesh_graph.mesh_width):
+        #     label = f"{x}"
 
-        for y in range(self.mesh_graph.mesh_height):
-            label = f"{y}"
+        #     x_pos = self.mesh_graph.mesh_to_screen_x(x, 0)
+        #     # the margin is not autoscaling, so we do the shift on the real grid
+        #     y_pos = self.mesh_graph.mesh_to_screen_y(0, -1, col=x) - label_size
+        #     self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
+        #     y_pos = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height, -1, col=x) + label_size
+        #     self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
 
-            # the margin is not autoscaling, so we do the shift on the real grid
-            x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
-            y_pos = self.mesh_graph.mesh_to_screen_y(y, 0)
-            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
-            x_pos = self.mesh_graph.mesh_to_screen_x(self.mesh_graph.mesh_width, -1) + label_size
-            self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
+        # for y in range(self.mesh_graph.mesh_height):
+        #     label = f"{y}"
 
-        x_pos = self.mesh_graph.mesh_to_screen_x(0, -0.7)
-        y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
-        self.ui_game_canvas.create_text(x_pos, y_pos, text="x", **label_style)
+        #     # the margin is not autoscaling, so we do the shift on the real grid
+        #     x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
+        #     y_pos = self.mesh_graph.mesh_to_screen_y(y, 0)
+        #     self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
+        #     x_pos = self.mesh_graph.mesh_to_screen_x(self.mesh_graph.mesh_width, -1) + label_size
+        #     self.ui_game_canvas.create_text(x_pos, y_pos, text=label, **label_style)
 
-        x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
-        y_pos = self.mesh_graph.mesh_to_screen_y(0, -0.7)
-        self.ui_game_canvas.create_text(x_pos, y_pos, text="y", **label_style)
+        # x_pos = self.mesh_graph.mesh_to_screen_x(0, -0.7)
+        # y_pos = self.mesh_graph.mesh_to_screen_y(0, -1) - label_size
+        # self.ui_game_canvas.create_text(x_pos, y_pos, text="x", **label_style)
+
+        # x_pos = self.mesh_graph.mesh_to_screen_x(0, -1) - label_size
+        # y_pos = self.mesh_graph.mesh_to_screen_y(0, -0.7)
+        # self.ui_game_canvas.create_text(x_pos, y_pos, text="y", **label_style)
 
     def draw_overlays(self, overlays):
         """ Draws overlays on top of cells at given coordinates.
@@ -825,10 +826,10 @@ class TkApplication:
 
         scale = self.mesh_graph.half_scale_x * 0.2
 
-        for color, x_orig in zip(cols, (center - 3, center + 3, center)):
-            y_top = self.mesh_graph.mesh_to_screen_y(0, 0)
-            y_bottom = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height - 1, 0)
-            self.ui_game_canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tags="background")
+        # for color, x_orig in zip(cols, (center - 3, center + 3, center)):
+        #     y_top = self.mesh_graph.mesh_to_screen_y(0, 0)
+        #     y_bottom = self.mesh_graph.mesh_to_screen_y(self.mesh_graph.mesh_height - 1, 0)
+        #     self.ui_game_canvas.create_line(x_orig, y_top, x_orig, y_bottom, width=scale, fill=color, tags="background")
 
     def draw_title(self, game_state):
         self.ui_game_canvas.delete("title")
@@ -1024,16 +1025,14 @@ class TkApplication:
         # them otherwise
         self.wall_items = []
         num = 0
-        for wall in game_state['walls']:
-            model_x, model_y = wall
-            wall_neighbors = [(dx, dy)
-                              for dx in [-1, 0, 1]
-                              for dy in [-1, 0, 1]
-                              if (model_x + dx, model_y + dy) in game_state['walls']]
-            wall_item = Wall(self.mesh_graph, wall_neighbors=wall_neighbors, position=(model_x, model_y))
-            wall_item.draw(self.ui_game_canvas)
-            self.wall_items.append(wall_item)
-            num += 1
+        for x in range(self.mesh_graph.mesh_width):
+            for y in range(self.mesh_graph.mesh_height):
+                if (x, y) in game_state['walls']:
+                    item = Wall(self.mesh_graph, wall_neighbors=[], position=(x, y))
+                else:
+                    item = Empty(self.mesh_graph, wall_neighbors=[], position=(x, y))
+                item.draw(self.ui_game_canvas)
+                self.wall_items.append(item)
 
     def init_bot_sprites(self, bot_positions):
         for sprite in self.bot_sprites.values():
