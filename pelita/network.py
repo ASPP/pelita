@@ -333,6 +333,31 @@ class RemotePlayerConnection:
     def __repr__(self):
         return "RemotePlayerConnection(%r)" % self.socket
 
+
+class POSTPublisher:
+    """ A viewer which dumps to a given stream.
+    """
+    def __init__(self, address):
+        import httpx
+        self.url = address
+        self.http_session = httpx.Client()
+
+    def _send(self, action, data):
+        # import requests
+
+        info = {'round': data['round'], 'turn': data['turn']}
+        # TODO: this should be game_phase
+        if data['gameover']:
+            info['gameover'] = True
+        _logger.debug(f"--#> [{action}] %r", info)
+        message = {"__action__": action, "__data__": data}
+        as_json = json.dumps(message, cls=SetEncoder)
+        self.http_session.post(self.url, content=as_json)
+
+    def show_state(self, game_state):
+        self._send(action="observe", data=game_state)
+
+
 class ZMQPublisher:
     """ Sets up a simple Publisher which sends all viewed events
     over a zmq connection.

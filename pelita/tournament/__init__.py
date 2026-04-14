@@ -12,6 +12,7 @@ import tempfile
 import time
 from dataclasses import dataclass
 
+import httpx
 import yaml
 import zmq
 
@@ -135,7 +136,7 @@ def call_pelita(team_specs, *, rounds, size, viewer, seed, publish=None,
     size = ['--size', size] if size else []
     viewer = ['--' + viewer] if viewer else []
     seed = ['--seed', seed] if seed else []
-    publish = ['--publish', publish] if publish else []
+    publish = ['--http-post', publish] if publish else []
     write_replay = ['--write-replay', write_replay] if write_replay else []
     store_output = ['--store-output', store_output] if store_output else []
     append_blue = ['--append-blue', team_infos[0]] if team_infos[0] else []
@@ -297,11 +298,9 @@ class Config:
         self.tournament_log_file = None
 
         if self.publish:
-            ctx = zmq.Context()
-            self.socket = ctx.socket(zmq.PUB)
-            self.socket.connect(self.publish)
+            self.http_session = httpx.Client()
         else:
-            self.socket = None
+            self.http_session = None
 
     @property
     def team_ids(self):
@@ -320,13 +319,14 @@ class Config:
         return self.teams[team]["spec"]
 
     def send_remote(self, action, data=None):
-        if not self.socket:
+        if not self.http_session:
             return
+
         if data is None:
             publish_string = {"__action__": action}
         else:
             publish_string = {"__action__": action, "__data__": data}
-        self.socket.send_json(publish_string)
+        self.http_session.post(self.publish, content=json.dumps(publish_string))
 
     def _print(self, *args, **kwargs):
         print(*args, **kwargs)

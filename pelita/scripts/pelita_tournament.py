@@ -163,9 +163,9 @@ def setup():
             del config["bonusmatch"]
             break
 
-    res = input_choice("Should the web-viewer be activated? (publishes to tcp://127.0.0.1:5559) (y/n)", [], "yn")
+    res = input_choice("Should the web-viewer be activated? (publishes to http://localhost:3000/api/collect) (y/n)", [], "yn")
     if res == "y":
-        config['publish'] = "tcp://127.0.0.1:5559"
+        config['publish'] = "http://localhost:3000/api/collect"
     elif res == "n":
         config['publish'] = None
 

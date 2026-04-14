@@ -283,6 +283,8 @@ advanced_settings.add_argument('--reply-to', type=str, metavar='URL', dest='repl
                                help=long_help('Communicate the result of the game on this channel.'))
 advanced_settings.add_argument('--publish', type=str, metavar='URL', dest='publish_to',
                                help=long_help('Publish the game to this zmq socket.'))
+advanced_settings.add_argument('--http-post', type=str, metavar='URL', dest='http_post_to',
+                               help=long_help('POST the game to this http socket.'))
 advanced_settings.add_argument('--controller', type=str, metavar='URL', default="tcp://127.0.0.1",
                                help=long_help('Channel for controlling the game.'))
 
@@ -373,6 +375,8 @@ def main():
         viewers.append(('reply-to', args.reply_to))
     if args.publish_to:
         viewers.append(('publish-to', args.publish_to))
+    if args.http_post_to:
+        viewers.append(('http-post-to', args.http_post_to))
     if args.write_replay:
         viewers.append(('write-replay-to', args.write_replay))
 

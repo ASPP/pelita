@@ -3,7 +3,7 @@ location: Munich
 date: 2015
 seed: null
 bonusmatch: True
-publish: tcp://127.0.0.1:5559
+#publish: http://localhost:3000/api/collect
 teams:
   - spec: pelita/player/StoppingPlayer
     members:
