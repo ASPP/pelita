@@ -1,8 +1,10 @@
+import argparse
 import itertools
 from textwrap import dedent
 
 import pytest
 
+from pelita.scripts.pelita_main import w_h_string
 from pelita.layout import (BOT_N2I, get_legal_positions, layout_as_str,
                            parse_layout, wall_dimensions)
 
@@ -437,3 +439,20 @@ def test_parse_layout_game_bad_number_of_bots(bots_hidden):
     else:
         with pytest.raises(ValueError):
             parse_layout(test_layout)
+
+
+@pytest.mark.parametrize('spec, check', [
+    ("0x0", (0, 0)),
+    ("1", (2, 1)),
+    ("32x16", (32, 16)),
+    ("16", (32, 16)),
+    ("normal", (32, 16)),
+    ("abc", None),
+    ("abxc", None)
+])
+def test_layout_spec(spec, check):
+    if check is None:
+        with pytest.raises(argparse.ArgumentTypeError):
+            assert w_h_string(spec)
+    else:
+        assert w_h_string(spec) == check
