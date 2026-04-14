@@ -23,7 +23,7 @@ def test_firstNN():
 def test_call_pelita():
     rounds = 200
     viewer = 'ascii'
-    size = 'small'
+    size = 'tiny'
 
     teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
     (state, stdout, stderr) = call_pelita(teams, rounds=rounds, viewer='null', size=size, seed=None)
@@ -56,7 +56,7 @@ def test_call_pelita():
 def test_bad_seeds(seed, success):
     rounds = 2
     viewer = 'null'
-    size = 'small'
+    size = 'tiny'
 
     teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
     if success:
@@ -90,7 +90,7 @@ def test_write_replay_is_idempotent():
 
             cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
                     '--write-replay', f.name,
-                    '--size', 'small',
+                    '--size', 'tiny',
                     '--null']
 
             subprocess.run(cmd, check=True)
@@ -123,7 +123,7 @@ def test_store_layout():
 
         cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
                 '--store-layout', f.name,
-                '--size', 'small',
+                '--size', 'tiny',
                 '--seed', '12345',
                 '--null']
 
@@ -141,7 +141,7 @@ def test_store_layout():
     with tempfile.NamedTemporaryFile() as g:
         cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
                 '--store-layout', g.name,
-                '--size', 'small',
+                '--size', 'tiny',
                 '--seed', '12345',
                 '--null']
 
@@ -161,7 +161,7 @@ def test_random_layout_seed_is_random():
 
     cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
             '--store-layout', '-',
-            '--size', 'small',
+            '--size', 'tiny',
             '--null']
 
     res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
@@ -187,7 +187,7 @@ def test_random_layout_seed_is_stable():
 
     cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
             '--store-layout', '-',
-            '--size', 'small',
+            '--size', 'tiny',
             '--null']
 
     res = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE)
@@ -201,7 +201,7 @@ def test_random_layout_seed_is_stable():
     # Check that the same seed generates the same layout
     cmd = [sys.executable, '-m', 'pelita.scripts.pelita_main',
             '--store-layout', '-',
-            '--size', 'small',
+            '--size', 'tiny',
             '--seed', seed,
             '--null']
 
