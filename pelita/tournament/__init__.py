@@ -273,7 +273,8 @@ class Config:
             self.teams[team_id] = {
                 "spec": team_spec,
                 "name": team_name,
-                "members": team["members"]
+                "members": team["members"],
+                "color": team.get("color"),
             }
 
         self.location = config["location"]
