@@ -59,14 +59,17 @@ def test_client_protocol(zmq_context):
         '__action__': "set_initial",
         '__data__': {
             'team_id': 0,
-            'game_state': {
+            'initial_state': {
                 'seed': 0,
                 'walls': [(0, 0), (1, 0), (2, 0), (3, 0),
                           (0, 1),                 (3, 1),
                           (0, 2),                 (3, 2),
                           (0, 3), (1, 3), (2, 3), (3, 3),
                           ],
-                'shape': (4, 4)
+                'shape': (4, 4),
+                'max_rounds': 5,
+                'team_names': ['unknown', 'team'],
+                'timeout_length': 3
             }
         }
     }
@@ -156,8 +159,7 @@ def dealer_good(q, *, num_requests, timeout):
         if action == 'exit':
             return
         assert set_initial['__action__'] == "set_initial"
-
-        current_pos = game_state['__data__']['game_state']['team']['bot_positions'][game_state['__data__']['game_state']['bot_turn']]
+        current_pos = game_state['__data__']['game_state']['bots'][game_state['__data__']['game_state']['turn']]
         sock.send_json({'__uuid__': msg_id, '__return__': {'move': current_pos}})
 
     _available_socks = poll.poll(timeout=timeout)
@@ -213,7 +215,7 @@ def dealer_bad(q, *, team_name=None, num_requests, checkpoint, timeout):
         if action == 'exit':
             return
 
-        current_pos = game_state['__data__']['game_state']['team']['bot_positions'][game_state['__data__']['game_state']['bot_turn']]
+        current_pos = game_state['__data__']['game_state']['bots'][game_state['__data__']['game_state']['turn']]
         if checkpoint == 5:
             sock.send_string("No json")
             return
