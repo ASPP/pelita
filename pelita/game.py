@@ -1242,7 +1242,7 @@ def cleanup_remote_teams(game_state):
 
 
 def split_food(width, food: list[Pos]):
-    team_food: tuple[set[Pos], set[Pos]] = (set(), set())
+    team_food = [set(), set()]
     for pos in food:
         idx = pos[0] // (width // 2)
         team_food[idx].add(pos)
