@@ -205,25 +205,35 @@ def player_handle_request(socket, poller, team, team_name_override=False, silent
                     raise RuntimeError("Created bad reply message")
 
 
-def check_team_name(name):
-    # Team name must be ascii
+def sanitize_team_name(string):
+    """Strip all non-ascii characters from team name"""
+    sane = []
+    # first of all, verify that the whole thing is valid unicode
+    # this should always be True, but who knows where do they get
+    # their strings from
     try:
-        name.encode('ascii')
+        string.encode('utf8')
     except UnicodeEncodeError:
-        raise ValueError('Invalid team name (non ascii): "%s".'%name)
-    # Team name must be shorter than 25 characters
-    if len(name) > 25:
-        raise ValueError('Invalid team name (longer than 25): "%s".'%name)
-    if len(name) == 0:
-        raise ValueError('Invalid team name (too short).')
-    # Check every character and make sure it is either
-    # a letter or a number. Nothing else is allowed.
-    for char in name:
-        if (not char.isalnum()) and (char != ' '):
-            raise ValueError('Invalid team name (only alphanumeric '
-                             'chars or blanks): "%s"'%name)
-    if name.isspace():
-        raise ValueError('Invalid team name (no letters): "%s"'%name)
+        raise ValueError(f'{string} is not valid Unicode')
+    for c in string.strip():
+        if c.isspace():
+            # convert newlines and other whitespace to blanks
+            char = ' '
+        elif int(c.isalnum()):
+            char = c
+        else:
+            # ignore anything else
+            continue
+        sane.append(char)
+        if len(sane) == 25:
+            # break out of the loop when we have 25 chars
+            break
+
+    name = ''.join(sane)
+    if name == '':
+        return '???'
+
+    return ''.join(sane)
 
 
 def load_team(spec):
@@ -246,7 +256,6 @@ def load_team(spec):
         print('ERROR: %s' % e, file=sys.stderr)
         raise
 
-    check_team_name(team.team_name)
     return team
 
 def load_team_from_module(path: str):
@@ -308,7 +317,7 @@ def team_from_module(module):
     """
     # look for a new-style team
     move = module.move
-    name = module.TEAM_NAME
+    name = sanitize_team_name(module.TEAM_NAME)
 
     if not callable(move):
         raise TypeError("move is not a function")
