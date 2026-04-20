@@ -330,9 +330,14 @@ def test_client_broken(zmq_context, checkpoint):
             case 0|6|11:
                 assert game_state['game_phase'] == 'FINISHED'
                 assert game_state['whowins'] == 2
+                # we should also ensure that there was no timeouts in these cases
+                # but if we check for uncaught exceptions in the player (below)
+                # then we also get a location where something went wrong
+                # assert game_state['timeouts'] == [{}, {}]
             case 5|7|8|9|10:
                 assert game_state['game_phase'] == 'FINISHED'
                 assert game_state['whowins'] == 0
+                # assert game_state['timeouts'] == [{}, {}]
             case 1|2|3|4:
                 assert game_state['game_phase'] == 'FAILURE'
 
