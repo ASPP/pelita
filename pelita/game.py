@@ -16,7 +16,7 @@ from .base_utils import default_rng
 from .exceptions import NoFoodWarning, PelitaBotError, PelitaIllegalGameState
 from .gamestate_filters import noiser, relocate_expired_food, update_food_age, in_homezone
 from .layout import get_legal_positions, initial_positions
-from .network import Controller, RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher
+from .network import Controller, RemotePlayerFailure, RemotePlayerRecvTimeout, RemotePlayerSendError, ZMQPublisher, POSTPublisher
 from .team import RemoteTeam, make_team
 from .viewer import (AsciiViewer, ProgressViewer, ReplayWriter, ReplyToViewer,
                      ResultPrinter)
@@ -274,6 +274,9 @@ def setup_viewers(viewers, print_result=True):
             zmq_context = zmq.Context()
             zmq_external_publisher = ZMQPublisher(address=viewer_opts, bind=False, zmq_context=zmq_context)
             viewer_state['viewers'].append(zmq_external_publisher)
+        elif viewer == 'http-post-to':
+            post_publisher = POSTPublisher(address=viewer_opts)
+            viewer_state['viewers'].append(post_publisher)
         elif viewer == 'tk':
             zmq_context = zmq.Context()
             zmq_publisher = ZMQPublisher(address='tcp://127.0.0.1', zmq_context=zmq_context)
@@ -418,6 +421,8 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
 
         #: Name of the teams. Tuple of str
         team_names=team_names,
+
+        team_specs=team_specs,
 
         #: Additional team info. Tuple of str|None
         team_infos=team_infos,
