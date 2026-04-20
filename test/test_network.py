@@ -59,14 +59,17 @@ def test_client_protocol(zmq_context):
         '__action__': "set_initial",
         '__data__': {
             'team_id': 0,
-            'game_state': {
+            'initial_state': {
                 'seed': 0,
                 'walls': [(0, 0), (1, 0), (2, 0), (3, 0),
                           (0, 1),                 (3, 1),
                           (0, 2),                 (3, 2),
                           (0, 3), (1, 3), (2, 3), (3, 3),
                           ],
-                'shape': (4, 4)
+                'shape': (4, 4),
+                'max_rounds': 5,
+                'team_names': ['unknown', 'team'],
+                'timeout_length': 3
             }
         }
     }
@@ -84,35 +87,23 @@ def test_client_protocol(zmq_context):
         '__action__': "get_move",
         '__data__': {
             'game_state': {
-                'team': {
-                    'team_index': 0,
-                    'bot_positions': [(1, 1), (1, 1)],
-                    'score': 0,
-                    'kills': [0]*2,
-                    'deaths': [0]*2,
-                    'bot_was_killed': [False]*2,
-                    'error_count': 0,
-                    'food': [(1, 1)],
-                    'shaded_food': [(1, 1)],
-                    'name': 'dummy',
-                    'team_time': 0,
-                },
-                'enemy': {
-                    'team_index': 1,
-                    'bot_positions': [(2, 2), (2, 2)],
-                    'score': 0,
-                    'kills': [0]*2,
-                    'deaths': [0]*2,
-                    'bot_was_killed': [False]*2,
-                    'food': [(2, 2)],
-                    'shaded_food': [],
-                    'name': 'other dummy',
-                    'team_time': 0,
-                    'is_noisy': [False, False],
-                    'error_count': 0
-                },
+                'team_index': 0,
+                'bots': [(1, 1), (2, 2), (1, 1), (2, 2)],
+                'score': [0, 0],
+                'kills': [0]*4,
+                'deaths': [0]*4,
+                'bot_was_killed': [False]*4,
+                'error_count': [0, 0],
+                'food': [[(1, 1)], [(2, 2)]],
+                'shaded_food': [[(1, 1)], []],
+                'team_names': ['dummy', 'other_dummy'],
+                'team_time': [0, 0],
+                'is_noisy': [False, False, False, False],
+                'error_count': [0, 0],
                 'round': 1,
-                'bot_turn': 0,
+                'turn': 0,
+                'timeout_length': 3,
+                'max_rounds': 300,
             }
         }
     }
@@ -168,8 +159,7 @@ def dealer_good(q, *, num_requests, timeout):
         if action == 'exit':
             return
         assert set_initial['__action__'] == "set_initial"
-
-        current_pos = game_state['__data__']['game_state']['team']['bot_positions'][game_state['__data__']['game_state']['bot_turn']]
+        current_pos = game_state['__data__']['game_state']['bots'][game_state['__data__']['game_state']['turn']]
         sock.send_json({'__uuid__': msg_id, '__return__': {'move': current_pos}})
 
     _available_socks = poll.poll(timeout=timeout)
@@ -225,7 +215,7 @@ def dealer_bad(q, *, team_name=None, num_requests, checkpoint, timeout):
         if action == 'exit':
             return
 
-        current_pos = game_state['__data__']['game_state']['team']['bot_positions'][game_state['__data__']['game_state']['bot_turn']]
+        current_pos = game_state['__data__']['game_state']['bots'][game_state['__data__']['game_state']['turn']]
         if checkpoint == 5:
             sock.send_string("No json")
             return
@@ -342,9 +332,14 @@ def test_client_broken(zmq_context, checkpoint):
             case 0|6|11:
                 assert game_state['game_phase'] == 'FINISHED'
                 assert game_state['whowins'] == 2
+                # we should also ensure that there was no timeouts in these cases
+                # but if we check for uncaught exceptions in the player (below)
+                # then we also get a location where something went wrong
+                # assert game_state['timeouts'] == [{}, {}]
             case 5|7|8|9|10:
                 assert game_state['game_phase'] == 'FINISHED'
                 assert game_state['whowins'] == 0
+                # assert game_state['timeouts'] == [{}, {}]
             case 1|2|3|4:
                 assert game_state['game_phase'] == 'FAILURE'
 
