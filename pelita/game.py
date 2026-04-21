@@ -54,16 +54,20 @@ INITIAL_TIMEOUT_SECS = 6
 
 #: Default maze sizes
 MSIZE = {
-         'small' : (16, 8),
+         'tiny': (16, 8),
+         'small': (24, 12),
          'normal': (32, 16),
-         'big'   : (64, 32),
+         'big': (48, 24),
+         'huge': (64, 32),
         }
 
 #: Food pellets (trapped_food, total_food) on left side of the maze for
 #  default maze sizes
 NFOOD = {
-         (16, 8) : (3, 10),
+         (16, 8): (3, 10),
+         (24, 12): (5, 15),
          (32, 16): (10, 30),
+         (48, 24): (15, 50),
          (64, 32): (20, 60),
         }
 

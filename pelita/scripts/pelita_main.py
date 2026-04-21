@@ -172,8 +172,11 @@ def w_h_string(s):
     if s in pelita.game.MSIZE:
         return pelita.game.MSIZE[s]
     try:
-        x_string, y_string = s.split('x')
-        w_h = (int(x_string), int(y_string))
+        if 'x' in s:
+            x_string, y_string = s.split('x')
+            w_h = (int(x_string), int(y_string))
+        else:
+            w_h = (int(s) * 2, int(s))
     except ValueError:
         msg = "%s is not a valid specification" %s
         raise argparse.ArgumentTypeError(msg) from None
@@ -240,7 +243,7 @@ layout_opt = game_settings.add_mutually_exclusive_group()
 layout_opt.add_argument('--layout', metavar='FILENAME', help='Use layout from FILENAME')
 layout_opt.add_argument('--size', type=w_h_string, metavar="STRING", default='normal',
                         help="Pick a random maze layout of specified size."
-                        " Possible sizes: 'small' (16x8), 'normal' (32x16), 'big' (64x32), 'WxH' where W and H are integers. Default: 'normal'")
+                        " Possible sizes: 'small' (24x12), 'normal' (32x16), 'big' (48x24), 'WxH' where W and H are integers. Default: 'normal'")
 
 timeout_opt = game_settings.add_mutually_exclusive_group()
 timeout_opt.add_argument('--timeout', type=float, metavar="SEC",
