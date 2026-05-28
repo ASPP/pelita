@@ -159,7 +159,7 @@ def run_game(team_specs, config):
 class CI_Engine:
     """Continuous Integration Engine."""
 
-    def __init__(self, cfgfile):
+    def __init__(self, cfgfile, database=None):
         self.players = {}
         config = configparser.ConfigParser()
         config.read_file(cfgfile)
@@ -171,7 +171,7 @@ class CI_Engine:
         self.viewer = config['general'].get('viewer', 'null')
         self.seed = config['general'].get('seed', None)
 
-        self.db_file = config.get('general', 'db_file')
+        self.db_file = database or config.get('general', 'db_file')
         self.dbwrapper = DB_Wrapper(self.db_file)
 
     def load_players(self, concurrency=1):
@@ -638,6 +638,7 @@ class DB_Wrapper:
 
         """
         self.db_file = dbfile
+        _logger.info("Using sqlite database file ‘%s’.", self.db_file)
         self.connection = sqlite3.connect(self.db_file)
         self.cursor = self.connection.cursor()
         self.cursor.execute("PRAGMA foreign_keys = ON;")
@@ -1118,19 +1119,19 @@ class DB_Wrapper:
 
 def run(args):
     with open(args.config) as f:
-        ci_engine = CI_Engine(f)
+        ci_engine = CI_Engine(f, args.database)
         if not args.no_hash:
             ci_engine.load_players(concurrency=args.thread_count)
         ci_engine.start(args.n, args.thread_count)
 
 def print_scores(args):
     with open(args.config) as f:
-        ci_engine = CI_Engine(f)
+        ci_engine = CI_Engine(f, args.database)
         ci_engine.pretty_print_results(full=args.full, team=args.team)
 
 def hash_teams(args):
     with open(args.config) as f:
-        ci_engine = CI_Engine(f)
+        ci_engine = CI_Engine(f, args.database)
         ci_engine.load_players(concurrency=args.thread_count)
 
 if __name__ == '__main__':
@@ -1139,6 +1140,8 @@ if __name__ == '__main__':
                         metavar='LOGFILE', const='-', nargs='?')
     parser.add_argument('--config', help="Print debugging log information to LOGFILE (default 'stderr').",
                         metavar='FILE', default=CFG_FILE)
+    parser.add_argument('--database', help="Database location",
+                        metavar='FILE', default=None)
 
     subparsers = parser.add_subparsers(required=True)
 
