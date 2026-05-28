@@ -164,9 +164,9 @@ class CI_Engine:
 
         self.players = {}
         config = configparser.ConfigParser()
-        config.read_file(cfgfile)
+        config.read(cfgfile)
         for name, path in  config.items('agents'):
-            self.players[name]= {'path': self.cfg_path.parent / path}
+            self.players[name]= {'path': str(self.cfg_path.parent / path)}
 
 
         self.rounds = config['general'].getint('rounds', None)
@@ -1121,21 +1121,18 @@ class DB_Wrapper:
         return self.cursor.execute(query).fetchall()
 
 def run(args):
-    with open(args.config) as f:
-        ci_engine = CI_Engine(f, args.database)
-        if not args.no_hash:
-            ci_engine.load_players(concurrency=args.thread_count)
-        ci_engine.start(args.n, args.thread_count)
+    ci_engine = CI_Engine(args.config, args.database)
+    if not args.no_hash:
+        ci_engine.load_players(concurrency=args.thread_count)
+    ci_engine.start(args.n, args.thread_count)
 
 def print_scores(args):
-    with open(args.config) as f:
-        ci_engine = CI_Engine(f, args.database)
-        ci_engine.pretty_print_results(full=args.full, team=args.team)
+    ci_engine = CI_Engine(args.config, args.database)
+    ci_engine.pretty_print_results(full=args.full, team=args.team)
 
 def hash_teams(args):
-    with open(args.config) as f:
-        ci_engine = CI_Engine(f, args.database)
-        ci_engine.load_players(concurrency=args.thread_count)
+    ci_engine = CI_Engine(args.config, args.database)
+    ci_engine.load_players(concurrency=args.thread_count)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
