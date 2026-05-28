@@ -160,11 +160,14 @@ class CI_Engine:
     """Continuous Integration Engine."""
 
     def __init__(self, cfgfile, database=None):
+        self.cfg_path = Path(cfgfile)
+
         self.players = {}
         config = configparser.ConfigParser()
         config.read_file(cfgfile)
         for name, path in  config.items('agents'):
-            self.players[name]= {'path': path}
+            self.players[name]= {'path': self.cfg_path.parent / path}
+
 
         self.rounds = config['general'].getint('rounds', None)
         self.size = config['general'].get('size', None)
