@@ -450,7 +450,7 @@ class CI_Engine:
 
         return elo
 
-    def pretty_print_results(self, full=False, team=None, highlight=None):
+    def pretty_print_results(self, full=False, team=None, highlight=None, html_export=None):
         """Pretty print the current results.
 
         """
@@ -460,8 +460,7 @@ class CI_Engine:
         good_players = [p for p, player in self.players.items() if not player.get('error')]
         bad_players = [p for p, player in self.players.items() if player.get('error')]
 
-        console = Console()
-
+        console = Console(record=True)
 
         table = Table(title="Bot ranking")
 
@@ -624,6 +623,9 @@ class CI_Engine:
                     )
 
             console.print(table)
+
+        if html_export:
+            console.save_html(html_export)
 
 
 class DB_Wrapper:
@@ -1128,7 +1130,7 @@ def run(args):
 
 def print_scores(args):
     ci_engine = CI_Engine(args.config, args.database)
-    ci_engine.pretty_print_results(full=args.full, team=args.team)
+    ci_engine.pretty_print_results(full=args.full, team=args.team, html_export=args.html_export)
 
 def hash_teams(args):
     ci_engine = CI_Engine(args.config, args.database)
@@ -1152,6 +1154,7 @@ if __name__ == '__main__':
     parser_run.set_defaults(func=run)
 
     parser_print_scores = subparsers.add_parser('print-scores')
+    parser_print_scores.add_argument('--html-export', help='output as HTML', default=False)
     full_or_team = parser_print_scores.add_mutually_exclusive_group()
     full_or_team.add_argument('--full', help='show full pair statistics', action='store_true', default=False)
     full_or_team.add_argument('--team', help='show statistics for team', type=str, default=None)
