@@ -295,7 +295,7 @@ class TestSingleMatch:
         config.team_spec = lambda x: x
         config.team_group = lambda x: x
         config.viewer = 'ascii'
-        config.size = 'small'
+        config.size = 'tiny'
         config.tournament_log_folder = None
 
         teams = ["pelita/player/StoppingPlayer", "pelita/player/StoppingPlayer"]
@@ -335,7 +335,7 @@ class TestSingleMatch:
         config.team_name = lambda x: teams[x]
         config.team_group = lambda x: x
         config.viewer = 'ascii'
-        config.size = 'small'
+        config.size = 'tiny'
         config.print = mock_print
         config.tournament_log_folder = None
 
@@ -373,7 +373,7 @@ class TestSingleMatch:
         config.team_name = lambda x: teams[x]
         config.team_group = lambda x: x
         config.viewer = 'ascii'
-        config.size = 'small'
+        config.size = 'tiny'
         config.print = mock_print
         config.tournament_log_folder = None
 
@@ -410,7 +410,7 @@ class TestTournament:
                 {"id": "group3", "spec": "pelita/player/StoppingPlayer", "members": []},
                 {"id": "group4", "spec": "pelita/player/StoppingPlayer", "members": []},
             ],
-            "size": "small",
+            "size": "tiny",
         }
         config = tournament.Config(c)
         config.print = mock_print
