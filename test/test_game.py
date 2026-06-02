@@ -1371,6 +1371,35 @@ def test_requested_moves(move_request, expected_prev, expected_req, expected_suc
     assert state['requested_moves'][1:] == [None, None, None]
     assert state['requested_moves'][0] == {'previous_position': (1, 1), 'requested_position': expected_req, 'success': expected_success}
 
+def test_requested_moves_are_cleared():
+    # test the possible return values of gamestate['requested_moves']
+    test_layout = """
+        ######
+        #a#.y#
+        #.bx #
+        ######
+    """
+    teams = [
+        stopping_player,
+        stopping_player
+    ]
+    state = setup_game(teams, layout_dict=parse_layout(test_layout), max_rounds=2)
+    assert state['requested_moves'] == [None, None, None, None]
+    state = play_turn(state)
+    assert state['requested_moves'][1:] == [None, None, None]
+    assert state['requested_moves'][0] == {'previous_position': (1, 1), 'requested_position': (1, 1), 'success': True}
+    state = play_turn(state)
+    assert state['requested_moves'][0] is None
+    assert state['requested_moves'][2:] == [None, None]
+    assert state['requested_moves'][1] == {'previous_position': (3, 2), 'requested_position': (3, 2), 'success': True}
+    state = play_turn(state)
+    assert state['requested_moves'][0:2] == [None, None]
+    assert state['requested_moves'][3] is None
+    assert state['requested_moves'][2] == {'previous_position': (2, 2), 'requested_position': (2, 2), 'success': True}
+    state = play_turn(state)
+    assert state['requested_moves'][0:3] == [None, None, None]
+    assert state['requested_moves'][3] == {'previous_position': (4, 1), 'requested_position': (4, 1), 'success': True}
+
 def test_games_have_different_uuid():
     state1 = setup_game([dummy_bot, dummy_bot], layout_dict=parse_layout(small_layout), max_rounds=2)
     state2 = setup_game([dummy_bot, dummy_bot], layout_dict=parse_layout(small_layout), max_rounds=2)

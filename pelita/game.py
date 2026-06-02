@@ -890,6 +890,9 @@ def play_turn(game_state, raise_bot_exceptions=False):
     else:
         game_state['overlays'][game_state['turn']] = []
 
+    # reset the requested moves so that only the current bot is present
+    game_state['requested_moves'] = [None] * 4
+
     # If the returned move looks okay, we add it to the list of requested moves
     old_position = game_state['bots'][turn]
     game_state['requested_moves'][turn] = {
