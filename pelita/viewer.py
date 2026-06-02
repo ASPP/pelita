@@ -165,18 +165,18 @@ class ReplyToViewer:
 
 
 class ReplayWriter:
-    """ A viewer which dumps to a given stream.
+    """ A viewer which writes JSONL to a given stream.
     """
     def __init__(self, stream):
         self.stream = stream
 
     def _send(self, message):
-        as_json = json.dumps(message, cls=SetEncoder)
-        self.stream.write(as_json)
-        # We use 0x04 (EOT) as a separator between the events.
-        # The additional newline is for improved readability
-        # and should be ignored by the Python json reader.
-        self.stream.write("\x04\n")
+        # Write a record with minimal spacing
+        # indent=None should ensure that no new lines are introduced
+        json.dump(message, self.stream, cls=SetEncoder, indent=None, separators=(',', ':'))
+
+        # Separate records with a new line
+        self.stream.write("\n")
         self.stream.flush()
 
     def show_state(self, game_state):

@@ -1,4 +1,5 @@
 """Tests for Pelita game module"""
+import tempfile
 import inspect
 import itertools
 import os
@@ -16,6 +17,7 @@ from pelita.game import (add_fatal_error, apply_move, get_legal_positions, initi
                          play_turn, run_game, setup_game)
 from pelita.layout import parse_layout
 from pelita.player import stepping_player, stopping_player
+from pelita.viewer import ReplayWriter
 
 _mswindows = (sys.platform == "win32")
 
@@ -1391,3 +1393,15 @@ def test_games_have_different_uuid():
 
     # remainder of the game state is equal
     assert state1 == state2
+
+
+def test_replay_writer_writes_jsonl():
+    with tempfile.TemporaryDirectory() as dir:
+        replay_file = Path(dir) / "replay"
+        with replay_file.open('w') as f:
+            replay_writer = ReplayWriter(f)
+            replay_writer.show_state({"a": "\n"})
+            replay_writer.show_state({"b": "\r"})
+
+        # Check that records with new lines are correct
+        assert replay_file.read_text().split("\n") == ['{"a":"\\n"}', '{"b":"\\r"}', '']
