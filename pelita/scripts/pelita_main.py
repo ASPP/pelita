@@ -365,7 +365,7 @@ def main():
         if pelita.game.controller_await(viewer_state, await_action='set_initial'):
             sys.exit(0)
 
-        old_game = Path(args.replayfile).read_text().split("\x04")
+        old_game = Path(args.replayfile).read_text().split("\n")
         for state in old_game:
             if not state.strip():
                 continue
