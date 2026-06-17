@@ -101,51 +101,8 @@ def test_noiser_no_negative_coordinates(bot_id):
     assert test_1 and test_2
 
 
-def test_noiser_noising_odd_turn1():
-
-    """ It is the odd team's turn, and the noiser should
-    work on even bots """
-
-    test_collect_bot0 = []
-    test_collect_bot2 = []
-    for ii in range(10):
-
-        # we let it run 10 times because it could return the original position,
-        # but in most cases it should return a different pos (due to noise)
-        gamestate = make_gamestate()
-        gamestate["turn"] = 1
-        old_bots = gamestate["bots"]
-        new_gamestate = prepare_bot_state(gamestate)
-        new_bots = new_gamestate['enemy']['bot_positions']
-        test_collect_bot0.append((not old_bots[0] == new_bots[0]))
-        test_collect_bot2.append((not old_bots[2] == new_bots[1]))
-
-    assert any(test_collect_bot0) or any(test_collect_bot2)
-
-
-def test_noiser_noising_odd_turn3():
-
-    """ It is the odd team's turn, and the noiser should
-    work on even bots """
-
-    test_collect_bot0 = []
-    test_collect_bot2 = []
-    for ii in range(10):
-
-        # we let it run 10 times because it could return the original position,
-        # but in most cases it should return a different pos (due to noise)
-        gamestate = make_gamestate()
-        gamestate["turn"] = 3
-        old_bots = gamestate["bots"]
-        new_gamestate = prepare_bot_state(gamestate)
-        new_bots = new_gamestate['enemy']['bot_positions']
-        test_collect_bot0.append((not old_bots[0] == new_bots[0]))
-        test_collect_bot2.append((not old_bots[2] == new_bots[1]))
-
-    assert any(test_collect_bot0) or any(test_collect_bot2)
-
-
-def test_noiser_noising_even_turn0():
+@pytest.mark.parametrize("turn", [0, 2])
+def test_noiser_noising_even_turn(turn):
 
     """ It is the even team's turn, and the noiser should
     work on odd bots """
@@ -157,101 +114,68 @@ def test_noiser_noising_even_turn0():
         # we let it run 10 times because it could return the original position,
         # but in most cases it should return a different pos (due to noise)
         gamestate = make_gamestate()
-        gamestate["turn"] = 0
+        gamestate["turn"] = turn
         old_bots = gamestate["bots"]
         new_gamestate = prepare_bot_state(gamestate)
-        new_bots = new_gamestate['enemy']['bot_positions']
-        test_collect_bot1.append((not old_bots[1] == new_bots[0]))
-        test_collect_bot3.append((not old_bots[3] == new_bots[1]))
+        new_bots = new_gamestate['bots']
+        test_collect_bot1.append((not old_bots[1] == new_bots[1]))
+        test_collect_bot3.append((not old_bots[3] == new_bots[3]))
 
-    assert any(test_collect_bot1) or any(test_collect_bot3)
+    assert any(test_collect_bot1) and any(test_collect_bot3)
 
 
-def test_noiser_noising_even_turn2():
+@pytest.mark.parametrize("turn", [1, 3])
+def test_noiser_noising_odd_turn(turn):
+    """ It is the odd team's turn, and the noiser should
+    work on even bots """
 
-    """ It is the even team's turn, and the noiser should
-    work on odd bots """
-
-    test_collect_bot1 = []
-    test_collect_bot3 = []
+    test_collect_bot0 = []
+    test_collect_bot2 = []
     for ii in range(10):
 
         # we let it run 10 times because it could return the original position,
         # but in most cases it should return a different pos (due to noise)
         gamestate = make_gamestate()
-        gamestate["turn"] = 2
+        gamestate["turn"] = turn
         old_bots = gamestate["bots"]
         new_gamestate = prepare_bot_state(gamestate)
-        new_bots = new_gamestate['enemy']['bot_positions']
-        test_collect_bot1.append((not old_bots[1] == new_bots[0]))
-        test_collect_bot3.append((not old_bots[3] == new_bots[1]))
+        new_bots = new_gamestate['bots']
+        test_collect_bot0.append((not old_bots[0] == new_bots[0]))
+        test_collect_bot2.append((not old_bots[2] == new_bots[2]))
 
-    assert any(test_collect_bot1) or any(test_collect_bot3)
+    assert any(test_collect_bot0) and any(test_collect_bot2)
 
-
-def test_noiser_not_noising_own_team_even0():
-
-    """ It is the even team's turn, and the noiser should
-    not work on own bots """
-
-    gamestate = make_gamestate()
-    gamestate["turn"] = 0
-    old_bots = gamestate["bots"]
-    new_gamestate = prepare_bot_state(gamestate)
-    new_bots = new_gamestate['team']['bot_positions']
-    test_bot0 = old_bots[0] == new_bots[0]
-    test_bot2 = old_bots[2] == new_bots[1]
-
-    assert test_bot0 or test_bot2
-
-
-def test_noiser_not_noising_own_team_even2():
+@pytest.mark.parametrize("turn", [0, 2])
+def test_noiser_not_noising_own_team_even_turn(turn):
 
     """ It is the even team's turn, and the noiser should
     not work on own bots """
 
     gamestate = make_gamestate()
-    gamestate["turn"] = 2
+    gamestate["turn"] = turn
     old_bots = gamestate["bots"]
     new_gamestate = prepare_bot_state(gamestate)
-    new_bots = new_gamestate['team']['bot_positions']
+    new_bots = new_gamestate['bots']
     test_bot0 = old_bots[0] == new_bots[0]
-    test_bot2 = old_bots[2] == new_bots[1]
+    test_bot2 = old_bots[2] == new_bots[2]
 
-    assert test_bot0 or test_bot2
+    assert test_bot0 and test_bot2
 
-
-def test_noiser_not_noising_own_team_odd1():
-
-    """ It is the odd team's turn, and the noiser should
-    not work on own bots """
-
-    gamestate = make_gamestate()
-    gamestate["turn"] = 1
-    old_bots = gamestate["bots"]
-    new_gamestate = prepare_bot_state(gamestate)
-    new_bots = new_gamestate['team']['bot_positions']
-    test_bot1 = old_bots[1] == new_bots[0]
-    test_bot3 = old_bots[3] == new_bots[1]
-
-    assert test_bot1 or test_bot3
-
-
-def test_noiser_not_noising_own_team_odd3():
+@pytest.mark.parametrize("turn", [1, 3])
+def test_noiser_not_noising_own_team_odd_turn(turn):
 
     """ It is the odd team's turn, and the noiser should
     not work on own bots """
 
     gamestate = make_gamestate()
-    gamestate["turn"] = 3
+    gamestate["turn"] = turn
     old_bots = gamestate["bots"]
     new_gamestate = prepare_bot_state(gamestate)
-    new_bots = new_gamestate['team']['bot_positions']
-    test_bot1 = old_bots[1] == new_bots[0]
-    test_bot3 = old_bots[3] == new_bots[1]
+    new_bots = new_gamestate['bots']
+    test_bot1 = old_bots[1] == new_bots[1]
+    test_bot3 = old_bots[3] == new_bots[3]
 
-    assert test_bot1 or test_bot3
-
+    assert test_bot1 and test_bot3
 
 def test_noiser_not_noising_at_noise_radius0():
 
@@ -264,20 +188,9 @@ def test_noiser_not_noising_at_noise_radius0():
         gamestate["turn"] = tt
         gamestate["noise_radius"] = 0
         new_gamestate = prepare_bot_state(gamestate)
-        new_team_bots = new_gamestate['team']['bot_positions']
-        new_enemy_bots = new_gamestate['enemy']['bot_positions']
-        if tt % 2 == 0:
-            # team 0
-            assert old_bots[0] == new_team_bots[0]
-            assert old_bots[1] == new_enemy_bots[0]
-            assert old_bots[2] == new_team_bots[1]
-            assert old_bots[3] == new_enemy_bots[1]
-        else:
-            # team 1
-            assert old_bots[0] == new_enemy_bots[0]
-            assert old_bots[1] == new_team_bots[0]
-            assert old_bots[2] == new_enemy_bots[1]
-            assert old_bots[3] == new_team_bots[1]
+        new_bots = new_gamestate['bots']
+
+        assert old_bots == new_bots
 
 
 @pytest.mark.parametrize("ii", range(30))

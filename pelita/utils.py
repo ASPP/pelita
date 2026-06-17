@@ -198,6 +198,7 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         is_noisy_default.update(is_noisy)
 
     is_noisy = is_noisy_default
+    is_noisy_list = [is_noisy["x"], is_noisy["a"], is_noisy["y"], is_noisy["b"]]
 
 
     if layout is None:
@@ -205,61 +206,50 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
     else:
         layout = parse_layout(layout, food=food, bots=bots)
 
+    bot_positions = layout['bots'][:]
     width, height = layout['shape']
 
     food = split_food(width, layout['food'])
+    food = [list(team_food) for team_food in food]
 
     if is_blue:
-        team_index = 0
-        enemy_index = 1
-        bot_positions = [layout['bots'][0], layout['bots'][2]]
-        enemy_positions = [layout['bots'][1], layout['bots'][3]]
-        is_noisy_enemy = [is_noisy["x"], is_noisy["y"]]
+        # We only make the first bot of each team controllable,
+        # therefore the turn is only 0 or 1
+        turn = 0
+        score = score[:]
+        shaded_food_list = [list(shaded_food(bot_positions, food[0], radius=SHADOW_DISTANCE)), []]
     else:
-        team_index = 1
-        enemy_index = 0
-        bot_positions = [layout['bots'][1], layout['bots'][3]]
-        enemy_positions = [layout['bots'][0], layout['bots'][2]]
-        is_noisy_enemy = [is_noisy["a"], is_noisy["b"]]
+        turn = 1
+        score = list(reversed(score))
+        shaded_food_list = [[], list(shaded_food(bot_positions, food[1], radius=SHADOW_DISTANCE))]
 
 
-    team = {
-        'bot_positions': bot_positions,
-        'team_index': team_index,
-        'score': score[team_index],
-        'kills': [0]*2,
-        'deaths': [0]*2,
-        'bot_was_killed' : [False]*2,
-        'error_count': 0,
-        'food': food[team_index],
-        'shaded_food': list(shaded_food(bot_positions, food[team_index], radius=SHADOW_DISTANCE)),
-        'name': "blue" if is_blue else "red",
-        'team_time': 0.0,
-    }
-    enemy = {
-        'bot_positions': enemy_positions,
-        'team_index': enemy_index,
-        'score': score[enemy_index],
-        'kills': [0]*2,
-        'deaths': [0]*2,
-        'bot_was_killed': [False]*2,
-        'error_count': 0,
-        'food': food[enemy_index],
-        'shaded_food': [],
-        'is_noisy': is_noisy_enemy,
-        'name': "red" if is_blue else "blue",
-        'team_time': 0.0,
-    }
+    shape = layout['shape']
+    walls = layout['walls']
+    shape = layout['shape']
+    graph = walls_to_graph(layout['walls'])
+    initial_positions_list = initial_positions(layout['walls'], layout['shape'])
+    homezone = create_homezones(layout['shape'], layout['walls'])
 
-    bot = make_bots(walls=layout['walls'],
-                    shape=layout['shape'],
-                    initial_positions=initial_positions(layout['walls'], layout['shape']),
-                    homezone=create_homezones(layout['shape'], layout['walls']),
-                    team=team,
-                    enemy=enemy,
+    bot = make_bots(bot_positions=bot_positions,
+                    is_noisy=is_noisy_list,
+                    walls=walls,
+                    shape=shape,
+                    food=food,
+                    shaded_food=shaded_food_list,
                     round=round,
-                    bot_turn=0,
+                    turn=turn,
+                    score=score,
+                    deaths=[0] * 4,
+                    kills=[0] * 4,
+                    bot_was_killed=[False] * 4,
+                    error_count=[0] * 2,
+                    initial_positions=initial_positions_list,
+                    homezone=homezone,
+                    team_names=["blue", "red"],
+                    team_time=[0.0] * 2,
                     rng=rng,
-                    graph=walls_to_graph(layout['walls']))
+                    graph=graph)
+
     return bot
 
