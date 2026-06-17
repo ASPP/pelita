@@ -736,7 +736,7 @@ def prepare_bot_state(game_state, team_idx=None):
         'kills': game_state['kills'][own_team::2],
         'deaths': game_state['deaths'][own_team::2],
         'bot_was_killed': game_state['bot_was_killed'][own_team::2],
-        'error_count': len(game_state['timeouts'][own_team]),
+        'num_timeouts': len(game_state['timeouts'][own_team]),
         'food': list(game_state['food'][own_team]),
         'shaded_food': shaded_food,
         'name': game_state['team_names'][own_team],
@@ -751,7 +751,7 @@ def prepare_bot_state(game_state, team_idx=None):
         'kills': game_state['kills'][enemy_team::2],
         'deaths': game_state['deaths'][enemy_team::2],
         'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
-        'error_count': 0, # TODO. Could be left out for the enemy
+        'num_timeouts': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
         'shaded_food': [],
         'name': game_state['team_names'][enemy_team],
