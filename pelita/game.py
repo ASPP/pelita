@@ -124,7 +124,7 @@ def controller_await(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, max_rounds=300,
-             rng=None, allow_camping=False, error_limit=5, timeout_length=TIMEOUT_SECS,
+             rng=None, allow_camping=False, error_limit=1, timeout_length=TIMEOUT_SECS,
              initial_timeout_length=INITIAL_TIMEOUT_SECS,
              viewers=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
@@ -161,7 +161,7 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
                    game is over and the team is disqualified. Non fatal errors are
                    timeouts and returning an illegal move. Fatal errors are raising
                    Exceptions. An error_limit of 0 will disable the limit.
-                   Default: 5.
+                   Default: 1.
 
     timeout_length : int or float
                   Time in seconds to wait for the move function (or for the remote
@@ -304,7 +304,7 @@ def setup_viewers(viewers, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
-               allow_camping=False, error_limit=5, timeout_length=TIMEOUT_SECS, initial_timeout_length=INITIAL_TIMEOUT_SECS,
+               allow_camping=False, error_limit=1, timeout_length=TIMEOUT_SECS, initial_timeout_length=INITIAL_TIMEOUT_SECS,
                viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
                raise_bot_exceptions=False, print_result=True):
