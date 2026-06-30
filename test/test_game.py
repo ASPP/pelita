@@ -908,7 +908,7 @@ def test_error_finishes_game(team_errors, team_wins):
         return b.position
 
     l = maze_generator.generate_maze()
-    state = game.setup_game([move0, move1], max_rounds=20, layout_dict=l)
+    state = game.setup_game([move0, move1], error_limit=5, max_rounds=20, layout_dict=l)
 
     # We must patch apply_move_fn so that RemotePlayerRecvTimeout is not caught
     # and we can actually test timeouts

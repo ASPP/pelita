@@ -82,7 +82,8 @@ def test_remote_timeout(dummy_layout_dict):
     state = pelita.game.run_game([str(blue), str(red)],
                                  max_rounds=8,
                                  layout_dict=dummy_layout_dict,
-                                 timeout_length=0.4)
+                                 timeout_length=0.4,
+                                 error_limit=5)
 
     assert state['whowins'] == 0
     assert state['fatal_errors'][0] == []
