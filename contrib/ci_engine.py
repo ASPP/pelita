@@ -471,7 +471,6 @@ class CI_Engine:
         table.add_column("# Losses")
         table.add_column("Score")
         table.add_column("ELO")
-        table.add_column("# Timeouts")
         table.add_column("# Fatal Errors")
 
         elo = dict(self.dbwrapper.get_elo())
@@ -669,7 +668,6 @@ class DB_Wrapper:
         (
         id INTEGER PRIMARY KEY,
         player1 text, player2 text, result int, final_state text,
-        player1_num_timeouts int, player2_num_timeouts int,
         player1_had_fatal_error bool, player2_had_fatal_error bool,
         FOREIGN KEY(player1) REFERENCES players(name) ON DELETE CASCADE,
         FOREIGN KEY(player2) REFERENCES players(name) ON DELETE CASCADE)
@@ -797,7 +795,6 @@ class DB_Wrapper:
             return
 
         final_state_str = json.dumps(final_state)
-        player1_num_timeouts, player2_num_timeouts = final_state['num_timeouts']
 
         player1_had_fatal_error = len(final_state['fatal_errors'][0]) != 0
         player2_had_fatal_error = len(final_state['fatal_errors'][1]) != 0
@@ -805,12 +802,10 @@ class DB_Wrapper:
         self.cursor.execute("""
         INSERT INTO games
             (player1, player2, result, final_state,
-            player1_num_timeouts, player2_num_timeouts,
             player1_had_fatal_error, player2_had_fatal_error)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?)
         RETURNING id
         """, [p1_name, p2_name, result, final_state_str,
-              player1_num_timeouts, player2_num_timeouts,
               player1_had_fatal_error, player2_had_fatal_error])
 
         game_id, = self.cursor.fetchone()
@@ -943,10 +938,9 @@ class DB_Wrapper:
         error_count, fatalerror_count : errorcount
         """
         self.cursor.execute("""
-        SELECT sum(timeouts), sum(fatal_errors) FROM
+        SELECT sum(fatal_errors) FROM
             (
                 SELECT
-                    sum(player1_num_timeouts) AS timeouts,
                     sum(player1_had_fatal_error) AS fatal_errors
                 FROM games
                 WHERE player1 = :p1
@@ -954,16 +948,15 @@ class DB_Wrapper:
                 UNION ALL
 
                 SELECT
-                    sum(player2_num_timeouts) AS timeouts,
                     sum(player2_had_fatal_error) AS fatal_errors
                 FROM games
                 WHERE player2 = :p1
             )
         """,
         dict(p1=p1_name))
-        timeouts, fatal_errorcount = self.cursor.fetchone()
+        fatal_errorcount = self.cursor.fetchone()
 
-        return timeouts, fatal_errorcount
+        return fatal_errorcount
 
     def get_wins_losses(self, team=None):
         """ Get all wins and losses combined in a table of
