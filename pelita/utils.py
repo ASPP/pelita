@@ -117,8 +117,6 @@ def run_background_game(*, blue_move, red_move, layout=None, max_rounds=300, see
     out['red_bots'] = game_state['bots'][1::2]
     out['blue_score'] = game_state['score'][0]
     out['red_score'] = game_state['score'][1]
-    out['blue_errors'] = game_state['timeouts'][0]
-    out['red_errors'] = game_state['timeouts'][1]
     out['blue_deaths'] = game_state['deaths'][::2]
     out['red_deaths'] = game_state['deaths'][1::2]
     out['blue_kills'] = game_state['kills'][::2]
@@ -230,7 +228,6 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'kills': [0]*2,
         'deaths': [0]*2,
         'bot_was_killed' : [False]*2,
-        'num_timeouts': 0,
         'food': food[team_index],
         'shaded_food': list(shaded_food(bot_positions, food[team_index], radius=SHADOW_DISTANCE)),
         'name': "blue" if is_blue else "red",
@@ -243,7 +240,6 @@ def setup_test_game(*, layout, is_blue=True, round=None, score=None, seed=None,
         'kills': [0]*2,
         'deaths': [0]*2,
         'bot_was_killed': [False]*2,
-        'num_timeouts': 0,
         'food': food[enemy_index],
         'shaded_food': [],
         'is_noisy': is_noisy_enemy,
