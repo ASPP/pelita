@@ -418,7 +418,7 @@ def test_bots_in_same_position():
 
 
 # All combinations of bots that can be switched on/off
-@pytest.mark.parametrize('bots_hidden', itertools.product(*[(True, False)] * 4))
+@pytest.mark.parametrize('bots_hidden', tuple(itertools.product(*[(True, False)] * 4)))
 def test_parse_layout_game_bad_number_of_bots(bots_hidden):
     """ parse_layout should fail when a wrong number of bots is given. """
     test_layout = """

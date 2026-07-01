@@ -1168,7 +1168,7 @@ def test_setup_game_run_game_have_same_args():
 
 @pytest.mark.parametrize('bot_to_move', range(4))
 # all combinations of True False in a list of 4
-@pytest.mark.parametrize('bot_was_killed_flags', itertools.product(*[(True, False)] * 4))
+@pytest.mark.parametrize('bot_was_killed_flags', tuple(itertools.product(*[(True, False)] * 4)))
 def test_apply_move_resets_bot_was_killed(game_state, bot_to_move, bot_was_killed_flags):
     """ Check that `prepare_bot_state` sees the proper bot_was_killed flag
     and that `apply_move` will reset the flag to False. """
