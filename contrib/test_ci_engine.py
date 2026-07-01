@@ -9,7 +9,7 @@ def db_wrapper():
     return wrapper
 
 def make_simple_gameresult(p1, p2, result):
-    return [p1, p2, result, {'num_timeouts': [0, 0], 'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', '']]
+    return [p1, p2, result, {'fatal_errors': [[], []]}, ['', ''], ['', ''], ['', '']]
 
 """Tests for the DB_Wrapper class."""
 

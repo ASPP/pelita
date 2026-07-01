@@ -435,7 +435,6 @@ def test_bot_attributes():
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)
     # assertions might have been caught in run_game
     # check that all is good
-    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
 def test_bot_graph():
@@ -465,7 +464,6 @@ def test_bot_graph():
     state  = run_game([rough_bot, stopping], max_rounds=1, layout_dict=parse_layout(layout))
     # assertions might have been caught in run_game
     # check that all is good
-    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
 def test_bot_graph_is_half_mutable():
@@ -508,7 +506,6 @@ def test_bot_graph_is_half_mutable():
     state  = run_game([blue, red], max_rounds=2, layout_dict=parse_layout(layout))
     # assertions might have been caught in run_game
     # check that all is good
-    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
     assert "".join(observer) == 'BRbrbrbr'
 
@@ -544,12 +541,10 @@ def test_team_names():
 
     state = play_turn(state)
     # check that player did not fail
-    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
     state = play_turn(state)
     # check that player did not fail
-    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
 
 
@@ -644,7 +639,6 @@ def test_team_time():
     assert check == old_time
 
     # check that player did not fail
-    assert state['timeouts'] == [{}, {}]
     assert state['fatal_errors'] == [[], []]
     assert state['team_time'][0] >= 1.0
     assert state['team_time'][1] >= 2.0
@@ -656,10 +650,10 @@ def test_bot_str_repr(dummy_layout_dict):
         bot_str = str(bot).split('\n')
         if bot.is_blue and bot.round == 1:
             assert bot_str[0] == "local-team (asserting_team) (you) vs local-team (asserting_team)."
-            assert bot_str[1] == f"Playing on blue side. Current turn: {bot.turn}. Bot: {bot.char}. Round: 1, score: 0:0. timeouts: 0:0"
+            assert bot_str[1] == f"Playing on blue side. Current turn: {bot.turn}. Bot: {bot.char}. Round: 1, score: 0:0."
         elif not bot.is_blue and bot.round == 1:
             assert bot_str[0] == "local-team (asserting_team) vs local-team (asserting_team) (you)."
-            assert bot_str[1] == f"Playing on red side. Current turn: {bot.turn}. Bot: {bot.char}. Round: 1, score: 0:0. timeouts: 0:0"
+            assert bot_str[1] == f"Playing on red side. Current turn: {bot.turn}. Bot: {bot.char}. Round: 1, score: 0:0."
         else:
             assert False, "Should never be here."
 
