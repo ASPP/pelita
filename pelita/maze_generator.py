@@ -332,7 +332,39 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # generation, or our algorithm to find chambers would get confused
     # Note: this only works because in the right side of the maze we have no walls
     # except for the surrounding ones.
-    graph = walls_to_graph(walls, shape=(width//2+1, height))
+    graph: nx.Graph = walls_to_graph(walls, shape=(width//2+1, height))
+
+    for _ in range(3):
+        # Fill nodes with 5 or 6 spaces around them with a certain chance
+        inner_nodes = []
+        for node in graph:
+            if len(graph.edges(node)) >= 6:
+                inner_nodes.append(node)
+
+        for node in inner_nodes:
+            if node[0] >= width // 2:
+                continue
+            if len(graph.edges(node)) < 6:
+                continue
+            if rng.random() < 0.8:
+                continue
+            graph.remove_node(node)
+            walls.add(node)
+
+
+    # Fill nodes with all-space around them with a 0.5 chance
+    inner_nodes = []
+    for node in graph:
+        if len(graph.edges(node)) == 7:
+            inner_nodes.append(node)
+
+    for node in inner_nodes:
+        if node[0] >= width // 2:
+            continue
+        if rng.random() < 0.5:
+            continue
+        graph.remove_node(node)
+        walls.add(node)
 
     # the algorithm should actually guarantee this, but just to make sure, let's
     # fail if the graph is not fully connected

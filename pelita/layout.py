@@ -319,12 +319,19 @@ def get_legal_positions(walls, shape, bot_position):
         raise ValueError(f"Position {bot_position} not inside maze ({width}x{height}).")
     if bot_position in walls:
         raise ValueError(f"Position {bot_position} is on a wall.")
+
     north = (0, -1)
     south = (0, 1)
     east = (1, 0)
     west = (-1, 0)
     stop = (0, 0)
-    directions = [north, east, west, south, stop]
+    if bot_position[0] % 2 == 0:
+        # even col
+        directions = [north, east, west, south, stop, (-1, -1), (+1, -1)]
+    else:
+        # odd col
+        directions = [north, east, west, south, stop, (+1, +1), (-1, +1)]
+
     potential_moves = [(i[0] + bot_position[0], i[1] + bot_position[1]) for i in directions]
     possible_moves = [i for i in potential_moves if i not in walls]
     return possible_moves
