@@ -136,13 +136,14 @@ def sample(x, k, rng):
     return result[:k]
 
 
-def identity(a, b):
+def identity(point):
     # identity transformation
-    return a, b
+    return point
 
 
-def transposition(a, b):
+def transposition(point):
     # transposing transformation
+    a, b = point
     return b, a
 
 
@@ -168,48 +169,45 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         # DEFINITIONS
         #
 
-        # A partition with its variables in `u`-`v`-space is described as:
+        # A partition with its variables in `x`-`y`-space and
+        # a vertical wall is described as:
         #
-        # ┌─► u
+        # ┌─► x
         # ▼
-        # v         umin       pos        umax
+        # y         xmin       xpos       xmax
         #
         #            |          |          |
-        #   vmin  ── O──────────O──────────┐
+        #   ymin  ── O──────────O──────────┐
         #            │ pmin     │ wmin     │
         #            │          │          │
+        #  (ypos) ── │          │          │
         #            │          │          │
         #            │          │          │
-        #            │          │          │
-        #   vmax  ── └──────────O──────────O
+        #   ymax  ── └──────────O──────────O
         #                         wmax       pmax
-        #
-        #
-        # Note: the inner wall is always oriented in `v`-direction.
         #
         #
         # Partition framing points are defined as:
         #
-        # pmin = (umin, vmin)
-        # pmax = (umax, vmax)
+        # pmin = (xmin, ymin)
+        # pmax = (xmax, ymax)
         #
         #
         # Wall start and end points are defined as:
         #
-        # wmin = (pos, vmin)
-        # wmax = (pos, vmax)
+        # wmin = (xpos, ymin)  # or (xmin, ypos) if horizontal
+        # wmax = (xpos, ymax)  # or (xmax, ypos) if horizontal
 
         # get the next partition
         pmin, pmax, ngaps, vertical = partitions.pop()
-        xmin, ymin = pmin
-        xmax, ymax = pmax
 
         # if vertical, preserve the coordinates, else transpose them
         transform = identity if vertical else transposition
 
         # map `x`-`y`-coordinates into `u`-`v`-space where the inner wall is
         # always oriented in `v`-direction
-        (umin, umax), (vmin, vmax) = transform((xmin, xmax), (ymin, ymax))
+        (umin, vmin) = transform(pmin)
+        (umax, vmax) = transform(pmax)
 
         # the size of the maze partition we work on in `u`-`v`-space
         ulen = umax - umin + 1
@@ -229,18 +227,18 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         #
 
         # choose a coordinate within the partition length in `u`-direction
-        pos = rng.randint(umin + PADDING, umax - PADDING)
+        upos = rng.randint(umin + PADDING, umax - PADDING)
 
         # define start and end of the inner wall in `x`-`y`-space
-        wmin = transform(pos, vmin)
-        wmax = transform(pos, vmax)
+        wmin = transform((upos, vmin))
+        wmax = transform((upos, vmax))
 
         # set start and end for the wall slice dependent on present entrances
         above = 1 if wmin in walls else 2
         below = 1 if wmax in walls else 2
 
         # sliced continuous wall in `x`-`y`-space
-        wall = {transform(pos, v) for v in range(vmin + above, vmax - below + 1)}
+        wall = {transform((upos, v)) for v in range(vmin + above, vmax - below + 1)}
         # sample gap coordinates along the wall, i.e in `v`-direction
         #
         # TODO: 
@@ -251,7 +249,7 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         gaps = sample(gaps, ngaps, rng)
 
         # combine gap coordinates to wall gaps in `x`-`y`-space
-        sampled = {transform(pos, v) for v in gaps}
+        sampled = {transform((upos, v)) for v in gaps}
 
         # remove sampled gaps from the wall
         wall -= sampled
