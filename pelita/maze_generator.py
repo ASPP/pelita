@@ -185,7 +185,7 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         #                         wmax       pmax
         #
         #
-        # Note: the inner wall is always vertical.
+        # Note: the inner wall is always oriented in `v`-direction.
         #
         #
         # Partition framing points are defined as:
@@ -208,7 +208,7 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         transform = identity if vertical else transposition
 
         # map `x`-`y`-coordinates into `u`-`v`-space where the inner wall is
-        # always vertical
+        # always oriented in `v`-direction
         (umin, umax), (vmin, vmax) = transform((xmin, xmax), (ymin, ymax))
 
         # the size of the maze partition we work on in `u`-`v`-space
