@@ -39,18 +39,29 @@ import networkx as nx
 from .base_utils import default_rng
 from .team import walls_to_graph
 
+# constants in `u`-`v`-space including walls
+#
+# minimum splittable partition width
+MIN_SPLITTABLE_WIDTH = 5
+#
+# minimum splittable partition height
+MIN_SPLITTABLE_HEIGHT = 5
+#
+# hard size limit of the partition width
+MIN_WIDTH = 2
+#
+# variation in partition width
+WIDTH_VARIATION = 2
 
-# minimum partition width
-MIN_WIDTH = 5
 
-# minimum partition height
-MIN_HEIGHT = 5
-
-# partition padding for wall position sampling
-PADDING = 2
-
-# variation in maze size
-VARIATION = 2
+if MIN_SPLITTABLE_WIDTH <= 2 * MIN_WIDTH:
+    # otherwise the binary space partitioning would fail with
+    # a cryptic error message
+    raise ValueError((
+        f"'MIN_SPLITTABLE_WIDTH' ({MIN_SPLITTABLE_WIDTH}) needs to be "
+        f"more than two times 'MIN_WIDTH' ({MIN_WIDTH}) for the "
+        "binary space partitioning to work properly"
+    ))
 
 
 def rotate_180(nodes, width, height):
@@ -214,12 +225,15 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         vlen = vmax - vmin + 1
 
         # if the partition is too small, move on with the next one
-        if ulen < MIN_WIDTH and vlen < MIN_HEIGHT:
+        if ulen < MIN_SPLITTABLE_WIDTH and vlen < MIN_SPLITTABLE_HEIGHT:
             continue
 
         # insert a wall only if there is some space around it in the
         # orthogonal `u`-direction, otherwise move on with the next partition
-        if ulen < rng.randint(MIN_WIDTH, MIN_WIDTH + VARIATION):
+        if ulen < rng.randint(
+            MIN_SPLITTABLE_WIDTH,
+            MIN_SPLITTABLE_WIDTH + WIDTH_VARIATION
+        ):
             continue
 
         #
@@ -227,7 +241,7 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         #
 
         # choose a coordinate within the partition length in `u`-direction
-        upos = rng.randint(umin + PADDING, umax - PADDING)
+        upos = rng.randint(umin + MIN_WIDTH, umax - MIN_WIDTH)
 
         # define start and end of the inner wall in `x`-`y`-space
         wmin = transform((upos, vmin))
