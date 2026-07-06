@@ -305,9 +305,14 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # generate a wall with gaps at the border between the two homezones
     # in the left side of the maze
 
+    # border position on the `x`-axis
+    x_border = width // 2 - 1
+
+    # maximum number of sampled border gaps on the `y`-axis
+    y_border = (height - 2) // 2
+
     # start with a full wall at the left side of the border
-    pos = width // 2 - 1
-    border = {(pos, y) for y in range(1, height - 1)}
+    border = {(x_border, y) for y in range(1, height - 1)}
 
     # possible locations for gaps;
     # these gaps need to be symmetric around the center
@@ -315,8 +320,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # TODO:
     # when we drop compatibility with numpy mazes, this might be rewritten to
     # sample wall segments to keep with k = len(wall) - ngaps
-    ymax = (height - 2) // 2
-    candidates = list(range(ymax))
+    candidates = list(range(y_border))
     candidates = sample(candidates, ngaps_center//2, rng)
 
     # save gaps and edges for chamber finding
@@ -325,8 +329,8 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
 
     # remove gaps from top and mirrored from bottom
     for y in candidates:
-        upper = (pos, y + 1)
-        lower = (pos, height - 2 - y)
+        upper = (x_border, y + 1)
+        lower = (x_border, height - 2 - y)
 
         # add both gaps
         gaps.add(upper)
@@ -347,7 +351,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
 
     # define the left homezone as the first partition to split
     pmin = (0, 0)
-    pmax = (pos, height - 1)
+    pmax = (x_border, height - 1)
 
     # run the binary space partitioning
     walls = add_inner_walls(
