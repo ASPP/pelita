@@ -49,6 +49,9 @@ MIN_HEIGHT = 5
 # partition padding for wall position sampling
 PADDING = 2
 
+# variation in maze size
+VARIATION = 2
+
 
 def rotate_180(nodes, width, height):
     # rotate left side nodes by 180° around the center of the full maze
@@ -222,7 +225,7 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
 
         # insert a wall only if there is some space around it in the
         # orthogonal `u`-direction, otherwise move on with the next partition
-        if ulen < rng.randint(MIN_WIDTH, MIN_WIDTH + 2):
+        if ulen < rng.randint(MIN_WIDTH, MIN_WIDTH + VARIATION):
             continue
 
         #
