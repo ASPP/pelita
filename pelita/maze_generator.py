@@ -78,7 +78,7 @@ def sample_nodes(nodes, k, rng=None):
         return nodes
 
 
-def find_trapped_tiles(graph, gaps):
+def find_chamber_tiles(graph, gaps):
     # find all tiles which are inside a trap, i.e. inside a
     # subgraph which has only one tile - the articulation point -
     # in common with the rest of the chamber
@@ -436,7 +436,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
     # with a dead-end or a section of tiles fully enclosed by walls except for a single
     # tile entrance
-    chamber_tiles = find_trapped_tiles(graph, gaps)
+    chamber_tiles = find_chamber_tiles(graph, gaps)
 
     # distribute food on the half maze with excluded border gaps and
     # pacmen positions

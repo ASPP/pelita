@@ -12,7 +12,7 @@ SEED = 103525239
 
 def get_chambers(graph, chamber_tiles):
     # the `graph` argument needs to be the one passed to
-    # `find_trapped_tiles` having itself returned the `chamber_tiles`
+    # `find_chamber_tiles` having itself returned the `chamber_tiles`
     subgraphs = graph.subgraph(chamber_tiles)
     return list(nx.connected_components(subgraphs))
 
@@ -74,7 +74,7 @@ def test_generate_maze_stability_odd():
     old_layout = pl.parse_layout(maze_103525239_odd)
     assert old_layout == new_layout
 
-def test_find_trapped_tiles():
+def test_find_chamber_tiles():
     # This maze has one single chamber
     one_chamber = """############
                      #   #      #
@@ -85,7 +85,7 @@ def test_find_trapped_tiles():
                      ############"""
 
     graph, gaps = layout_str_to_graph(one_chamber)
-    one_chamber_tiles = mg.find_trapped_tiles(graph, gaps)
+    one_chamber_tiles = mg.find_chamber_tiles(graph, gaps)
     chambers = get_chambers(graph, one_chamber_tiles)
 
     assert len(chambers) == 1
@@ -104,7 +104,7 @@ def test_find_trapped_tiles():
                       ############"""
 
     graph, gaps = layout_str_to_graph(two_chambers)
-    two_chambers_tiles = mg.find_trapped_tiles(graph, gaps)
+    two_chambers_tiles = mg.find_chamber_tiles(graph, gaps)
     chambers = get_chambers(graph, two_chambers_tiles)
 
     assert len(chambers) == 2
@@ -114,7 +114,7 @@ def test_find_trapped_tiles():
     assert two_chambers_tiles == tiles_1 | tiles_2
 
 def test_find_chambers_in_half_maze():
-    # view of the half maze as it would be seen by `find_trapped_tiles`;
+    # view of the half maze as it would be seen by `find_chamber_tiles`;
     # food pellets (dots) mark the chamber tiles
     maze = """################
               #...           #
@@ -140,7 +140,7 @@ def test_find_chambers_in_half_maze():
     graph.remove_nodes_from(node for node in list(graph.nodes) if node[0] >= width // 2)
     sgaps = sorted(gaps)
     graph.add_edges_from(zip(sgaps[:len(gaps)//2], sgaps[::-1][:len(gaps)//2]))
-    chamber_tiles = mg.find_trapped_tiles(graph, gaps)
+    chamber_tiles = mg.find_chamber_tiles(graph, gaps)
     assert chamber_tiles == expected_chamber_tiles
 
     # for completeness: specifically these tiles are not in a chamber
@@ -158,7 +158,7 @@ def test_distribute_food():
 
     graph, gaps = layout_str_to_graph(maze_chamber)
     all_tiles = set(graph.nodes)
-    chamber_tiles = mg.find_trapped_tiles(graph, gaps)
+    chamber_tiles = mg.find_chamber_tiles(graph, gaps)
 
     # expected exceptions
     with pytest.raises(ValueError):
