@@ -234,7 +234,7 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
             continue
 
         #
-        # WALL SAMPLING
+        # WALL CREATION
         #
 
         # choose a coordinate within the partition length in `u`-direction
@@ -269,7 +269,7 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         walls |= wall
 
         #
-        # SPLITTING
+        # PARTITIONING
         #
 
         # we split the partition in 2, so we divide the number of gaps by 2;
@@ -307,8 +307,9 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     )
 
     #
-    # BORDER SAMPLING
+    # BORDER CREATION
     #
+
     # generate a wall with gaps at the border between the two homezones
     # in the left side of the maze
 
