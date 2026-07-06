@@ -78,7 +78,7 @@ def sample_nodes(nodes, k, rng=None):
         return nodes
 
 
-def find_chamber_tiles(graph, gaps):
+def find_chamber_tiles(graph, border_gaps):
     # find all tiles which are inside a trap, i.e. inside a
     # subgraph which has only one tile - the articulation point -
     # in common with the rest of the chamber
@@ -86,7 +86,7 @@ def find_chamber_tiles(graph, gaps):
     chamber_tiles = set()
 
     for chamber in nx.biconnected_components(graph):
-        if (chamber & gaps):
+        if (chamber & border_gaps):
             # main chambers intersect with border gaps
             main_chamber.update(chamber)
         else:
