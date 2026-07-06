@@ -164,9 +164,6 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
     # ensure a connected maze by a minimum of 1 sampled gap
     ngaps = max(1, ngaps)
 
-    # copy framing walls to avoid side effects
-    walls = walls.copy()
-
     # store partitions in an expanding list alongside the number of gaps and
     # the orientation of the wall
     partitions = [(pmin, pmax, ngaps, vertical)]
@@ -294,8 +291,6 @@ def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
         # when we drop compatibility with numpy mazes, remove inversion
         partitions.extend(new[::-1])
 
-    return walls
-
 
 def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # use binary space partitioning
@@ -366,7 +361,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     pmax = (x_border, height - 1)
 
     # run the binary space partitioning
-    walls = add_inner_walls(
+    add_inner_walls(
         pmin,
         pmax,
         walls,
