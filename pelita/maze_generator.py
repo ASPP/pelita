@@ -67,7 +67,10 @@ def sample_nodes(nodes, k, rng=None):
         return nodes
 
 
-def find_trapped_tiles(graph, gaps, include_chambers=False):
+def find_trapped_tiles(graph, gaps):
+    # find all tiles which are inside a trap, i.e. inside a
+    # subgraph which has only one tile - the articulation point -
+    # in common with the rest of the chamber
     main_chamber = set()
     chamber_tiles = set()
 
@@ -81,13 +84,6 @@ def find_trapped_tiles(graph, gaps, include_chambers=False):
 
     # remove shared articulation points with the main chamber
     chamber_tiles -= main_chamber
-
-    # combine connected subgraphs
-    if include_chambers:
-        subgraphs = graph.subgraph(chamber_tiles)
-        chambers = list(nx.connected_components(subgraphs))
-
-        return chamber_tiles, chambers
 
     return chamber_tiles
 

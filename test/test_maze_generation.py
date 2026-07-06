@@ -1,5 +1,6 @@
 from random import Random
 
+import networkx as nx
 import pytest
 
 import pelita.layout as pl
@@ -7,6 +8,14 @@ import pelita.maze_generator as mg
 import pelita.team as pt
 
 SEED = 103525239
+
+
+def get_chambers(graph, chamber_tiles):
+    # the `graph` argument needs to be the one passed to
+    # `find_trapped_tiles` having itself returned the `chamber_tiles`
+    subgraphs = graph.subgraph(chamber_tiles)
+    return list(nx.connected_components(subgraphs))
+
 
 def layout_str_to_graph(l_str):
     l_dict = pl.parse_layout(l_str, strict=False)
@@ -76,8 +85,11 @@ def test_find_trapped_tiles():
                      ############"""
 
     graph, gaps = layout_str_to_graph(one_chamber)
-    one_chamber_tiles, chambers = mg.find_trapped_tiles(graph, gaps, include_chambers=True)
+    one_chamber_tiles = mg.find_trapped_tiles(graph, gaps)
+    chambers = get_chambers(graph, one_chamber_tiles)
+
     assert len(chambers) == 1
+
     tiles_1 = {(1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (3, 1), (3, 2)}
     assert one_chamber_tiles == tiles_1
 
@@ -90,9 +102,13 @@ def test_find_trapped_tiles():
                       #      #   #
                       #      #   #
                       ############"""
+
     graph, gaps = layout_str_to_graph(two_chambers)
-    two_chambers_tiles, chambers = mg.find_trapped_tiles(graph, gaps, include_chambers=True)
+    two_chambers_tiles = mg.find_trapped_tiles(graph, gaps)
+    chambers = get_chambers(graph, two_chambers_tiles)
+
     assert len(chambers) == 2
+
     tiles_2 = {(8,3), (8,4), (8,5), (8,6), (8,7), (9,4), (9,5),
                (9,6), (9,7), (10, 4), (10,5), (10,6), (10, 7) }
     assert two_chambers_tiles == tiles_1 | tiles_2
