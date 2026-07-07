@@ -133,20 +133,6 @@ def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None
     return tf_pos | ff_pos | leftover_food_pos
 
 
-def sample(x, k, rng):
-    # temporary replacement wrapper for `rng.shuffle` conformant with
-    # the `random.sample` API (minus the `count` parameter)
-
-    # copy population
-    result = x.copy()
-
-    # shuffle all items
-    rng.shuffle(result)
-
-    # return the first `k` results
-    return result[:k]
-
-
 def identity(point):
     # identity transformation
     return point
@@ -248,25 +234,14 @@ def add_inner_walls(walls, pmin, pmax, ngaps, vertical, rng=None):
         above = 1 if wmin in walls else 2
         below = 1 if wmax in walls else 2
 
-        # sliced continuous wall in `x`-`y`-space
-        wall = {transform((upos, v)) for v in range(vmin + above, vmax - below + 1)}
-        # sample gap coordinates along the wall, i.e in `v`-direction
-        #
-        # TODO: 
-        # when we drop compatibility with numpy mazes, the range of sampled
-        # gaps can be adjusted to remove them directly from the full wall
-        # OR we sample the wall segments to keep with k = len(wall) - ngaps
-        gaps = list(range(vmin + 1, vmax))
-        gaps = sample(gaps, ngaps, rng)
+        # sample inner wall tiles in `x`-`y`-space including the end index;
+        # ensure a connected graph by always subtracting `ngaps` from
+        # number of candidates
+        candidates = list(range(vmin + above, vmax - below + 1))
+        sampled = rng.sample(candidates, k=max(0, len(candidates) - ngaps))
 
-        # combine gap coordinates to wall gaps in `x`-`y`-space
-        sampled = {transform((upos, v)) for v in gaps}
-
-        # remove sampled gaps from the wall
-        wall -= sampled
-
-        # collect this wall into the global wall set
-        walls |= wall
+        # add the inner wall tiles to the global wall set
+        walls |= set(transform((upos, v)) for v in sampled)
 
         #
         # PARTITIONING
@@ -286,10 +261,7 @@ def add_inner_walls(walls, pmin, pmax, ngaps, vertical, rng=None):
         )
 
         # queue the new partitions next
-        #
-        # TODO:
-        # when we drop compatibility with numpy mazes, remove inversion
-        partitions.extend(new[::-1])
+        partitions.extend(new)
 
 
 def generate_half_maze(trapped_food, total_food, width, height, rng=None):
@@ -338,12 +310,8 @@ def generate_half_maze(trapped_food, total_food, width, height, rng=None):
 
     # possible locations for gaps;
     # these gaps need to be symmetric around the center
-    #
-    # TODO:
-    # when we drop compatibility with numpy mazes, this might be rewritten to
-    # sample wall segments to keep with k = len(wall) - ngaps
     candidates = list(range(y_border))
-    candidates = sample(candidates, ngaps, rng)
+    candidates = rng.sample(candidates, k=ngaps)
 
     # save gaps and bridges for chamber finding
     border_gaps = set()
@@ -392,6 +360,11 @@ def generate_half_maze(trapped_food, total_food, width, height, rng=None):
     # see the `FOOD` section below for application
     graph = walls_to_graph(walls, shape=(width // 2, height))
 
+    # the algorithm should actually guarantee this, but just to make sure, let's
+    # fail if the graph is not fully connected
+    if not nx.is_connected(graph):
+        raise ValueError("Generated maze is not fully connected, try a different random seed")
+
     # emulate the presence of the right maze side by wiring up
     # pairs of left border gaps, i.e. "bridges" from the
     # `BORDER WALLS, GAPS AND BRIDGES` section above,
@@ -416,11 +389,6 @@ def generate_half_maze(trapped_food, total_food, width, height, rng=None):
     # requirement: border gaps are sampled centrosymmetric with always a
     # wall segment in the middle on odd heights
     graph.add_edges_from(border_bridges)
-
-    # the algorithm should actually guarantee this, but just to make sure, let's
-    # fail if the graph is not fully connected
-    if not nx.is_connected(graph):
-        raise ValueError("Generated maze is not fully connected, try a different random seed")
 
     #
     # FOOD
