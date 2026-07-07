@@ -441,8 +441,9 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
 
     # get the full maze with all walls and food by rotating the left half
-    food |= rotate_180(food, width, height)
     walls |= rotate_180(walls, width, height)
+    food |= rotate_180(food, width, height)
+
     layout = { "walls" : tuple(sorted(walls)),
                "food"  : sorted(food),
                "bots"  : [ (1, height - 3), (width - 2, 2),
