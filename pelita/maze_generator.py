@@ -69,15 +69,6 @@ def rotate_180(nodes, width, height):
     return set((width - 1 - x, height - 1 - y) for x, y in nodes)
 
 
-def sample_nodes(nodes, k, rng=None):
-    rng = default_rng(rng)
-
-    if k < len(nodes):
-        return set(rng.sample(sorted(nodes), k=k))
-    else:
-        return nodes
-
-
 def find_chamber_tiles(graph, border_gaps):
     # find all tiles which are inside a trap, i.e. inside a
     # subgraph which has only one tile - the articulation point -
@@ -97,6 +88,16 @@ def find_chamber_tiles(graph, border_gaps):
     chamber_tiles -= main_chamber
 
     return chamber_tiles
+
+
+def sample_nodes(nodes, k, rng=None):
+    # sample nodes where `k` might be larger than the number of nodes
+    rng = default_rng(rng)
+
+    if k < len(nodes):
+        return set(rng.sample(sorted(nodes), k=k))
+    else:
+        return nodes
 
 
 def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None):
