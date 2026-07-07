@@ -292,9 +292,12 @@ def add_inner_walls(walls, pmin, pmax, ngaps, vertical, rng=None):
         partitions.extend(new[::-1])
 
 
-def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
+def generate_half_maze(width, height, bots_pos, rng=None):
     # use binary space partitioning
     rng = default_rng(rng)
+
+    # starting number of gaps for border and first inner partition wall
+    ngaps = height // 4
 
     # outer walls except the border
     walls = (
@@ -329,7 +332,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
     # when we drop compatibility with numpy mazes, this might be rewritten to
     # sample wall segments to keep with k = len(wall) - ngaps
     candidates = list(range(y_border))
-    candidates = sample(candidates, ngaps_center//2, rng)
+    candidates = sample(candidates, ngaps, rng)
 
     # save gaps and edges for chamber finding
     gaps = set()
@@ -366,7 +369,7 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
         walls,
         pmin,
         pmax,
-        ngaps_center // 2,
+        ngaps,
         vertical=False,
         rng=rng,
     )
@@ -397,7 +400,7 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     pacmen_pos = {(1, height - 3), (1, height - 2)}
 
     # generate a half maze with half of the border being gaps
-    walls, gaps, edges = generate_half_maze(width, height, height // 2, pacmen_pos, rng=rng)
+    walls, gaps, edges = generate_half_maze(width, height, pacmen_pos, rng=rng)
 
     # create a graph representing connections between free tiles
     graph = walls_to_graph(walls, shape=(width // 2, height))
