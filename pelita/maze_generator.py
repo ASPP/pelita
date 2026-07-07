@@ -158,7 +158,7 @@ def transposition(point):
     return b, a
 
 
-def add_inner_walls(pmin, pmax, walls, ngaps, vertical, rng=None):
+def add_inner_walls(walls, pmin, pmax, ngaps, vertical, rng=None):
     rng = default_rng(rng)
 
     # ensure a connected maze by a minimum of 1 sampled gap
@@ -363,9 +363,9 @@ def generate_half_maze(width, height, ngaps_center, bots_pos, rng=None):
 
     # run the binary space partitioning
     add_inner_walls(
+        walls,
         pmin,
         pmax,
-        walls,
         ngaps_center // 2,
         vertical=False,
         rng=rng,
