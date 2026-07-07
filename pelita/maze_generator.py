@@ -234,7 +234,7 @@ def add_inner_walls(walls, pmin, pmax, ngaps, vertical, rng=None):
             continue
 
         #
-        # WALL CREATION
+        # INNER WALL
         #
 
         # choose a coordinate within the partition length in `u`-direction
@@ -292,12 +292,23 @@ def add_inner_walls(walls, pmin, pmax, ngaps, vertical, rng=None):
         partitions.extend(new[::-1])
 
 
-def generate_half_maze(width, height, bots_pos, rng=None):
+def generate_half_maze(trapped_food, total_food, width, height, rng=None):
+    #
+    # CONSTANTS
+    #
+
     # use binary space partitioning
     rng = default_rng(rng)
 
+    # define pacmen positions
+    pacmen_pos = {(1, height - 3), (1, height - 2)}
+
     # starting number of gaps for border and first inner partition wall
     ngaps = height // 4
+
+    #
+    # OUTER WALLS
+    #
 
     # outer walls except the border
     walls = (
@@ -310,11 +321,11 @@ def generate_half_maze(width, height, bots_pos, rng=None):
     )
 
     #
-    # BORDER CREATION
+    # BORDER WALLS, GAPS and BRIDGES
     #
 
     # generate a wall with gaps at the border between the two homezones
-    # in the left side of the maze
+    # on the left side of the maze
 
     # border position on the `x`-axis
     x_border = width // 2 - 1
@@ -323,7 +334,7 @@ def generate_half_maze(width, height, bots_pos, rng=None):
     y_border = (height - 2) // 2
 
     # start with a full wall at the left side of the border
-    border = {(x_border, y) for y in range(1, height - 1)}
+    border_walls = {(x_border, y) for y in range(1, height - 1)}
 
     # possible locations for gaps;
     # these gaps need to be symmetric around the center
@@ -334,30 +345,32 @@ def generate_half_maze(width, height, bots_pos, rng=None):
     candidates = list(range(y_border))
     candidates = sample(candidates, ngaps, rng)
 
-    # save gaps and edges for chamber finding
-    gaps = set()
-    edges = set()
+    # save gaps and bridges for chamber finding
+    border_gaps = set()
+    border_bridges = set()
 
-    # remove gaps from top and mirrored from bottom
+    # collect gaps from top and mirrored from bottom as well as bridges
     for y in candidates:
         upper = (x_border, y + 1)
         lower = (x_border, height - 2 - y)
 
         # add both gaps
-        gaps.add(upper)
-        gaps.add(lower)
+        border_gaps.add(upper)
+        border_gaps.add(lower)
 
-        # edges between those gaps which would be connected after mirroring
-        edges.add((upper, lower))
+        # collect bridges between those gaps which would be connected
+        # after rotating the left onto the right maze half;
+        # see the `GRAPH` section below for application
+        border_bridges.add((upper, lower))
 
     # remove gaps from border
-    border -= gaps
+    border_walls -= border_gaps
 
     # collect the border into the global wall set
-    walls |= border
+    walls |= border_walls
 
     #
-    # BINARY SPACE PARTITIONING
+    # INNER WALLS
     #
 
     # define the left homezone as the first partition to split
@@ -365,19 +378,68 @@ def generate_half_maze(width, height, bots_pos, rng=None):
     pmax = (x_border, height - 1)
 
     # run the binary space partitioning
-    add_inner_walls(
-        walls,
-        pmin,
-        pmax,
-        ngaps,
-        vertical=False,
-        rng=rng,
-    )
+    add_inner_walls(walls, pmin, pmax, ngaps, vertical=False, rng=rng)
 
     # make space for the pacmen
-    walls -= bots_pos
+    walls -= pacmen_pos
 
-    return walls, gaps, edges
+    #
+    # GRAPH
+    #
+
+    # create a graph representing connections between free tiles;
+    # used for detecting chambers and food distribution;
+    # see the `FOOD` section below for application
+    graph = walls_to_graph(walls, shape=(width // 2, height))
+
+    # emulate the presence of the right maze side by wiring up
+    # pairs of left border gaps, i.e. "bridges" from the
+    # `BORDER WALLS, GAPS AND BRIDGES` section above,
+    # which would be connected after mirroring:
+    #
+    #   ############
+    #   #           ───┐
+    #   #          #   │
+    #   #           ──┐│
+    #   #          #  ││
+    #   #           ─┐││
+    #   #           ─┘││
+    #   #          #  ││
+    #   #           ──┘│
+    #   #          #   │
+    #   #           ───┘
+    #   ############
+    #
+    # motivation: mitigate border gaps being detected as individual chambers,
+    # which would make it impossible to detect the main chamber
+    #
+    # requirement: border gaps are sampled centrosymmetric with always a
+    # wall segment in the middle on odd heights
+    graph.add_edges_from(border_bridges)
+
+    # the algorithm should actually guarantee this, but just to make sure, let's
+    # fail if the graph is not fully connected
+    if not nx.is_connected(graph):
+        raise ValueError("Generated maze is not fully connected, try a different random seed")
+
+    #
+    # FOOD
+    #
+
+    # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
+    # with a dead-end or a section of tiles fully enclosed by walls except for a single
+    # tile entrance
+    chamber_tiles = find_chamber_tiles(graph, border_gaps)
+
+    # distribute food on the half maze with excluded border gaps and
+    # pacmen positions
+    chamber_tiles -= pacmen_pos
+    free_tiles = graph.nodes - border_gaps - pacmen_pos
+
+    food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
+
+
+    return walls, food
 
 
 def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None):
@@ -396,57 +458,14 @@ def generate_maze(trapped_food=10, total_food=30, width=32, height=16, rng=None)
     # this allows us to cut the execution time in two, because the following
     # graph operations are quite expensive
 
-    # define pacmen positions
-    pacmen_pos = {(1, height - 3), (1, height - 2)}
-
-    # generate a half maze with half of the border being gaps
-    walls, gaps, edges = generate_half_maze(width, height, pacmen_pos, rng=rng)
-
-    # create a graph representing connections between free tiles
-    graph = walls_to_graph(walls, shape=(width // 2, height))
-
-    # emulate the right maze side by wiring up pairs of left border gaps which
-    # would be connected after mirroring:
-    #
-    #   ############
-    #   #           ───┐
-    #   #          #   │
-    #   #           ──┐│
-    #   #          #  ││
-    #   #           ─┐││
-    #   #           ─┘││
-    #   #          #  ││
-    #   #           ──┘│
-    #   #          #   │
-    #   #           ───┘
-    #   ############
-    #
-    # motivation: mitigate border gaps being detected as individual chambers,
-    # which would make it impossible to detect the main chamber
-    # assumption: border gaps are sampled centrosymmetric with always a
-    # wall segment in the middle on odd heights
-    graph.add_edges_from(edges)
-
-    # the algorithm should actually guarantee this, but just to make sure, let's
-    # fail if the graph is not fully connected
-    if not nx.is_connected(graph):
-        raise ValueError("Generated maze is not fully connected, try a different random seed")
-
-    # this gives us a set of tiles that are "trapped" within chambers, i.e. tunnels
-    # with a dead-end or a section of tiles fully enclosed by walls except for a single
-    # tile entrance
-    chamber_tiles = find_chamber_tiles(graph, gaps)
-
-    # distribute food on the half maze with excluded border gaps and
-    # pacmen positions
-    chamber_tiles -= pacmen_pos
-    free_tiles = graph.nodes - gaps - pacmen_pos
-    food = distribute_food(free_tiles, chamber_tiles, trapped_food, total_food, rng=rng)
+    # generate the left half of a maze with half of the border being gaps
+    walls, food = generate_half_maze(trapped_food, total_food, width, height, rng=rng)
 
     # get the full maze with all walls and food by rotating the left half
     walls |= rotate_180(walls, width, height)
     food |= rotate_180(food, width, height)
 
+    # create a maze layout
     layout = { "walls" : tuple(sorted(walls)),
                "food"  : sorted(food),
                "bots"  : [ (1, height - 3), (width - 2, 2),
