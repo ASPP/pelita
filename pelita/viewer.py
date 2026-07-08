@@ -60,7 +60,6 @@ class ProgressViewer:
             del state['food']
 
             self.progress.stop()
-            self.progress.console.clear_live()
 
             print()
             print(f"Final state: {state}")
