@@ -867,12 +867,11 @@ class TkApplication:
                     err_desc = game_state['fatal_errors'][team_idx][0]['description']
                     ret = f"FATAL: {err_type} {err_desc}"
                 else:
-                    # sum the deaths of both bots in this team
-                    deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
+                    # sum the counters of both bots in this team
                     kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
                     food_eaten = game_state['food_eaten'][team_idx] + game_state['food_eaten'][team_idx+2]
                     team_time = game_state["team_time"][team_idx]
-                    ret = f"Food eaten: {food_eaten}, Kills: {kills}, Deaths: {deaths}, Time: {team_time:.2f}"
+                    ret = f"Food: {food_eaten}, Kills: {kills}, Time: {team_time:.2f}"
                 return ret
             except TypeError:
                 return ""
