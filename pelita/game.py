@@ -124,7 +124,7 @@ def controller_await(state, await_action='play_step'):
             return False
 
 def run_game(team_specs, *, layout_dict, max_rounds=300,
-             rng=None, allow_camping=False, error_limit=5, timeout_length=TIMEOUT_SECS,
+             rng=None, allow_camping=False, timeout_length=TIMEOUT_SECS,
              initial_timeout_length=INITIAL_TIMEOUT_SECS,
              viewers=None, store_output=False,
              team_names=(None, None), team_infos=(None, None),
@@ -156,17 +156,10 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
     rng : random.Random | int | None
         random number generator or a seed used to initialize a new one.
 
-    error_limit : int
-                   The limit of non fatal errors to reach for a team before the
-                   game is over and the team is disqualified. Non fatal errors are
-                   timeouts and returning an illegal move. Fatal errors are raising
-                   Exceptions. An error_limit of 0 will disable the limit.
-                   Default: 5.
-
     timeout_length : int or float
                   Time in seconds to wait for the move function (or for the remote
                   client) to return. After timeout_length seconds are elapsed a
-                  non-fatal error is recorded for the team.
+                  fatal error is recorded for the team.
 
     initial_timeout_length : int or float
             Time in seconds to wait for a remote player to have started
@@ -229,7 +222,7 @@ def run_game(team_specs, *, layout_dict, max_rounds=300,
     # we create the initial game state
     state = setup_game(team_specs, layout_dict=layout_dict, max_rounds=max_rounds,
                        allow_camping=allow_camping,
-                       error_limit=error_limit, timeout_length=timeout_length,
+                       timeout_length=timeout_length,
                        initial_timeout_length=initial_timeout_length,
                        rng=rng, viewers=viewers,
                        store_output=store_output, team_names=team_names,
@@ -304,7 +297,7 @@ def setup_viewers(viewers, print_result=True):
 
 
 def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
-               allow_camping=False, error_limit=5, timeout_length=TIMEOUT_SECS, initial_timeout_length=INITIAL_TIMEOUT_SECS,
+               allow_camping=False, timeout_length=TIMEOUT_SECS, initial_timeout_length=INITIAL_TIMEOUT_SECS,
                viewers=None, store_output=False,
                team_names=(None, None), team_infos=(None, None),
                raise_bot_exceptions=False, print_result=True):
@@ -394,9 +387,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         #: Fatal errors
         fatal_errors=[[], []],
 
-        #: Number of timeouts for a team
-        timeouts=[{}, {}],
-
         ### Configuration
         #: Maximum number of rounds, int
         max_rounds=max_rounds,
@@ -468,9 +458,6 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
 
         #: Random number generator
         rng=rng,
-
-        #: Error limit. A team loses when the limit is reached, int
-        error_limit=error_limit,
 
         #: Viewers, list
         viewers=viewer_state['viewers'],
@@ -626,8 +613,6 @@ def send_initial(game_state, raise_bot_exceptions=False):
 
 
 def request_new_position(game_state):
-    round = game_state['round']
-    turn = game_state['turn']
     team_idx = game_state['turn'] % 2
     _bot_turn = game_state['turn'] // 2
     team = game_state['teams'][team_idx]
@@ -651,28 +636,11 @@ def request_new_position(game_state):
         }
 
     except RemotePlayerRecvTimeout:
-        if game_state['error_limit'] != 0 and len(game_state['timeouts'][team_idx]) + 1 >= game_state['error_limit']:
-            # We had too many timeouts already. Trigger a fatal_error.
-            # If error_limit is 0, the game will go on.
+            # Trigger a fatal_error.
             bot_reply = {
-                'error': 'Timeout error',
-                'error_msg': 'Too many timeouts'
+                'error': 'TimeoutError',
+                'error_msg': 'Timeout error'
             }
-        else:
-            # There was a timeout. Execute a random move
-            legal_positions = get_legal_positions(game_state["walls"], game_state["shape"],
-                                                game_state["bots"][game_state["turn"]])
-            req_position = game_state['rng'].choice(legal_positions)
-            game_print(turn, f"Player timeout. Setting a legal position at random: {req_position}")
-
-            bot_reply = {
-                'move': req_position
-            }
-            timeout_event = {
-                'type': 'timeout',
-                'description': f"Player timeout. Setting a legal position at random: {req_position}"
-            }
-            game_state['timeouts'][team_idx][(round, turn)] = timeout_event
 
 
     duration = time.monotonic() - start_time
@@ -736,7 +704,6 @@ def prepare_bot_state(game_state, team_idx=None):
         'kills': game_state['kills'][own_team::2],
         'deaths': game_state['deaths'][own_team::2],
         'bot_was_killed': game_state['bot_was_killed'][own_team::2],
-        'num_timeouts': len(game_state['timeouts'][own_team]),
         'food': list(game_state['food'][own_team]),
         'shaded_food': shaded_food,
         'name': game_state['team_names'][own_team],
@@ -751,7 +718,6 @@ def prepare_bot_state(game_state, team_idx=None):
         'kills': game_state['kills'][enemy_team::2],
         'deaths': game_state['deaths'][enemy_team::2],
         'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
-        'num_timeouts': 0, # TODO. Could be left out for the enemy
         'food': list(game_state['food'][enemy_team]),
         'shaded_food': [],
         'name': game_state['team_names'][enemy_team],
@@ -806,26 +772,6 @@ def prepare_viewer_state(game_state):
     viewer_state['food_age'] = [item for team_food_age in viewer_state['food_age']
                                           for item in team_food_age.items()]
 
-    # game_state["timeouts"] has a tuple as a dict key
-    # that cannot be serialized in json.
-    # To fix this problem, we only send the current error
-    # and add another attribute "num_timeouts"
-    # to the final dict.
-
-    # the key for the current round, turn
-    round_turn = (game_state["round"], game_state["turn"])
-    viewer_state["timeouts"] = [
-        # retrieve the current error or None
-        team_errors.get(round_turn)
-        for team_errors in game_state["timeouts"]
-    ]
-
-    # add the number of errors
-    viewer_state["num_timeouts"] = [
-        len(team_errors)
-        for team_errors in game_state["timeouts"]
-    ]
-
     # remove unserializable values
     del viewer_state['teams']
     del viewer_state['rng']
@@ -855,7 +801,6 @@ def play_turn(game_state, raise_bot_exceptions=False):
     game_state.update(next_round_turn(game_state))
 
     turn = game_state['turn']
-    round = game_state['round']
     team = turn % 2
 
     # update food age and relocate expired food for the current team
@@ -907,7 +852,7 @@ def play_turn(game_state, raise_bot_exceptions=False):
         game_state = apply_move(game_state, position)
 
         # If there was no error, we claim a success in requested_moves
-        if (round, turn) not in game_state['timeouts'][team] and not game_state['fatal_errors'][team]:
+        if not game_state['fatal_errors'][team]:
             game_state['requested_moves'][turn]['success'] = True
 
     # Send updated game state with team names to the viewers

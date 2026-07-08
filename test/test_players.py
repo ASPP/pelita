@@ -304,6 +304,4 @@ def test_players(player):
     assert state['gameover']
     # ensure that all test players ran correctly
     assert state['fatal_errors'] == [[], []]
-    # our test players should never return invalid moves
-    assert state['timeouts'] == [{}, {}]
 

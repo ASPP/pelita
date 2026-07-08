@@ -753,7 +753,6 @@ def test_play_turn_move():
         "kills":[0]*4,
         "deaths": [0]*4,
         "bot_was_killed": [False]*4,
-        "timeouts": [[], []],
         "fatal_errors": [{}, {}],
         "rng": Random(),
         "game_phase": "RUNNING",
@@ -844,7 +843,6 @@ def test_last_round_check(max_rounds, current_round, turn, game_phase, gameover)
         'turn': turn,
         'error_limit': 5,
         'fatal_errors': [[],[]],
-        'timeouts': [[],[]],
         'gameover': False,
         'score': [0, 0],
         'food': [{(1,1)}, {(1,1)}], # dummy food
@@ -855,57 +853,38 @@ def test_last_round_check(max_rounds, current_round, turn, game_phase, gameover)
 
 
 @pytest.mark.parametrize(
-    'team_errors, team_wins', [
-        (((0, 0), (0, 0)), False),
-        (((0, 1), (0, 0)), False),
-        (((0, 0), (0, 1)), False),
-        (((0, 2), (0, 2)), False),
-        (((0, 4), (0, 0)), False),
-        (((0, 0), (0, 4)), False),
-        (((0, 4), (0, 4)), False),
-        (((0, 5), (0, 0)), 1),
-        (((0, 0), (0, 5)), 0),
-        (((0, 5), (0, 5)), 1), # earlier team fails first
-        (((1, 0), (0, 0)), 1),
-        (((0, 0), (1, 0)), 0),
-        (((1, 0), (1, 0)), 1), # earlier team fails first
-        (((1, 1), (1, 0)), 1), # earlier team fails first
-        (((1, 0), (0, 5)), 1),
-        (((0, 5), (1, 0)), 0),
-    ]
+    'team_errors', [
+        (0, 0, False),
+        (None, 0, 1),
+        (0, None, 0),
+        (None, None, 1), # earlier team fails first
+        (RemotePlayerRecvTimeout, 0, 1),
+        (0, RemotePlayerRecvTimeout, 0),
+        (RemotePlayerRecvTimeout, RemotePlayerRecvTimeout, 1), # earlier team fails first
+        ]
 )
-def test_error_finishes_game(team_errors, team_wins):
+def test_error_finishes_game(team_errors):
     # the mapping is as follows:
-    # [(num_fatal_0, num_errors_0), (num_fatal_1, num_errors_1), result_flag]
+    # [fatal_0, fatal_1, result_flag]
     # the result flag: 0/1: team 0/1 wins, 2: draw, False: draw after 20 rounds
 
-    (fatal_0, timeouts_0), (fatal_1, timeouts_1) = team_errors
+    fatal_0, fatal_1, team_wins = team_errors
 
     def move0(b, s):
-        if not s:
-            s['count'] = 0
-        s['count'] += 1
-
-        if s['count'] <= fatal_0:
+        if fatal_0 == 0:
+            return b.position
+        elif fatal_0 is None:
             return None
-
-        if s['count'] <= timeouts_0:
-            raise RemotePlayerRecvTimeout
-
-        return b.position
+        else:
+            raise fatal_0
 
     def move1(b, s):
-        if not s:
-            s['count'] = 0
-        s['count'] += 1
-
-        if s['count'] <= fatal_1:
+        if fatal_1 == 0:
+            return b.position
+        elif fatal_1 is None:
             return None
-
-        if s['count'] <= timeouts_1:
-            raise RemotePlayerRecvTimeout
-
-        return b.position
+        else:
+            raise fatal_1
 
     l = maze_generator.generate_maze()
     state = game.setup_game([move0, move1], max_rounds=20, layout_dict=l)
@@ -934,8 +913,6 @@ def test_error_finishes_game(team_errors, team_wins):
         assert res["whowins"] == 2
         assert res["gameover"] is True
         assert state["round"] == 20
-        assert len(state['timeouts'][0]) == timeouts_0
-        assert len(state['timeouts'][1]) == timeouts_1
     else:
         assert res["whowins"] == team_wins
         assert res["gameover"] is True

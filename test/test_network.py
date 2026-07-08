@@ -91,7 +91,6 @@ def test_client_protocol(zmq_context):
                     'kills': [0]*2,
                     'deaths': [0]*2,
                     'bot_was_killed': [False]*2,
-                    'num_timeouts': 0,
                     'food': [(1, 1)],
                     'shaded_food': [(1, 1)],
                     'name': 'dummy',
@@ -109,7 +108,6 @@ def test_client_protocol(zmq_context):
                     'name': 'other dummy',
                     'team_time': 0,
                     'is_noisy': [False, False],
-                    'num_timeouts': 0
                 },
                 'round': 1,
                 'bot_turn': 0,

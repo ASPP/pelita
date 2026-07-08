@@ -675,7 +675,6 @@ class Bot:
                           is_blue,
                           team_name,
                           team_time,
-                          num_timeouts,
                           is_noisy,
                           bot_turn=None):
         self._bots = None
@@ -707,7 +706,6 @@ class Bot:
         self.is_blue = is_blue
         self.team_name = team_name
         self.team_time = team_time
-        self.timeouts = num_timeouts
         self.is_noisy = is_noisy
         self.has_exact_position = not is_noisy
         self.graph = graph
@@ -893,8 +891,7 @@ class Bot:
 
         header = ("{blue}{you_blue} vs {red}{you_red}.\n" +
                   "Playing on {col} side. Current turn: {turn}. "+
-                  "Bot: {bot_char}. Round: {round}, score: {blue_score}:{red_score}. " +
-                  "timeouts: {blue_timeouts}:{red_timeouts}\n").format(
+                  "Bot: {bot_char}. Round: {round}, score: {blue_score}:{red_score}.\n").format(
             blue=blue.team_name,
             red=red.team_name,
             turn=bot.turn,
@@ -905,8 +902,6 @@ class Bot:
             col="blue" if bot.is_blue else "red",
             you_blue=" (you)" if bot.is_blue else "",
             you_red=" (you)" if not bot.is_blue else "",
-            blue_timeouts=blue.timeouts,
-            red_timeouts=red.timeouts,
         )
 
         footer = ("Bots: {bots}\nExact: {exact}\nFood: {food}\n").format(
@@ -949,7 +944,6 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             kills=team['kills'][idx],
             was_killed=team['bot_was_killed'][idx],
             is_noisy=False,
-            num_timeouts=team['num_timeouts'],
             food=_ensure_list_tuples(team['food']),
             shaded_food=_ensure_list_tuples(team['shaded_food']),
             walls=walls,
@@ -977,7 +971,6 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             deaths=enemy['deaths'][idx],
             was_killed=enemy['bot_was_killed'][idx],
             is_noisy=enemy['is_noisy'][idx],
-            num_timeouts=enemy['num_timeouts'],
             food=_ensure_list_tuples(enemy['food']),
             shaded_food=[],
             walls=walls,
