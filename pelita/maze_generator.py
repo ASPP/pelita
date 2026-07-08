@@ -97,7 +97,7 @@ def sample_nodes(nodes, k, rng=None):
     if k < len(nodes):
         return set(rng.sample(sorted(nodes), k=k))
     else:
-        return nodes
+        return set(nodes)
 
 
 def distribute_food(all_tiles, chamber_tiles, trapped_food, total_food, rng=None):
