@@ -72,7 +72,7 @@ def test_round_counting():
     assert round_counting_team._storage['rounds'] == 3
 
 def test_track_and_kill_count():
-    # for each team, we track whether they have been eaten at least once
+    # for each team, we track whether they have been killed/eaten at least once
     # and count the number of times they have been killed
     bot_states = {
         0: [{'track': [], 'eaten': False, 'times_killed': 0, 'deaths': 0},
@@ -183,13 +183,13 @@ def test_track_and_kill_count():
     assert state['round'] >= 1
     # check that someone has been killed, or the whole test is not doing anything
     assert sum(state['deaths']) > 0
-    # check that each single bot has been eaten, or we are not testing the full range of possibilities
+    # check that each single bot has been killed, or we are not testing the full range of possibilities
     assert all(state['deaths'])
 
 
 @pytest.mark.parametrize('bot_to_move', range(4))
-def test_eaten_flag_kill(bot_to_move):
-    """ Test that the eaten flag is set correctly in kill situations. """
+def test_was_killed_flag(bot_to_move):
+    """ Test that the was_killed flag is set correctly in kill situations. """
     layout = """
     ########
     #  xa  #
@@ -208,7 +208,7 @@ def test_eaten_flag_kill(bot_to_move):
             if bot.round == 1 and not bot.is_blue and bot.turn == 0:
                 assert bot.was_killed
                 assert bot.other.was_killed is False
-            # as bot 1 has been moved, the eaten flag will be reset in all other cases
+            # as bot 1 has been moved, the was_killed flag will be reset in all other cases
             else:
                 assert bot.was_killed is False
                 assert bot.other.was_killed is False
@@ -216,7 +216,7 @@ def test_eaten_flag_kill(bot_to_move):
             # we move in the first round as red team
             if bot.round == 1 and not bot.is_blue and bot.turn == 0:
                 new_pos = (x + 1, y)
-            # The other team should notice immediately that its other bot (#0) has been eaten
+            # The other team should notice immediately that its other bot (#0) has been killed
             if bot.round == 1 and bot.is_blue and bot.turn == 1:
                 assert bot.was_killed is False
                 assert bot.other.was_killed
@@ -235,7 +235,7 @@ def test_eaten_flag_kill(bot_to_move):
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
                 assert bot.was_killed
                 assert bot.other.was_killed is False
-            # as bot 2 has been moved, the eaten flag will be reset in all other cases
+            # as bot 2 has been moved, the was_killed flag will be reset in all other cases
             else:
                 assert bot.was_killed is False
                 assert bot.other.was_killed is False
@@ -243,7 +243,7 @@ def test_eaten_flag_kill(bot_to_move):
             # we move in the first round as red team in turn == 1
             if bot.round == 1 and not bot.is_blue and bot.turn == 1:
                 new_pos = (x + 1, y)
-            # The blue team should notice immediately (in round == 2!) that bot 1 has been eaten
+            # The blue team should notice immediately (in round == 2!) that bot 1 has been was killed
             if bot.round == 2 and bot.is_blue and bot.turn == 0:
                 assert bot.was_killed is False
                 assert bot.other.was_killed
@@ -264,8 +264,8 @@ def test_eaten_flag_kill(bot_to_move):
 
 
 @pytest.mark.parametrize("bot_to_move", range(4))
-def test_eaten_flag_suicide(bot_to_move):
-    """ Test that the eaten flag is set correctly in suicide situations. """
+def test_was_killed_flag_suicide(bot_to_move):
+    """ Test that the was_killed flag is set correctly in suicide situations. """
     layout = """
     ########
     #  ax  #
@@ -423,6 +423,7 @@ def test_bot_attributes():
             assert set(bot.other.shaded_food) == shaded_food
             assert set(bot.enemy[0].shaded_food) == set()
             assert set(bot.enemy[1].shaded_food) == set()
+            assert bot.food_eaten == 0
         else:
             assert set(bot.homezone) == set(homezones[1])
             assert set(bot.enemy[0].homezone) == set(homezones[0])
@@ -430,6 +431,7 @@ def test_bot_attributes():
             assert set(bot.other.shaded_food) == set()
             assert set(bot.enemy[0].shaded_food) == set()
             assert set(bot.enemy[1].shaded_food) == set()
+            assert bot.food_eaten == 0
         return bot.position
 
     state = run_game([asserting_team, asserting_team], max_rounds=1, layout_dict=parsed)

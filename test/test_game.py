@@ -633,6 +633,7 @@ def test_moving_through_maze():
 
     assert test_first_round['bots'] == state['bots']
     assert test_first_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['food_eaten'] == [0, 0, 0, 0]
     assert state['score'] == [0, 0]
 
     for i in range(4):
@@ -646,6 +647,7 @@ def test_moving_through_maze():
 
     assert test_second_round['bots'] == state['bots']
     assert test_second_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['food_eaten'] == [0, 1, 0, 0]
     assert state['score'] == [0, 1]
 
     for i in range(4):
@@ -659,6 +661,7 @@ def test_moving_through_maze():
 
     assert test_third_round['bots'] == state['bots']
     assert test_third_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['food_eaten'] == [0, 1, 0, 0]
     assert state['score'] == [game.KILL_POINTS, 1]
 
     for i in range(4):
@@ -672,6 +675,7 @@ def test_moving_through_maze():
 
     assert test_fourth_round['bots'] == state['bots']
     assert test_fourth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['food_eaten'] == [0, 1, 0, 0]
     assert state['score'] == [game.KILL_POINTS, game.KILL_POINTS + 1]
 
     for i in range(4):
@@ -684,6 +688,7 @@ def test_moving_through_maze():
             ###### """)
     assert test_fifth_round['bots'] == state['bots']
     assert test_fifth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['food_eaten'] == [0, 1, 0, 0]
     assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS + 1]
 
     for i in range(4):
@@ -698,6 +703,7 @@ def test_moving_through_maze():
 
     assert test_sixth_round['bots'] == state['bots']
     assert test_sixth_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['food_eaten'] == [0, 1, 0, 0]
     assert state['score'] == [game.KILL_POINTS * 2, game.KILL_POINTS * 2+ 1]
 
     for i in range(3): # !! Only move three bots
@@ -713,6 +719,7 @@ def test_moving_through_maze():
 
     assert test_seventh_round['bots'] == state['bots']
     assert test_seventh_round['food'] == list(state['food'][0]) + list(state['food'][1])
+    assert state['food_eaten'] == [0, 1, 1, 0]
     assert state['score'] == [game.KILL_POINTS * 2 + 1, game.KILL_POINTS * 2 + 1]
     assert state['gameover'] is True
     assert state['whowins'] == 2
@@ -753,6 +760,7 @@ def test_play_turn_move():
         "kills":[0]*4,
         "deaths": [0]*4,
         "bot_was_killed": [False]*4,
+        "food_eaten": [0]*4,
         "fatal_errors": [{}, {}],
         "rng": Random(),
         "game_phase": "RUNNING",

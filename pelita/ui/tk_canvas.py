@@ -870,7 +870,9 @@ class TkApplication:
                     # sum the deaths of both bots in this team
                     deaths = game_state['deaths'][team_idx] + game_state['deaths'][team_idx+2]
                     kills = game_state['kills'][team_idx] + game_state['kills'][team_idx+2]
-                    ret = "Kills: %d, Deaths: %d, Time: %.2f" % (kills, deaths, game_state["team_time"][team_idx])
+                    food_eaten = game_state['food_eaten'][team_idx] + game_state['food_eaten'][team_idx+2]
+                    team_time = game_state["team_time"][team_idx]
+                    ret = f"Food eaten: {food_eaten}, Kills: {kills}, Deaths: {deaths}, Time: {team_time:.2f}"
                 return ret
             except TypeError:
                 return ""

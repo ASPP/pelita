@@ -433,6 +433,9 @@ def setup_game(team_specs, *, layout_dict, max_rounds=300, rng=None,
         # List of boolean flags weather bot has been eaten since its last move
         bot_was_killed = [False]*4,
 
+        # List of pellets eaten by a bot
+        food_eaten = [0]*4,
+
         # The noisy positions that the bot in `turn` has currently been shown.
         # None, if not noisy
         noisy_positions = [None] * 4,
@@ -704,6 +707,7 @@ def prepare_bot_state(game_state, team_idx=None):
         'kills': game_state['kills'][own_team::2],
         'deaths': game_state['deaths'][own_team::2],
         'bot_was_killed': game_state['bot_was_killed'][own_team::2],
+        'food_eaten': game_state['food_eaten'][own_team::2],
         'food': list(game_state['food'][own_team]),
         'shaded_food': shaded_food,
         'name': game_state['team_names'][own_team],
@@ -718,6 +722,7 @@ def prepare_bot_state(game_state, team_idx=None):
         'kills': game_state['kills'][enemy_team::2],
         'deaths': game_state['deaths'][enemy_team::2],
         'bot_was_killed': game_state['bot_was_killed'][enemy_team::2],
+        'food_eaten': game_state['food_eaten'][enemy_team::2],
         'food': list(game_state['food'][enemy_team]),
         'shaded_food': [],
         'name': game_state['team_names'][enemy_team],
@@ -956,6 +961,7 @@ def apply_move(gamestate, bot_position):
     kills = gamestate["kills"]
     deaths = gamestate["deaths"]
     bot_was_killed = gamestate["bot_was_killed"]
+    food_eaten = gamestate["food_eaten"]
 
     # reset our own bot_was_killed flag
     bot_was_killed[turn] = False
@@ -987,6 +993,7 @@ def apply_move(gamestate, bot_position):
     if not in_homezone(bot_position, team, shape):
         if bot_position in food[1 - team]:
             _logger.info(f"Bot {turn} eats food at {bot_position}.")
+            food_eaten[turn] += 1
             food[1 - team].remove(bot_position)
             # This is modifying the old game state
             score[team] = score[team] + 1
@@ -1000,6 +1007,7 @@ def apply_move(gamestate, bot_position):
         "score": score,
         "deaths": deaths,
         "kills": kills,
+        "food_eaten": food_eaten,
         "bot_was_killed": bot_was_killed,
         "game_phase": "RUNNING",
     }
