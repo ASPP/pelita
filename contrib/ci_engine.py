@@ -407,12 +407,12 @@ class CI_Engine:
 
         Returns
         -------
-        error_count, fatalerror_count : int
+        fatalerror_count : int
             the number of errors for this player
 
         """
-        error_count, fatalerror_count = self.dbwrapper.get_errorcount(p_name)
-        return error_count, fatalerror_count
+        fatalerror_count = self.dbwrapper.get_errorcount(p_name)
+        return fatalerror_count
 
     def get_team_name(self, p_name):
         """Get last registered team name.
@@ -479,16 +479,16 @@ class CI_Engine:
         result = []
         for idx, pname in enumerate(good_players):
             win, loss, draw = self.get_results(pname)
-            error_count, fatalerror_count = self.get_errorcount(pname)
+            fatalerror_count = self.get_errorcount(pname)
             try:
                 team_name = self.get_team_name(pname)
             except ValueError:
                 team_name = None
             score = 0 if (win+loss+draw) == 0 else (win-loss) / (win+loss+draw)
-            result.append([score, win, draw, loss, pname, team_name, error_count, fatalerror_count])
+            result.append([score, win, draw, loss, pname, team_name, fatalerror_count])
 
         result.sort(reverse=True)
-        for [score, win, draw, loss, name, team_name, error_count, fatalerror_count] in result:
+        for [score, win, draw, loss, name, team_name, fatalerror_count] in result:
             style = "bold" if name in highlight else None
             display_name = f"{name} ({team_name})" if team_name else f"{name}"
             table.add_row(
@@ -499,7 +499,6 @@ class CI_Engine:
                 f"{loss}",
                 f"{score:6.3f}",
                 f"{elo.get(name, 0): >4.0f}",
-                f"{error_count}",
                 f"{fatalerror_count}",
                 style=style,
             )
@@ -549,7 +548,7 @@ class CI_Engine:
 
             for idx, pname in enumerate(good_players):
                 win, loss, draw = self.get_results(pname)
-                error_count, fatalerror_count = self.get_errorcount(pname)
+                fatalerror_count = self.get_errorcount(pname)
                 try:
                     team_name = self.get_team_name(pname)
                 except ValueError:
@@ -935,7 +934,7 @@ class DB_Wrapper:
 
         Returns
         -------
-        error_count, fatalerror_count : errorcount
+        fatalerror_count : errorcount
         """
         self.cursor.execute("""
         SELECT sum(fatal_errors) FROM
@@ -956,7 +955,7 @@ class DB_Wrapper:
         dict(p1=p1_name))
         fatal_errorcount = self.cursor.fetchone()
 
-        return fatal_errorcount
+        return fatal_errorcount[0]
 
     def get_wins_losses(self, team=None):
         """ Get all wins and losses combined in a table of
