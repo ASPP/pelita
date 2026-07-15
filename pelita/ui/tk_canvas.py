@@ -754,6 +754,15 @@ class TkApplication:
                 if not in_maze(pos[0], pos[1]):
                     continue
 
+                if bot % 2 == 0:
+                    in_homezone = pos[0] < boundary
+                else:
+                    in_homezone = pos[0] >= boundary
+
+                if not in_homezone:
+                    # Only draw food shadow when in homezone
+                    continue
+
                 draw_box(pos, fill_col=fill_col)
 
                 # Border around the shadow removed for now
