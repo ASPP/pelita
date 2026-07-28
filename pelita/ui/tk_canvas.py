@@ -19,6 +19,7 @@ import tkinter.font
 
 from .. import layout
 from ..game import next_round_turn
+from ..gamestate_filters import in_homezone
 from ..team import _ensure_list_tuples
 from .tk_sprites import (
     BLUE,
@@ -683,10 +684,11 @@ class TkApplication:
         if not self._grid_enabled:
             return
 
-        bot = game_state.get('turn')
-        if bot is None:
+        turn = game_state.get('turn')
+        if turn is None:
             # game has not started yet or we are in layout-only mode
             return
+        team_id = turn % 2
 
         # border_col = "#000"
         fill_col = LIGHT_GREY
@@ -698,17 +700,11 @@ class TkApplication:
             self.ui_game_canvas.create_rectangle(*ul, *lr, width=2, outline='#111', tags=("bot_shadow",))
 
         try:
-            old_pos = tuple(game_state['requested_moves'][bot]['previous_position'])
+            old_pos = tuple(game_state['requested_moves'][turn]['previous_position'])
         except TypeError:
-            old_pos = game_state['bots'][bot]
+            old_pos = game_state['bots'][turn]
 
-        boundary = game_state['shape'][0] / 2
-        if bot % 2 == 0:
-            in_homezone = old_pos[0] < boundary
-        else:
-            in_homezone = old_pos[0] >= boundary
-
-        if not in_homezone:
+        if not in_homezone(old_pos, team_id, game_state['shape']):
             # We are a pacman. No shadow
             return
 
@@ -752,6 +748,10 @@ class TkApplication:
 
                 pos = (old_pos[0] + dx, old_pos[1] + dy)
                 if not in_maze(pos[0], pos[1]):
+                    continue
+
+                if not in_homezone(pos, team_id, game_state['shape']):
+                    # Only draw food shadow when in homezone
                     continue
 
                 draw_box(pos, fill_col=fill_col)
