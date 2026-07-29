@@ -1,5 +1,16 @@
 # Pelita changelog
 
+  * v2.7.0-rc1 (28. Jul 2026)
+
+    - Remove the concept of non-fatal errors: Timeouts are now fatal!
+    - Rename `Bot.error_count` to `Bot.timeouts`
+    - Better maze generation
+    - New `Bot.paint_background`
+    - New `--debug` flag to start TKviewer in debug mode
+    - Small layouts are bigger and big layouts are smaller
+    - Threaded CI engine
+    - Remove \x04 character from JSONL output
+
   * v2.6.0 (24. Sep 2025)
 
     - Increased bot shadow distance to 2
