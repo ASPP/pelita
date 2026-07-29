@@ -1,6 +1,6 @@
 # Pelita changelog
 
-  * v2.7.0-rc1 (28. Jul 2026)
+  * v2.7.0 (29. Jul 2026)
 
     - Remove the concept of non-fatal errors: Timeouts are now fatal!
     - Rename `Bot.error_count` to `Bot.timeouts`
