@@ -668,6 +668,7 @@ class Bot:
                           kills,
                           deaths,
                           was_killed,
+                          food_eaten,
                           random,
                           graph,
                           round,
@@ -700,6 +701,7 @@ class Bot:
         self.kills = kills
         self.deaths = deaths
         self.was_killed = was_killed
+        self.food_eaten = food_eaten
         self._bot_index  = bot_index
         self.round = round
         self.char = bot_char
@@ -943,6 +945,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             deaths=team['deaths'][idx],
             kills=team['kills'][idx],
             was_killed=team['bot_was_killed'][idx],
+            food_eaten=team['food_eaten'][idx],
             is_noisy=False,
             food=_ensure_list_tuples(team['food']),
             shaded_food=_ensure_list_tuples(team['shaded_food']),
@@ -970,6 +973,7 @@ def make_bots(*, walls, shape, initial_positions, homezone, team, enemy, round, 
             kills=enemy['kills'][idx],
             deaths=enemy['deaths'][idx],
             was_killed=enemy['bot_was_killed'][idx],
+            food_eaten=team['food_eaten'][idx],
             is_noisy=enemy['is_noisy'][idx],
             food=_ensure_list_tuples(enemy['food']),
             shaded_food=[],
