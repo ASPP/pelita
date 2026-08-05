@@ -3,22 +3,17 @@ location: Munich
 date: 2015
 seed: null
 bonusmatch: True
+#publish: http://localhost:3000/api/collect
 teams:
   - spec: pelita/player/StoppingPlayer
     members:
       - "Stopper"
+    color: "#eee"
   - spec: pelita/player/FoodEatingPlayer
     members:
       - "Food Eater"
+    color: "#e00"
   - spec: pelita/player/RandomExplorerPlayer
     members:
       - "Random Explorer"
-  - spec: pelita/player/RandomPlayers
-    members:
-      - "Random Player"
-  - spec: pelita/player/SmartEatingPlayer
-    members:
-      - "Smart Eating Player"
-  - spec: pelita/player/SmartRandomPlayer
-    members:
-      - "Smarter Random Player"
+    color: "#e0e"
