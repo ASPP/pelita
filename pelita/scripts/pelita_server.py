@@ -87,7 +87,7 @@ def zeroconf_register(zc, address, port, team_spec, path, print=print):
         _logger.warning("Can only advertise to a specific interface.")
         return
 
-    name = _check_team(team_spec)
+    name, errs = _check_team(team_spec)
 
     desc = {
         'spec': team_spec,
@@ -473,9 +473,9 @@ def load_team_info(team_spec: str) -> TeamInfo | None:
 
     # TODO: Improve path handling for manual override and duplicate detection
 
-    team_name = _check_team(team_spec)
+    team_name, errs = _check_team(team_spec)
     if not team_name:
-        pprint(f"Team {team_spec} did not return a filename. Skipping.")
+        pprint(f"Team {team_spec} did not return a team name. Skipping. Error:\n{errs}")
         return None
 
     team_info = TeamInfo(team_spec, team_name)
@@ -519,7 +519,7 @@ def _check_team(team_spec):
                     team_spec]
     _logger.debug("Executing: %r", shlex.join(external_call))
     res = subprocess.run(external_call, capture_output=True, text=True)
-    return res.stdout.strip()
+    return res.stdout.strip(), res.stderr.strip()
 
 @click.group()
 @click.option('--log',
